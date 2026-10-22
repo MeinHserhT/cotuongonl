@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with chess statistics and rating",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "elo": { "type": "number" },
+        "eloStandard": { "type": "number" },
+        "eloJieqi": { "type": "number" },
+        "rankTier": { "type": "string" },
+        "gamesPlayed": { "type": "number" },
+        "wins": { "type": "number" },
+        "losses": { "type": "number" },
+        "draws": { "type": "number" },
+        "winRate": { "type": "number" }
+      },
+      "required": ["uid", "displayName", "elo"]
+    },
+    "MatchRecord": {
+      "title": "MatchRecord",
+      "description": "Historical record of completed chess match",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "opponentName": { "type": "string" },
+        "opponentType": { "type": "string" },
+        "difficulty": { "type": "string" },
+        "playerColor": { "type": "string" },
+        "result": { "type": "string" },
+        "movesCount": { "type": "number" },
+        "durationSeconds": { "type": "number" },
+        "date": { "type": "string" },
+        "eloChange": { "type": "number" },
+        "finalElo": { "type": "number" },
+        "pgn": { "type": "string" }
+      },
+      "required": ["id", "userId", "result", "date"]
+    },
+    "SavedGame": {
+      "title": "SavedGame",
+      "description": "Saved in-progress Xiangqi game state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "gameMode": { "type": "string" },
+        "turn": { "type": "string" },
+        "boardJson": { "type": "string" },
+        "movesJson": { "type": "string" },
+        "difficulty": { "type": "string" },
+        "timeLimit": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "boardJson", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents keyed by Auth UID"
+    },
+    "/users/{userId}/matches/{matchId}": {
+      "schema": "MatchRecord",
+      "description": "History of played matches for a user"
+    },
+    "/users/{userId}/savedGames/{gameId}": {
+      "schema": "SavedGame",
+      "description": "Saved game states allowing player to resume later"
+    }
+  }
+}

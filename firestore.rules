@@ -1,0 +1,153 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default-deny all document paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Connectivity probe
+    match /test/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 3. Reusable Security Primitives
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Validation Blueprint for UserProfile
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'elo']) &&
+        data.uid is string &&
+        data.uid == userId &&
+        data.uid == request.auth.uid &&
+        data.uid.size() <= 128 &&
+        data.displayName is string &&
+        data.displayName.size() > 0 &&
+        data.displayName.size() <= 100 &&
+        data.elo is number &&
+        data.elo >= 500 &&
+        data.elo <= 4000 &&
+        (!('eloStandard' in data) || (data.eloStandard is number && data.eloStandard >= 500 && data.eloStandard <= 4000)) &&
+        (!('eloJieqi' in data) || (data.eloJieqi is number && data.eloJieqi >= 500 && data.eloJieqi <= 4000)) &&
+        (!('rankTierStandard' in data) || (data.rankTierStandard is string && data.rankTierStandard.size() <= 50)) &&
+        (!('rankTierJieqi' in data) || (data.rankTierJieqi is string && data.rankTierJieqi.size() <= 50)) &&
+        (!('gamesPlayedStandard' in data) || (data.gamesPlayedStandard is number && data.gamesPlayedStandard >= 0)) &&
+        (!('winsStandard' in data) || (data.winsStandard is number && data.winsStandard >= 0)) &&
+        (!('lossesStandard' in data) || (data.lossesStandard is number && data.lossesStandard >= 0)) &&
+        (!('drawsStandard' in data) || (data.drawsStandard is number && data.drawsStandard >= 0)) &&
+        (!('winRateStandard' in data) || (data.winRateStandard is number && data.winRateStandard >= 0 && data.winRateStandard <= 100)) &&
+        (!('gamesPlayedJieqi' in data) || (data.gamesPlayedJieqi is number && data.gamesPlayedJieqi >= 0)) &&
+        (!('winsJieqi' in data) || (data.winsJieqi is number && data.winsJieqi >= 0)) &&
+        (!('lossesJieqi' in data) || (data.lossesJieqi is number && data.lossesJieqi >= 0)) &&
+        (!('drawsJieqi' in data) || (data.drawsJieqi is number && data.drawsJieqi >= 0)) &&
+        (!('winRateJieqi' in data) || (data.winRateJieqi is number && data.winRateJieqi >= 0 && data.winRateJieqi <= 100)) &&
+        (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 120)) &&
+        (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 500)) &&
+        (!('rankTier' in data) || (data.rankTier is string && data.rankTier.size() <= 50)) &&
+        (!('gamesPlayed' in data) || (data.gamesPlayed is number && data.gamesPlayed >= 0)) &&
+        (!('wins' in data) || (data.wins is number && data.wins >= 0)) &&
+        (!('losses' in data) || (data.losses is number && data.losses >= 0)) &&
+        (!('draws' in data) || (data.draws is number && data.draws >= 0)) &&
+        (!('winRate' in data) || (data.winRate is number && data.winRate >= 0 && data.winRate <= 100));
+    }
+
+    // Validation Blueprint for MatchRecord
+    function isValidMatchRecord(data, userId) {
+      return data.keys().hasAll(['userId', 'result']) &&
+        data.userId is string &&
+        data.userId == userId &&
+        data.userId == request.auth.uid &&
+        data.result in ['win', 'loss', 'draw'] &&
+        (!('variant' in data) || (data.variant in ['standard', 'jieqi'])) &&
+        (!('opponentName' in data) || (data.opponentName is string && data.opponentName.size() <= 100)) &&
+        (!('opponentType' in data) || (data.opponentType is string && data.opponentType in ['ai', 'pvp', 'online'])) &&
+        (!('playerColor' in data) || (data.playerColor in ['r', 'b'])) &&
+        (!('movesCount' in data) || (data.movesCount is number && data.movesCount >= 0)) &&
+        (!('durationSeconds' in data) || (data.durationSeconds is number && data.durationSeconds >= 0)) &&
+        (!('eloChange' in data) || (data.eloChange is number)) &&
+        (!('finalElo' in data) || (data.finalElo is number && data.finalElo >= 500 && data.finalElo <= 4000));
+    }
+
+    // Validation Blueprint for SavedGame
+    function isValidSavedGame(data, userId) {
+      return data.keys().hasAll(['userId', 'name', 'boardJson', 'turn']) &&
+        data.userId is string &&
+        data.userId == userId &&
+        data.userId == request.auth.uid &&
+        data.name is string &&
+        data.name.size() > 0 &&
+        data.name.size() <= 120 &&
+        data.turn in ['r', 'b'] &&
+        data.boardJson is string &&
+        data.boardJson.size() <= 12000 &&
+        (!('movesJson' in data) || (data.movesJson is string && data.movesJson.size() <= 20000)) &&
+        (!('gameMode' in data) || (data.gameMode is string && data.gameMode.size() <= 30)) &&
+        (!('difficulty' in data) || (data.difficulty is string && data.difficulty.size() <= 30)) &&
+        (!('timeLimit' in data) || (data.timeLimit is number && data.timeLimit >= 0));
+    }
+
+    // User Profile Collection
+    match /users/{userId} {
+      // Individual profile reading strictly guarded to owner or authorized caller
+      allow get: if isOwner(userId);
+      // Deny bulk listing to avoid PII scraping
+      allow list: if false;
+
+      allow create: if isOwner(userId) &&
+        isValidId(userId) &&
+        isValidUserProfile(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+        isValidId(userId) &&
+        isValidUserProfile(incoming(), userId) &&
+        incoming().uid == existing().uid;
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Match History subcollection
+      match /matches/{matchId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+          isValidId(matchId) &&
+          isValidMatchRecord(incoming(), userId);
+        // Matches are immutable once completed
+        allow update: if false;
+        allow delete: if isOwner(userId) && isValidId(matchId);
+      }
+
+      // Saved Game States subcollection
+      match /savedGames/{gameId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+          isValidId(gameId) &&
+          isValidSavedGame(incoming(), userId);
+        allow update: if isOwner(userId) &&
+          isValidId(gameId) &&
+          isValidSavedGame(incoming(), userId) &&
+          incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(gameId);
+      }
+    }
+  }
+}

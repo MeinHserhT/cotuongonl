@@ -1,0 +1,964 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Lemonada:wght@300;400;500;600;700&family=Iansui&family=Zhi+Mang+Xing&family=Ma+Shan+Zheng&family=LXGW+WenKai+TC:wght@300;400;700&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@700;900&display=swap');
+
+@theme {
+  --font-lemonada: "Lemonada", cursive, sans-serif;
+  --font-merienda: "Lemonada", cursive, sans-serif;
+  --font-sans: "Lemonada", cursive, sans-serif;
+  --font-serif: "Lemonada", cursive, sans-serif;
+  --font-heading: "Lemonada", cursive, sans-serif;
+  --font-mono: "Lemonada", cursive, sans-serif;
+  --font-piece: "Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif;
+
+  /* High-Contrast Semantic Color Tokens for Backgrounds */
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-surface-subtle: var(--bg-surface-subtle);
+  --color-surface-active: var(--bg-surface-active);
+
+  /* High-Contrast Semantic Color Tokens for Text & Typography */
+  --color-content-primary: var(--text-primary);
+  --color-content-secondary: var(--text-secondary);
+  --color-content-muted: var(--text-muted);
+  --color-content-inverse: var(--text-inverse);
+  --color-content-accent: var(--text-accent);
+  --color-content-danger: var(--text-danger);
+  --color-content-success: var(--text-success);
+
+  /* High-Contrast Semantic Color Tokens for Borders & Outlines */
+  --color-stroke-subtle: var(--border-subtle);
+  --color-stroke-default: var(--border-default);
+  --color-stroke-strong: var(--border-strong);
+  --color-stroke-focus: var(--border-focus);
+}
+
+/* ==========================================================================
+   Comprehensive High-Contrast Semantic Color System (Light & Dark)
+   Strictly paired WCAG AAA background and text contrast combinations
+   ========================================================================== */
+
+:root,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+
+  /* Dark Mode: Deep Obsidian Lacquer & High-Luminance Foreground Elements */
+  --bg-canvas: #0e1219;
+  --bg-surface: #151924;
+  --bg-surface-elevated: #1d2332;
+  --bg-surface-subtle: #191f2c;
+  --bg-surface-active: #242c3e;
+
+  /* Text Colors: Verified > 7:1 to > 15:1 contrast against dark surfaces */
+  --text-primary: #f8fafc;        /* Ratio > 15:1 against #0e1219 */
+  --text-secondary: #e2e8f0;      /* Ratio > 12:1 */
+  --text-muted: #94a3b8;          /* Ratio > 6:1 (WCAG AA & AAA large) */
+  --text-inverse: #0b0e14;
+  --text-accent: #fcd34d;         /* High-visibility imperial gold */
+  --text-danger: #fca5a5;         /* Crisp warning/check coral */
+  --text-success: #86efac;        /* Luminous victory jade */
+
+  /* Borders: Visible, tactile demarcation lines */
+  --border-subtle: #252d3d;
+  --border-default: #354258;
+  --border-strong: #d97706;
+  --border-focus: #f59e0b;
+
+  --shadow-surface: 0 10px 30px -5px rgba(0, 0, 0, 0.65);
+}
+
+[data-theme="light"],
+.light {
+  color-scheme: light;
+
+  /* Light Mode: Warm Xuan Paper, Raw Silk & Deep Charcoal */
+  --bg-canvas: #f6f0e6;
+  --bg-surface: #fbf8f2;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-subtle: #f0e6d6;
+  --bg-surface-active: #e7dac5;
+
+  /* Text Colors: Verified > 7:1 to > 16:1 contrast against light surfaces */
+  --text-primary: #0a0e17;        /* Ultra-deep charcoal, Ratio > 16:1 against #fbf8f2 */
+  --text-secondary: #1e293b;      /* Deep Slate-800, Ratio > 11.5:1 */
+  --text-muted: #475569;          /* Deep Slate-600, Ratio > 6.2:1 (passes WCAG AAA) */
+  --text-inverse: #ffffff;
+  --text-accent: #78350f;         /* Deep rich cinnabar-amber, Ratio > 7.5:1 */
+  --text-danger: #991b1b;         /* Deep crimson red, Ratio > 8.0:1 */
+  --text-success: #14532d;        /* Deep pine emerald, Ratio > 8.0:1 */
+
+  /* Borders: Crisply defined boundaries against cream/parchment */
+  --border-subtle: #dfd2be;
+  --border-default: #ccbc9f;
+  --border-strong: #92400e;
+  --border-focus: #b45309;
+
+  --shadow-surface: 0 10px 25px -4px rgba(60, 40, 20, 0.12);
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16.5px;
+  }
+}
+
+html,
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: 'Lemonada', cursive, sans-serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Prevent iOS Safari & mobile browser auto-zoom when focusing form inputs */
+@media screen and (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Eliminate 300ms double-tap delay and tap highlight flash on interactive controls */
+button,
+a,
+label,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Enforce Lemonada on all text elements across the entire page */
+*:not(.font-piece):not(.piece *),
+*::before:not(.font-piece):not(.piece *),
+*::after:not(.font-piece):not(.piece *) {
+  font-family: 'Lemonada', cursive, sans-serif !important;
+}
+
+button,
+input,
+select,
+textarea,
+span:not(.font-piece):not(.piece *),
+p,
+div:not(.font-piece):not(.piece *),
+a,
+label,
+h1, h2, h3, h4, h5, h6,
+.font-sans,
+.font-mono,
+.font-serif,
+.font-heading {
+  font-family: 'Lemonada', cursive, sans-serif !important;
+}
+
+/* ==========================================================================
+   Vietnamese Diacritics & Line-Height Preservation
+   Ensures acute, circumflex, hook, tilde & underdot accents on Vietnamese letters
+   (Đ, Ẩ, ấu, ngẫu, xếp, hoãn, tướng...) are fully visible and never clipped
+   by tight line-heights or overflow: hidden / truncate containers.
+   ========================================================================== */
+html,
+body {
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  line-height: 1.45;
+}
+
+/* Prevent clipping of tall Vietnamese diacritics when .truncate is applied */
+.truncate {
+  padding-top: 0.18em;
+  padding-bottom: 0.12em;
+  line-height: 1.45 !important;
+}
+
+/* Override .leading-tight and .leading-none to prevent cutting off Vietnamese accents */
+.leading-tight {
+  line-height: 1.42 !important;
+}
+
+.leading-none {
+  line-height: 1.28 !important;
+}
+
+/* Authentic Lemonada Font @font-face with local + CDN fallback */
+@font-face {
+  font-family: 'Lemonada';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/lemonada.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/lemonada/v31/0QI-MXFD9oygTWy_R-FFlwV-bgfR7QJGeut2mQ.ttf') format('truetype');
+}
+
+/* Authentic Iansui (芫荽) Calligraphy @font-face with local + CDN fallback */
+@font-face {
+  font-family: 'Iansui';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/iansui.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/iansui/v14/w8gbH2UoTuUp5bOajQ.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Iansui';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/iansui.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/iansui/v14/w8gbH2UoTuUp5bOajQ.ttf') format('truetype');
+}
+
+/* Authentic Ma Shan Zheng Calligraphy @font-face with local + CDN fallback */
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/mashanzheng.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/mashanzheng/v18/NaPecZTRCLxvwo41b4gvzkXaRMQ.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ma Shan Zheng';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/mashanzheng.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/mashanzheng/v18/NaPecZTRCLxvwo41b4gvzkXaRMQ.ttf') format('truetype');
+}
+
+/* Authentic Zhi Mang Xing Calligraphy @font-face with local + CDN fallback */
+@font-face {
+  font-family: 'Zhi Mang Xing';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/zhimangxing.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/zhimangxing/v19/f0Xw0ey79sErYFtWQ9a2rq-g0ac.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Zhi Mang Xing';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/zhimangxing.ttf') format('truetype'),
+       url('https://fonts.gstatic.com/s/zhimangxing/v19/f0Xw0ey79sErYFtWQ9a2rq-g0ac.ttf') format('truetype');
+}
+
+/* Authentic Chinese calligraphy brush font (Iansui) on Xiangqi chess pieces */
+.piece span,
+.font-piece {
+  font-family: "Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif !important;
+  font-feature-settings: "liga" 1;
+}
+
+/* ==========================================================================
+   Xiangqi Styling & Tactile Feedback
+   ========================================================================== */
+
+/* Authentic Xiangqi Pieces - Clean 2D View with Tactile Feel */
+.piece {
+  will-change: transform, box-shadow;
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.18s ease, filter 0.18s ease;
+  filter: brightness(1.05) contrast(1.02);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piece:hover {
+    transform: scale(1.06);
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.45),
+      inset 0 2px 5px rgba(255, 255, 255, 1) !important;
+    filter: brightness(1.15) contrast(1.04);
+    z-index: 35 !important;
+  }
+}
+
+.piece.selected {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 18px rgba(245, 158, 11, 0.9),
+    0 6px 14px rgba(0, 0, 0, 0.5) !important;
+  filter: brightness(1.18) contrast(1.06);
+  z-index: 40 !important;
+}
+
+.piece:active {
+  transform: scale(0.98);
+}
+
+/* King (Tướng/帥/將) - Sovereign Imperial Glow & Distinction */
+.piece.piece-king {
+  box-shadow:
+    0 0 12px 1.5px rgba(245, 158, 11, 0.45),
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px #ffffff,
+    inset 0 0 0 1px rgba(217, 119, 6, 0.45) !important;
+  animation: king-subtle-glow 3.6s ease-in-out infinite;
+}
+
+@keyframes king-subtle-glow {
+  0%, 100% {
+    filter: brightness(1.05) contrast(1.02) drop-shadow(0 0 3px rgba(245, 158, 11, 0.35));
+  }
+  50% {
+    filter: brightness(1.1) contrast(1.04) drop-shadow(0 0 8px rgba(245, 158, 11, 0.65));
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .piece.piece-king:hover {
+    box-shadow:
+      0 0 18px 2.5px rgba(245, 158, 11, 0.72),
+      0 6px 15px rgba(0, 0, 0, 0.48),
+      inset 0 2px 5px rgba(255, 255, 255, 1),
+      inset 0 0 0 1.5px rgba(217, 119, 6, 0.75) !important;
+    filter: brightness(1.18) contrast(1.05) drop-shadow(0 0 10px rgba(245, 158, 11, 0.7)) !important;
+  }
+}
+
+.piece.piece-king.selected {
+  box-shadow:
+    0 0 26px 4px rgba(245, 158, 11, 0.95),
+    0 6px 14px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px #ffffff,
+    inset 0 0 0 2px rgba(245, 158, 11, 0.95) !important;
+  filter: brightness(1.2) contrast(1.06) drop-shadow(0 0 14px rgba(245, 158, 11, 0.85)) !important;
+}
+
+/* King in check dynamic alarm glow */
+.piece.piece-king.piece-king-in-check {
+  box-shadow:
+    0 0 20px 3px rgba(239, 68, 68, 0.85),
+    0 3px 8px rgba(0, 0, 0, 0.45),
+    inset 0 2px 4px #ffffff,
+    inset 0 0 0 1.5px rgba(220, 38, 38, 0.8) !important;
+  animation: king-check-pulse 1.4s ease-in-out infinite !important;
+}
+
+@keyframes king-check-pulse {
+  0%, 100% {
+    filter: brightness(1.1) drop-shadow(0 0 6px rgba(239, 68, 68, 0.7));
+  }
+  50% {
+    filter: brightness(1.22) drop-shadow(0 0 14px rgba(239, 68, 68, 0.95));
+  }
+}
+
+/* Concentric Shockwave Ripple on Move Landing */
+@keyframes shockwave-expand-2d {
+  0% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.75);
+    opacity: 0;
+  }
+}
+
+.shockwave-ripple {
+  animation: shockwave-expand-2d 0.42s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+}
+
+/* Running timer border beam on active player card */
+@keyframes timer-border-run {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -800;
+  }
+}
+
+.timer-running-beam {
+  animation: timer-border-run 6s linear infinite;
+}
+
+/* Cross-browser scrollbar hiding utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Tactile & Dramatic Board Shake Animations */
+@keyframes board-shake-capture {
+  0% { transform: translate3d(0, 0, 0); }
+  15% { transform: translate3d(-2px, 1.2px, 0); }
+  30% { transform: translate3d(2.2px, -1px, 0); }
+  45% { transform: translate3d(-1.5px, 0.7px, 0); }
+  60% { transform: translate3d(0.9px, -0.4px, 0); }
+  75% { transform: translate3d(-0.5px, 0.2px, 0); }
+  90% { transform: translate3d(0.2px, -0.1px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.animate-shake-gentle,
+.shake-capture {
+  animation: board-shake-capture 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both !important;
+  will-change: transform;
+}
+
+@keyframes board-shake-checkmate {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  10% { transform: translate3d(-4px, 2.8px, 0) scale(1.004); }
+  22% { transform: translate3d(3.8px, -2.4px, 0); }
+  35% { transform: translate3d(-3px, 1.8px, 0); }
+  48% { transform: translate3d(2.2px, -1.2px, 0); }
+  62% { transform: translate3d(-1.5px, 0.8px, 0); }
+  76% { transform: translate3d(1px, -0.5px, 0); }
+  90% { transform: translate3d(-0.4px, 0.2px, 0); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.animate-shake-intense,
+.shake-checkmate {
+  animation: board-shake-checkmate 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both !important;
+  will-change: transform;
+}
+
+/* Captured Piece Pop-in Animation */
+@keyframes piece-capture-pop {
+  0% {
+    transform: scale(0) rotate(-15deg);
+    opacity: 0;
+    filter: brightness(2) drop-shadow(0 0 12px rgba(245, 158, 11, 0.9));
+  }
+  65% {
+    transform: scale(1.22) rotate(4deg);
+    opacity: 1;
+    filter: brightness(1.3) drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+  }
+  85% {
+    transform: scale(0.95) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+.piece-pop-in {
+  animation: piece-capture-pop 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+/* ==========================================================================
+   Cannonball Trail & Screen Piece Jump Animation (Pháo Ăn Quân Nhảy Ngòi)
+   ========================================================================== */
+
+@keyframes cannonball-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9)) drop-shadow(0 0 20px rgba(245, 158, 11, 0.8));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    filter: drop-shadow(0 0 16px rgba(239, 68, 68, 1)) drop-shadow(0 0 30px rgba(251, 191, 36, 0.95));
+  }
+}
+
+.cannonball-core {
+  animation: cannonball-pulse 0.2s ease-in-out infinite;
+}
+
+@keyframes cannon-screen-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.95;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.8), inset 0 0 10px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.35);
+    opacity: 0.6;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), inset 0 0 15px rgba(239, 68, 68, 0.8);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+.cannon-screen-pulse {
+  animation: cannon-screen-ring 0.6s cubic-bezier(0.1, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes cannon-explosion-flash {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 1;
+    filter: brightness(2.5);
+  }
+  40% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0.95;
+    filter: brightness(1.8);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+    filter: brightness(1);
+  }
+}
+
+.cannon-explosion-burst {
+  animation: cannon-explosion-flash 0.5s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+}
+
+@keyframes cannon-shrapnel-fly {
+  0% {
+    transform: translate(0, 0) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.cannon-shrapnel-particle {
+  animation: cannon-shrapnel-fly 0.45s ease-out forwards;
+}
+
+/* ==========================================================================
+   CodePen: yexx/pen/yLvyxWP - Aggressive Bump Switch
+   ========================================================================== */
+.yexx-switch-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.yexx-switch {
+  --displacement: -0.1rem;
+  --tremble: -10deg;
+  --trembleF: 5deg;
+  --iPos: 50%;
+  --bPos: -75%;
+  --fPos: -50%;
+  --time: 430ms;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.yexx-switch .switch__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 1.75rem;
+  border: 2px solid #ef4444;
+  border-radius: 99rem;
+  transform-origin: left center;
+  background-color: #151b27;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Light mode specific styling: high contrast against white card backgrounds */
+.yexx-switch.is-light .switch__wrapper {
+  background-color: #1a2332;
+  border-color: #ef4444;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.yexx-switch.is-light input:checked + .switch__wrapper {
+  border-color: #10b981;
+  background-color: #111a26;
+}
+
+.yexx-switch .switch__wrapper::before,
+.yexx-switch .switch__wrapper::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  transform-origin: inherit;
+  pointer-events: none;
+}
+
+.yexx-switch .switch__wrapper::before {
+  --tremble: -12deg;
+  --trembleF: -7deg;
+  border-color: #22c55e;
+}
+
+.yexx-switch .switch__wrapper::after {
+  --tremble: -8deg;
+  --trembleF: -4deg;
+  border-color: #3b82f6;
+}
+
+.yexx-switch .switch__toggle {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 99rem;
+  box-shadow: inset 0 0 0 2px #ffffff, 0 2px 4px rgba(0, 0, 0, 0.4);
+  transform-origin: inherit;
+  transform: translateX(var(--fPos));
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease, width 0.15s ease, box-shadow 0.2s ease;
+}
+
+.yexx-switch input:active + .switch__wrapper .switch__toggle {
+  width: 1.35rem;
+}
+
+.yexx-switch input:checked + .switch__wrapper {
+  transform-origin: right center;
+  border-color: #10b981;
+  background-color: #0f1824;
+}
+
+.yexx-switch input:checked + .switch__wrapper .switch__toggle {
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(0, 0, 0, 0.45);
+  transform: translateX(calc(-1 * var(--fPos)));
+}
+
+.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper {
+  animation: checked__wrapper var(--time) ease-in forwards;
+}
+.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper::before {
+  animation: checked__wrapper var(--time) 50ms ease-in forwards;
+}
+.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper::after {
+  animation: checked__wrapper var(--time) 75ms ease-in forwards;
+}
+.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper .switch__toggle {
+  animation: checked__toggle var(--time) ease-in forwards;
+}
+
+.yexx-switch.has-toggled input:checked + .switch__wrapper {
+  animation: checked__wrapper--r var(--time) ease-in forwards;
+}
+.yexx-switch.has-toggled input:checked + .switch__wrapper::before {
+  animation: checked__wrapper--r var(--time) 50ms ease-in forwards;
+}
+.yexx-switch.has-toggled input:checked + .switch__wrapper::after {
+  animation: checked__wrapper--r var(--time) 75ms ease-in forwards;
+}
+.yexx-switch.has-toggled input:checked + .switch__wrapper .switch__toggle {
+  animation: checked__toggle--r var(--time) ease-in forwards;
+}
+
+@keyframes checked__wrapper {
+  0%, 45%, 100% {
+    transform: rotateY(0deg);
+  }
+  48% {
+    transform: translateX(var(--displacement));
+    filter: blur(0);
+  }
+  55% {
+    transform: rotateZ(var(--tremble));
+    filter: blur(1px);
+  }
+  65% {
+    transform: rotateZ(var(--trembleF));
+  }
+}
+
+@keyframes checked__wrapper--r {
+  0%, 45%, 100% {
+    transform: rotateY(0deg);
+  }
+  48% {
+    transform: translateX(calc(-1 * var(--displacement)));
+    filter: blur(0);
+  }
+  55% {
+    transform: rotateZ(calc(-1 * var(--tremble)));
+    filter: blur(1px);
+  }
+  65% {
+    transform: rotateZ(calc(-1 * var(--trembleF)));
+  }
+}
+
+@keyframes checked__toggle {
+  0% {
+    background: #fff;
+    transform: translateX(var(--iPos)) scale(1.25, 1);
+  }
+  45% {
+    background: #fff;
+    transform: translateX(var(--bPos)) scale(1, 1);
+  }
+  50% {
+    background: transparent;
+    transform: translateX(var(--bPos)) scale(0.5, 1.1);
+  }
+  65% {
+    transform: translateX(var(--bPos)) scale(1, 1);
+  }
+  100% {
+    transform: translateX(var(--fPos));
+  }
+}
+
+@keyframes checked__toggle--r {
+  0% {
+    background: transparent;
+    transform: translateX(calc(-1 * var(--iPos))) scale(1.25, 1);
+  }
+  45% {
+    background: transparent;
+    transform: translateX(calc(-1 * var(--bPos))) scale(1, 1);
+  }
+  50% {
+    background: #fff;
+    transform: translateX(calc(-1 * var(--bPos))) scale(0.5, 1.1);
+  }
+  65% {
+    transform: translateX(calc(-1 * var(--bPos))) scale(1, 1);
+  }
+  100% {
+    transform: translateX(var(--fPos));
+  }
+}
+
+/* ==========================================================================
+   CodePen: ReGGae/pen/MWOjoRL - Day/Night Switch Animation
+   ========================================================================== */
+.daynight-switch-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.daynight-switch-wrapper .daynight-shadow {
+  box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.28);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.daynight-switch {
+  --font-size: 3.5px;
+  --height: 10em;
+  --width: 24em;
+  --margin: 0.5em;
+  --color-night: #0f405b;
+  --color-day: #5ba9d1;
+  --color-sun: #f6d35a;
+  --ease: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration: 0.85s;
+  font-size: var(--font-size);
+  position: relative;
+  width: var(--width);
+  height: var(--height);
+  border-radius: 999px;
+  background-color: var(--color-day);
+  overflow: hidden;
+  clip-path: inset(0 round 999px);
+  -webkit-clip-path: inset(0 round 999px);
+  z-index: 2;
+  cursor: pointer;
+  outline: 0;
+  border: 0;
+  padding: 0;
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.daynight-switch:active {
+  transform: scale(0.96);
+}
+
+.daynight-switch::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-night);
+  transition: opacity var(--duration) var(--ease);
+  opacity: 0;
+  z-index: 1;
+}
+
+.daynight-switch.is-active::after {
+  opacity: 1;
+}
+
+.daynight-switch .switch__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  clip-path: inset(0 round 999px);
+  -webkit-clip-path: inset(0 round 999px);
+  transform-origin: right;
+  transform: translate3d(calc(var(--width) - var(--height)), 0, 0);
+  transition: transform var(--duration) var(--ease);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.daynight-switch.is-active .switch__inner {
+  transform: translate3d(0, 0, 0);
+}
+
+.daynight-switch .switch-globe {
+  --size: calc(var(--height) - (var(--margin) * 2));
+  position: relative;
+  height: var(--size);
+  width: var(--size);
+  margin-left: var(--margin);
+  border-radius: 999px;
+  background-color: var(--color-sun);
+  transform: rotate(90deg);
+  transition: transform var(--duration) var(--ease);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  clip-path: circle(50% at 50% 50%);
+  -webkit-clip-path: circle(50% at 50% 50%);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+.daynight-switch.is-active .switch-globe {
+  transform: rotate(0);
+}
+
+.daynight-switch .switch-globe__circle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  border-radius: 999px;
+  background-color: var(--color-day);
+  transform: translate3d(50%, 0, 0);
+  transition: transform var(--duration) var(--ease), background-color var(--duration) var(--ease);
+  pointer-events: none;
+}
+
+.daynight-switch.is-active .switch-globe__circle {
+  background-color: var(--color-night);
+  transform: translate3d(-10%, 0, 0);
+}
+
+.daynight-switch .switch-globe__moon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  transform: scaleX(-1);
+  opacity: 0;
+  transition: opacity var(--duration) var(--ease);
+  pointer-events: none;
+}
+
+.daynight-switch.is-active .switch-globe__moon {
+  opacity: 1;
+}
+
+.daynight-switch .switch__stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: right;
+  transform-origin: right;
+  transform: scale(0.25);
+  transition: transform var(--duration) var(--ease);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.daynight-switch.is-active .switch__stars {
+  transform: scale(0.9);
+}
+
+.daynight-switch .switch__cloud {
+  position: absolute;
+  transition: transform var(--duration) var(--ease);
+  width: auto;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.daynight-switch .switch__cloud.--1 {
+  left: 0;
+  height: 65%;
+}
+
+.daynight-switch.is-active .switch__cloud.--1 {
+  transform: translate3d(-3em, 1em, 0);
+}
+
+.daynight-switch .switch__cloud.--2 {
+  left: 3em;
+  height: 50%;
+}
+
+.daynight-switch.is-active .switch__cloud.--2 {
+  transform: translate3d(-1em, 3em, 0);
+}

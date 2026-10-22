@@ -1,0 +1,652 @@
+'use client';
+
+import React from 'react';
+import {
+  PieceColor,
+  PIECES,
+  Move,
+  BoardTheme,
+  GameVariant
+} from '@/lib/xiangqi-types';
+import { findGeneral } from '@/lib/xiangqi-rules';
+import { CannonJumpAnimation, CannonJumpData } from '@/components/CannonJumpAnimation';
+import { ChariotChargeAnimation, ChariotChargeData } from '@/components/ChariotChargeAnimation';
+import { HorseKickAnimation, HorseKickData } from '@/components/HorseKickAnimation';
+import { CurveTrajectory } from '@/lib/trajectory';
+
+export interface AnimatingPieceData {
+  move: Move;
+  pieceCode: string;
+  targetPiece: string | null;
+  trajectory: CurveTrajectory;
+  startTime: number;
+  duration: number;
+}
+
+interface BoardMarker {
+  x: number;
+  y: number;
+  hasLeft: boolean;
+  hasRight: boolean;
+}
+
+const BOARD_MARKERS: BoardMarker[] = [
+  // Black side Cannons: Rank 2, Files 1, 7
+  { x: 75, y: 125, hasLeft: true, hasRight: true },
+  { x: 375, y: 125, hasLeft: true, hasRight: true },
+
+  // Black side Pawns: Rank 3, Files 0, 2, 4, 6, 8
+  { x: 25, y: 175, hasLeft: false, hasRight: true },
+  { x: 125, y: 175, hasLeft: true, hasRight: true },
+  { x: 225, y: 175, hasLeft: true, hasRight: true },
+  { x: 325, y: 175, hasLeft: true, hasRight: true },
+  { x: 425, y: 175, hasLeft: true, hasRight: false },
+
+  // Red side Pawns: Rank 6, Files 0, 2, 4, 6, 8
+  { x: 25, y: 325, hasLeft: false, hasRight: true },
+  { x: 125, y: 325, hasLeft: true, hasRight: true },
+  { x: 225, y: 325, hasLeft: true, hasRight: true },
+  { x: 325, y: 325, hasLeft: true, hasRight: true },
+  { x: 425, y: 325, hasLeft: true, hasRight: false },
+
+  // Red side Cannons: Rank 7, Files 1, 7
+  { x: 75, y: 375, hasLeft: true, hasRight: true },
+  { x: 375, y: 375, hasLeft: true, hasRight: true }
+];
+
+function buildMarkerPath(cx: number, cy: number, hasLeft: boolean, hasRight: boolean, d = 4, len = 7): string {
+  let p = '';
+  if (hasLeft) {
+    p += `M ${cx - d - len} ${cy - d} H ${cx - d} V ${cy - d - len} `;
+    p += `M ${cx - d - len} ${cy + d} H ${cx - d} V ${cy + d + len} `;
+  }
+  if (hasRight) {
+    p += `M ${cx + d + len} ${cy - d} H ${cx + d} V ${cy - d - len} `;
+    p += `M ${cx + d + len} ${cy + d} H ${cx + d} V ${cy + d + len} `;
+  }
+  return p.trim();
+}
+
+interface XiangqiBoardProps {
+  board: (string | null)[][];
+  theme: BoardTheme;
+  isFlipped: boolean;
+  selectedSquare: { r: number; c: number } | null;
+  validMoves: Move[];
+  lastMove: Move | null;
+  hintMove: Move | null;
+  turn: PieceColor;
+  isCheck: boolean;
+  isInspecting?: boolean;
+  disabled?: boolean;
+  onSquareClick: (r: number, c: number) => void;
+  onExecuteMove: (m: Move) => void;
+  // Animation props
+  animatingPiece: AnimatingPieceData | null;
+  animatingPieceRef: React.RefObject<HTMLDivElement | null>;
+  animatingShadowRef: React.RefObject<HTMLDivElement | null>;
+  landingEffect: { r: number; c: number; isCapture: boolean } | null;
+  boardShake: 'check' | 'capture' | null;
+  cannonJumpAnim: CannonJumpData | null;
+  onCannonImpact: () => void;
+  onCannonComplete: () => void;
+  chariotChargeAnim: ChariotChargeData | null;
+  onChariotImpact: () => void;
+  onChariotComplete: () => void;
+  horseKickAnim: HorseKickData | null;
+  onHorseImpact: () => void;
+  onHorseComplete: () => void;
+  boardRef?: React.Ref<HTMLDivElement>;
+  justRevealedSquare?: { r: number; c: number } | null;
+  variant?: GameVariant;
+}
+
+export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
+  board,
+  theme,
+  isFlipped,
+  selectedSquare,
+  validMoves,
+  lastMove,
+  hintMove,
+  turn,
+  isCheck,
+  isInspecting = false,
+  disabled = false,
+  onSquareClick,
+  onExecuteMove,
+  animatingPiece,
+  animatingPieceRef,
+  animatingShadowRef,
+  landingEffect,
+  boardShake,
+  cannonJumpAnim,
+  onCannonImpact,
+  onCannonComplete,
+  chariotChargeAnim,
+  onChariotImpact,
+  onChariotComplete,
+  horseKickAnim,
+  onHorseImpact,
+  onHorseComplete,
+  boardRef,
+  justRevealedSquare,
+  variant
+}) => {
+  const isZen = theme === 'zen';
+
+  // Coordinate mapping helper
+  const getPct = (r: number, c: number) => {
+    const dr = isFlipped ? 9 - r : r;
+    const dc = isFlipped ? 8 - c : c;
+    return {
+      left: `${((25 + dc * 50) / 450) * 100}%`,
+      top: `${((25 + dr * 50) / 500) * 100}%`
+    };
+  };
+
+  // Find King in check for red alert ring
+  const checkedGeneral = isCheck ? findGeneral(board, turn) : null;
+
+  const gridStroke = isZen ? '#5c3917' : '#3d1c06';
+
+  return (
+    <div
+      ref={boardRef}
+      className={`relative w-full max-w-[560px] sm:max-w-[600px] md:max-w-[640px] rounded-2xl p-2 sm:p-2.5 shadow-2xl select-none border-4 ${
+        boardShake ? 'transition-none' : 'transition-all duration-300'
+      } ${
+        isZen
+          ? 'bg-gradient-to-b from-[#b88c5a] via-[#a77c4b] to-[#916738] border-[#5e3e1a] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
+          : 'bg-gradient-to-b from-[#c47b33] via-[#b36c24] to-[#9b5815] border-[#4a2206] shadow-[0_12px_36px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
+      } ${
+        boardShake === 'check'
+          ? 'animate-shake-intense shake-checkmate'
+          : boardShake === 'capture'
+          ? 'animate-shake-gentle shake-capture'
+          : ''
+      }`}
+    >
+      {/* Board Surface with SVG Lines and River */}
+      <div className="relative w-full aspect-[9/10] rounded-xl overflow-hidden shadow-[inset_0_0_12px_rgba(0,0,0,0.32)] border border-amber-950/40">
+        <svg
+          viewBox="0 0 450 500"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="boardWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isZen ? '#caa272' : '#df9b54'} />
+              <stop offset="50%" stopColor={isZen ? '#be9565' : '#d58f48'} />
+              <stop offset="100%" stopColor={isZen ? '#b28755' : '#cb823b'} />
+            </linearGradient>
+            <linearGradient id="riverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor={isZen ? '#b88958' : '#c47d33'} stopOpacity="0.4" />
+              <stop offset="50%" stopColor={isZen ? '#a87848' : '#b26e25'} stopOpacity="0.7" />
+              <stop offset="100%" stopColor={isZen ? '#b88958' : '#c47d33'} stopOpacity="0.4" />
+            </linearGradient>
+          </defs>
+
+          {/* Background Wooden Surface */}
+          <rect x="0" y="0" width="450" height="500" rx="12" fill="url(#boardWoodGrad)" />
+
+          {/* Symmetrical Inner Bevel Highlight & Shadow (360-degree seamless) */}
+          <rect x="2.5" y="2.5" width="445" height="495" rx="10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+          <rect x="5.5" y="5.5" width="439" height="489" rx="8" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" />
+
+          {/* Khung Viền Đôi Ngoài Liền Mạch (Traditional Outer Boundary Frame - 100% seamless) */}
+          <rect
+            x="14"
+            y="14"
+            width="422"
+            height="472"
+            rx="4"
+            fill="none"
+            stroke={gridStroke}
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
+
+          {/* Khung Viền Trong Chu Vi Lưới Cờ Liền Mạch (Inner Grid Boundary Frame - 100% seamless) */}
+          <rect
+            x="25"
+            y="25"
+            width="400"
+            height="450"
+            fill="none"
+            stroke={gridStroke}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+
+          {/* River Background Band */}
+          <rect x="25" y="225" width="400" height="50" fill="url(#riverGrad)" />
+
+          {/* Inner Horizontal Lines (Lines 1 through 8, while line 0 & 9 are the seamless rect) */}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line
+              key={`h-${i + 1}`}
+              x1="25"
+              y1={75 + i * 50}
+              x2="425"
+              y2={75 + i * 50}
+              stroke={gridStroke}
+              strokeWidth={1.2}
+            />
+          ))}
+
+          {/* Inner Vertical Lines (Files 1 through 7, interrupted by River, while file 0 & 8 are the seamless rect) */}
+          {Array.from({ length: 7 }).map((_, i) => {
+            const x = 75 + i * 50;
+            return (
+              <g key={`v-${i + 1}`}>
+                {/* Top Half */}
+                <line
+                  x1={x}
+                  y1="25"
+                  x2={x}
+                  y2="225"
+                  stroke={gridStroke}
+                  strokeWidth={1.2}
+                />
+                {/* Bottom Half */}
+                <line
+                  x1={x}
+                  y1="275"
+                  x2={x}
+                  y2="475"
+                  stroke={gridStroke}
+                  strokeWidth={1.2}
+                />
+              </g>
+            );
+          })}
+
+          {/* Palace Diagonals (Top & Bottom) */}
+          <line
+            x1="175"
+            y1="25"
+            x2="275"
+            y2="125"
+            stroke={isZen ? '#5c3917' : '#3d1c06'}
+            strokeWidth={1.2}
+          />
+          <line
+            x1="275"
+            y1="25"
+            x2="175"
+            y2="125"
+            stroke={isZen ? '#5c3917' : '#3d1c06'}
+            strokeWidth={1.2}
+          />
+          <line
+            x1="175"
+            y1="375"
+            x2="275"
+            y2="475"
+            stroke={isZen ? '#5c3917' : '#3d1c06'}
+            strokeWidth={1.2}
+          />
+          <line
+            x1="275"
+            y1="375"
+            x2="175"
+            y2="475"
+            stroke={isZen ? '#5c3917' : '#3d1c06'}
+            strokeWidth={1.2}
+          />
+
+          {/* Traditional Star Markers */}
+          {BOARD_MARKERS.map((m, idx) => (
+            <path
+              key={`marker-${idx}`}
+              d={buildMarkerPath(m.x, m.y, m.hasLeft, m.hasRight)}
+              stroke={isZen ? '#5c3917' : '#3d1c06'}
+              strokeWidth={1.2}
+              fill="none"
+            />
+          ))}
+
+          {/* River Calligraphy */}
+          <text
+            x="110"
+            y="258"
+            fill={isZen ? '#4d2d10' : '#2b1203'}
+            fontSize="24"
+            fontFamily="var(--font-piece), 'Iansui', 'Ma Shan Zheng', cursive, serif"
+            fontWeight="bold"
+            letterSpacing="8"
+            opacity="0.85"
+            textAnchor="middle"
+          >
+            楚河
+          </text>
+          <text
+            x="340"
+            y="258"
+            fill={isZen ? '#4d2d10' : '#2b1203'}
+            fontSize="24"
+            fontFamily="var(--font-piece), 'Iansui', 'Ma Shan Zheng', cursive, serif"
+            fontWeight="bold"
+            letterSpacing="8"
+            opacity="0.85"
+            textAnchor="middle"
+          >
+            漢界
+          </text>
+        </svg>
+
+        {/* Board Click Hitboxes (90 Intersections) */}
+        <div className="absolute inset-0 touch-manipulation">
+          {Array.from({ length: 10 }).map((_, r) =>
+            Array.from({ length: 9 }).map((_, c) => {
+              const pos = getPct(r, c);
+              const pieceCode = board[r][c];
+              const isSelected = selectedSquare?.r === r && selectedSquare?.c === c;
+              const isLastMoveFrom = lastMove?.fromR === r && lastMove?.fromC === c;
+              const isLastMoveTo = lastMove?.toR === r && lastMove?.toC === c;
+              const isHintFrom = hintMove?.fromR === r && hintMove?.fromC === c;
+              const isHintTo = hintMove?.toR === r && hintMove?.toC === c;
+              const isCheckedKing = checkedGeneral?.r === r && checkedGeneral?.c === c;
+
+              // Is this square an opponent piece that can be captured?
+              const isCapturable =
+                !isInspecting &&
+                validMoves.some(
+                  m => m.toR === r && m.toC === c && pieceCode !== null
+                );
+
+              const isAnimatingThisPiece =
+                animatingPiece &&
+                animatingPiece.move.fromR === r &&
+                animatingPiece.move.fromC === c;
+
+              return (
+                <div
+                  key={`cell-${r}-${c}`}
+                  onClick={() => !disabled && onSquareClick(r, c)}
+                  style={pos}
+                  className="absolute w-[9.6%] h-[8.64%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer z-20 group touch-manipulation before:absolute before:-inset-1.5 before:content-['']"
+                >
+                  {/* Selected square indicator */}
+                  {isSelected && (
+                    <div className="absolute -inset-0.5 sm:-inset-1 rounded-full border-2 border-amber-400 bg-amber-400/20 ring-2 ring-amber-300 animate-pulse pointer-events-none z-30" />
+                  )}
+
+                  {/* Last move: Origin square (vòng tròn mờ nhỏ tại vị trí quân cờ vừa rời đi) */}
+                  {isLastMoveFrom && !isSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-15">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-400/25 border-1.5 sm:border-2 border-dashed border-amber-400/80 shadow-[0_0_10px_rgba(251,191,36,0.6)] flex items-center justify-center animate-pulse">
+                        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Last move: Destination square (vòng tròn mờ & hào quang bao quanh quân cờ vừa đáp xuống) */}
+                  {isLastMoveTo && !isSelected && (
+                    <>
+                      <div className="absolute -inset-0.5 rounded-full border-2 border-amber-400 bg-amber-400/20 ring-2 ring-amber-300/60 shadow-[0_0_14px_rgba(251,191,36,0.85)] pointer-events-none z-25 animate-pulse" />
+                      <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 border border-white shadow-[0_0_8px_rgba(251,191,36,1)] pointer-events-none z-30 animate-ping opacity-75" />
+                      <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 border border-white shadow-[0_0_8px_rgba(251,191,36,1)] pointer-events-none z-30" />
+                    </>
+                  )}
+
+                  {/* AI Hint indicator */}
+                  {(isHintFrom || isHintTo) && (
+                    <div className="absolute -inset-0.5 sm:-inset-1 rounded-full border-2 border-emerald-400 bg-emerald-400/20 ring-2 ring-emerald-300 animate-bounce pointer-events-none z-30" />
+                  )}
+
+                  {/* King in check warning ring */}
+                  {isCheckedKing && (
+                    <div className="absolute -inset-1 rounded-full border-3 border-red-500 bg-red-600/30 ring-4 ring-red-400 animate-ping pointer-events-none z-35" />
+                  )}
+
+                  {/* Chess piece rendering */}
+                  {pieceCode && !isAnimatingThisPiece && (() => {
+                    const piece = PIECES[pieceCode];
+                    const isRed = piece.color === 'r';
+                    const isKing = piece.type === 'k';
+                    const isHidden = pieceCode === 'r_u' || pieceCode === 'b_u';
+                    const isJustRevealed = justRevealedSquare?.r === r && justRevealedSquare?.c === c;
+
+                    if (isHidden) {
+                      return (
+                        <div
+                          className={`piece relative w-full h-full rounded-full flex items-center justify-center select-none border-2 transition-transform duration-150 ${
+                            isSelected ? 'scale-110 shadow-2xl ring-2 ring-amber-400' : '[@media(hover:hover)]:hover:scale-105'
+                          } ${
+                            isRed
+                              ? 'bg-[radial-gradient(circle_at_32%_28%,#3a1515_0%,#240b0b_70%,#150505_100%)] border-red-700/80 text-amber-200'
+                              : 'bg-[radial-gradient(circle_at_32%_28%,#1f242d_0%,#14171f_70%,#090a0e_100%)] border-slate-600/80 text-slate-300'
+                          }`}
+                          style={{
+                            background: isRed
+                              ? 'radial-gradient(circle at 32% 28%, #3a1515 0%, #240b0b 70%, #150505 100%)'
+                              : 'radial-gradient(circle at 32% 28%, #1f242d 0%, #14171f 70%, #090a0e 100%)',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.6)'
+                          }}
+                        >
+                          {/* Inner decorative rim */}
+                          <div className={`absolute inset-[2.5px] sm:inset-[3px] rounded-full border border-dashed ${isRed ? 'border-amber-500/40' : 'border-slate-400/30'} pointer-events-none`} />
+
+                          {/* Center ancient seal / secret symbol */}
+                          <div className={`w-[58%] h-[58%] rounded-full flex items-center justify-center border shadow-inner ${
+                            isRed
+                              ? 'bg-red-950/70 border-amber-500/50 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+                              : 'bg-slate-900/80 border-slate-400/40 text-slate-200 shadow-[0_0_8px_rgba(148,163,184,0.2)]'
+                          }`} />
+
+                          {/* Capturable pulsing red ring */}
+                          {isCapturable && (
+                            <div className="absolute -inset-1 sm:-inset-1.5 rounded-full border-2 border-red-500 bg-red-600/20 ring-2 ring-red-400/80 shadow-[0_0_16px_rgba(239,68,68,0.9)] animate-pulse pointer-events-none flex items-center justify-center z-40">
+                              <div className="w-[84%] h-[84%] rounded-full border border-dashed border-red-300 pointer-events-none" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        className={`piece relative w-full h-full rounded-full flex items-center justify-center select-none border-2 transition-all duration-200 ${
+                          isSelected ? 'scale-110 shadow-2xl' : '[@media(hover:hover)]:hover:scale-105'
+                        } ${isKing ? 'piece-king' : ''} ${
+                          isJustRevealed ? 'animate-bounce ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.9)]' : ''
+                        } ${
+                          isZen
+                            ? 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#faf8f5_75%,#ece5d8_92%,#e2d9c8_100%)] border-[#f5efe6]'
+                            : 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#ffffff_75%,#f8fafc_92%,#f1f5f9_100%)] border-white'
+                        } ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
+                        style={{
+                          background: isZen
+                            ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #faf8f5 75%, #ece5d8 92%, #e2d9c8 100%)'
+                            : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #ffffff 75%, #f8fafc 92%, #f1f5f9 100%)',
+                          boxShadow:
+                            '0 4px 10px rgba(0,0,0,0.35), inset 0 2px 4px #ffffff, inset 0 -2px 4px rgba(0,0,0,0.2)'
+                        }}
+                      >
+                        {/* Inner concentric ring */}
+                        <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-300/50 pointer-events-none" />
+
+                        {/* Traditional Calligraphy Character */}
+                        <span
+                          className="font-piece font-bold select-none pointer-events-none text-[clamp(15px,4.5vw,28px)] sm:text-[24px] md:text-[28px] tracking-tight leading-none"
+                          style={{
+                            fontFamily: '"Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif',
+                            textShadow: isKing
+                              ? isRed
+                                ? '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(185,28,28,0.7), 0 0 8px rgba(245,158,11,0.55)'
+                                : '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(0,0,0,0.75), 0 0 8px rgba(245,158,11,0.55)'
+                              : isRed
+                              ? '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(185,28,28,0.65)'
+                              : '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(0,0,0,0.7)'
+                          }}
+                        >
+                          {piece.nameCn}
+                        </span>
+
+                        {/* Capturable pulsing red ring */}
+                        {isCapturable && (
+                          <div className="absolute -inset-1 sm:-inset-1.5 rounded-full border-2 border-red-500 bg-red-600/20 ring-2 ring-red-400/80 shadow-[0_0_16px_rgba(239,68,68,0.9)] animate-pulse pointer-events-none flex items-center justify-center z-40">
+                            <div className="w-[84%] h-[84%] rounded-full border border-dashed border-red-300 pointer-events-none" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              );
+            })
+          )}
+
+          {/* Valid Move Dots for Empty Squares (Full intersection touch hitbox on mobile) */}
+          {!isInspecting && selectedSquare &&
+            validMoves
+              .filter(m => board[m.toR][m.toC] === null)
+              .map((m, idx) => {
+                const pos = getPct(m.toR, m.toC);
+                return (
+                  <div
+                    key={`dot-${m.toR}-${m.toC}-${idx}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExecuteMove(m);
+                    }}
+                    style={pos}
+                    className="absolute w-[10.8%] h-[9.72%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-35 flex items-center justify-center touch-manipulation group/dot"
+                  >
+                    <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9),inset_0_0_2px_#fff] transition-transform [@media(hover:hover)]:group-hover/dot:scale-135 active:scale-125" />
+                  </div>
+                );
+              })}
+
+          {/* Dynamic Parabolic Flight Shadow */}
+          {animatingPiece && (
+            <div
+              ref={animatingShadowRef}
+              className="absolute pointer-events-none z-45 w-[9.6%] h-[8.64%] rounded-full bg-black/60 -translate-x-1/2 -translate-y-1/2"
+              style={{
+                left: `${animatingPiece.trajectory.getPoint(0).groundPctX}%`,
+                top: `${animatingPiece.trajectory.getPoint(0).groundPctY}%`,
+                filter: 'blur(3px)',
+                opacity: 0.45
+              }}
+            />
+          )}
+
+          {/* Dynamic Parabolic Flight Piece */}
+          {animatingPiece && (() => {
+            const animPiece = PIECES[animatingPiece.pieceCode];
+            const isRed = animPiece?.color === 'r';
+            const isAnimKing = animPiece?.type === 'k';
+            const isHiddenAnim = animatingPiece.pieceCode === 'r_u' || animatingPiece.pieceCode === 'b_u';
+            const initPt = animatingPiece.trajectory.getPoint(0);
+
+            if (isHiddenAnim) {
+              return (
+                <div
+                  ref={animatingPieceRef}
+                  className={`piece absolute z-50 pointer-events-none w-[9.6%] h-[8.64%] rounded-full flex items-center justify-center select-none border-2 ${
+                    isRed
+                      ? 'bg-[radial-gradient(circle_at_32%_28%,#3a1515_0%,#240b0b_70%,#150505_100%)] border-red-700 text-amber-200'
+                      : 'bg-[radial-gradient(circle_at_32%_28%,#1f242d_0%,#14171f_70%,#090a0e_100%)] border-slate-600 text-slate-300'
+                  }`}
+                  style={{
+                    left: `${initPt.pctX}%`,
+                    top: `${initPt.pctY}%`,
+                    transform: 'translate(-50%, -50%) scale(1)',
+                    background: isRed
+                      ? 'radial-gradient(circle at 32% 28%, #3a1515 0%, #240b0b 70%, #150505 100%)'
+                      : 'radial-gradient(circle at 32% 28%, #1f242d 0%, #14171f 70%, #090a0e 100%)',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.55), inset 0 2px 3px rgba(255,255,255,0.25)'
+                  }}
+                >
+                  <div className={`absolute inset-[2.5px] sm:inset-[3px] rounded-full border border-dashed ${isRed ? 'border-amber-500/40' : 'border-slate-400/30'} pointer-events-none`} />
+                  <div className={`w-[58%] h-[58%] rounded-full flex items-center justify-center border shadow-inner ${
+                    isRed
+                      ? 'bg-red-950/70 border-amber-500/50 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+                      : 'bg-slate-900/80 border-slate-400/40 text-slate-200 shadow-[0_0_8px_rgba(148,163,184,0.2)]'
+                  }`} />
+                </div>
+              );
+            }
+
+            return (
+              <div
+                ref={animatingPieceRef}
+                className={`piece absolute z-50 pointer-events-none w-[9.6%] h-[8.64%] rounded-full flex items-center justify-center select-none border-2 ${
+                  isAnimKing ? 'piece-king' : ''
+                } ${
+                  isZen
+                    ? 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#faf8f5_75%,#ece5d8_92%,#e2d9c8_100%)] border-[#f5efe6]'
+                    : 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#ffffff_75%,#f8fafc_92%,#f1f5f9_100%)] border-white'
+                } ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
+                style={{
+                  left: `${initPt.pctX}%`,
+                  top: `${initPt.pctY}%`,
+                  transform: 'translate(-50%, -50%) scale(1)',
+                  background: isZen
+                    ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #faf8f5 75%, #ece5d8 92%, #e2d9c8 100%)'
+                    : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #ffffff 75%, #f8fafc 92%, #f1f5f9 100%)',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.45), inset 0 2px 4px #ffffff'
+                }}
+              >
+                <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-300/50 pointer-events-none" />
+                <span
+                  className="font-piece font-bold select-none pointer-events-none text-[clamp(15px,4.5vw,28px)] sm:text-[24px] md:text-[28px] tracking-tight leading-none"
+                  style={{
+                    fontFamily: '"Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif',
+                    textShadow: isAnimKing
+                      ? isRed
+                        ? '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(185,28,28,0.7), 0 0 8px rgba(245,158,11,0.55)'
+                        : '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(0,0,0,0.75), 0 0 8px rgba(245,158,11,0.55)'
+                      : isRed
+                      ? '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(185,28,28,0.65)'
+                      : '0 1px 1.5px rgba(255,255,255,1), 0 -1px 2px rgba(0,0,0,0.7)'
+                  }}
+                >
+                  {animPiece?.nameCn}
+                </span>
+              </div>
+            );
+          })()}
+
+          {/* Landing Shockwave Ripple */}
+          {landingEffect && (
+            <div
+              className={`absolute pointer-events-none z-30 rounded-full shockwave-ripple ${
+                landingEffect.isCapture
+                  ? 'w-[9.6%] h-[8.64%] border-2 border-red-500 bg-red-500/30'
+                  : 'w-[9.6%] h-[8.64%] border-2 border-amber-400 bg-amber-400/25'
+              }`}
+              style={getPct(landingEffect.r, landingEffect.c)}
+            />
+          )}
+
+          {/* Cannon Jump & Attack Animation */}
+          <CannonJumpAnimation
+            data={cannonJumpAnim}
+            onImpact={onCannonImpact}
+            onComplete={onCannonComplete}
+          />
+
+          {/* Chariot Charge & Dust Trail Animation */}
+          <ChariotChargeAnimation
+            data={chariotChargeAnim}
+            onImpact={onChariotImpact}
+            onComplete={onChariotComplete}
+          />
+
+          {/* Horse Kick & Clatter Animation */}
+          <HorseKickAnimation
+            data={horseKickAnim}
+            onImpact={onHorseImpact}
+            onComplete={onHorseComplete}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+XiangqiBoard.displayName = 'XiangqiBoard';

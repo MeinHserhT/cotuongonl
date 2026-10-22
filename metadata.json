@@ -1,0 +1,6 @@
+{
+  "name": "Cờ Tướng - Xiangqi Master",
+  "description": "Chơi Cờ Tướng, Cờ Úp online miễn phí phong cách Ziga. Đấu cờ tướng trực tuyến xếp hạng Elo, đấu với máy AI Kiện Tướng, tạo phòng chơi cờ cùng bạn bè.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
