@@ -109,6 +109,7 @@ export default function XiangqiPage() {
   const [startMenuOpen, setStartMenuOpen] = useState<boolean>(true);
   const [hasSelectedMode, setHasSelectedMode] = useState<boolean>(false);
   const [isConsoleDocked, setIsConsoleDocked] = useState<boolean>(false);
+  const [isConsoleCollapsed, setIsConsoleCollapsed] = useState<boolean>(false);
   const [consoleDockHighlight, setConsoleDockHighlight] = useState<boolean>(false);
   const dockHighlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -117,6 +118,9 @@ export default function XiangqiPage() {
     setTimeout(() => {
       setIsConsoleDocked(true);
       setConsoleDockHighlight(true);
+      setTimeout(() => {
+        setIsConsoleCollapsed(true);
+      }, 60);
       dockHighlightTimeoutRef.current = setTimeout(() => {
         setConsoleDockHighlight(false);
       }, 900);
@@ -165,7 +169,6 @@ export default function XiangqiPage() {
   const [lobbyInitialTab, setLobbyInitialTab] = useState<'lobby' | 'ranked' | 'create' | 'leaderboard' | 'code'>('ranked');
   const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false);
   const [colorMode, setColorMode] = useState<'dark' | 'light'>('dark');
-  const [isConsoleCollapsed, setIsConsoleCollapsed] = useState<boolean>(false);
 
   // Dual Elo state for local/guest and sync
   const [localEloStandard, setLocalEloStandard] = useState<number>(1200);
@@ -257,6 +260,7 @@ export default function XiangqiPage() {
       setIsOnlineModalOpen(false);
     });
     if (rs.moveHistory.length === 0 && !rs.isGameOver) {
+      queueMicrotask(() => setIsConsoleCollapsed(true));
       setTimeout(() => {
         if (boardStageRef.current) {
           boardStageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -533,6 +537,15 @@ export default function XiangqiPage() {
     recordMatchOutcomeRef.current = recordMatchOutcome;
   }, [recordMatchOutcome]);
 
+  // Tự động thu nhỏ bảng điều khiển bên phải khi bắt đầu/đang trong trận đấu và mở rộng lại khi kết thúc trận đấu
+  useEffect(() => {
+    if (game.isGameOver) {
+      queueMicrotask(() => setIsConsoleCollapsed(false));
+    } else if (!startMenuOpen && (hasSelectedMode || game.moveHistory.length > 0)) {
+      queueMicrotask(() => setIsConsoleCollapsed(true));
+    }
+  }, [game.isGameOver, startMenuOpen, hasSelectedMode, game.moveHistory.length]);
+
   // GameOverModal Action Handlers (Bảo đảm không bị đơ hoặc kẹt lặp lại)
   const handleCloseGameOverModal = useCallback(() => {
     if (socket.roomState) {
@@ -549,6 +562,7 @@ export default function XiangqiPage() {
       socket.leaveRoom();
     }
     game.setModalData(null);
+    setIsConsoleCollapsed(true);
 
     if (game.gameMode === 'online') {
       game.setGameMode('pve-red');
@@ -645,6 +659,7 @@ export default function XiangqiPage() {
       if (savedGame.timeLimit) game.setTimeLimit(savedGame.timeLimit);
       game.setIsGameOver(false);
       game.setModalData(null);
+      setIsConsoleCollapsed(true);
       setUserDrawerOpen(false);
       showToast(`Đã mở lại ván cờ "${savedGame.name}"!`);
       setTimeout(() => {
@@ -984,8 +999,10 @@ export default function XiangqiPage() {
         {/* Right Column: Unified Single-Card Game Console */}
         <div
           id="game-console-dock"
-          className={`transition-all duration-300 flex justify-center shrink-0 self-center lg:self-start mx-auto lg:mx-0 rounded-xl ${
-            isConsoleCollapsed ? 'w-auto' : 'w-full max-w-[420px] lg:max-w-[440px]'
+          className={`transition-all duration-150 ease-out flex justify-center shrink-0 self-center lg:self-start mx-auto lg:mx-0 rounded-xl ${
+            isConsoleCollapsed
+              ? 'w-full max-w-[420px] lg:w-12 lg:max-w-[48px]'
+              : 'w-full max-w-[420px] lg:w-[440px] lg:max-w-[440px]'
           } ${
             consoleDockHighlight
               ? 'ring-2 ring-amber-500 scale-[1.01]'
@@ -996,6 +1013,7 @@ export default function XiangqiPage() {
             variant={game.variant}
             onChangeVariant={(newV) => {
               game.handleToggleVariant(newV);
+              setIsConsoleCollapsed(true);
               showToast(`Đã chuyển sang chế độ ${newV === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}!`);
               scrollToBoard();
             }}
@@ -1018,6 +1036,7 @@ export default function XiangqiPage() {
                 if (game.gameMode === 'online') socket.leaveRoom();
                 game.setGameMode(m);
                 game.startNewGame(m);
+                setIsConsoleCollapsed(true);
                 scrollToBoard();
               }
             }}
@@ -1031,6 +1050,7 @@ export default function XiangqiPage() {
             onChangeTimeLimit={(t) => {
               game.setTimeLimit(t);
               game.startNewGame();
+              setIsConsoleCollapsed(true);
               scrollToBoard();
             }}
             autoFlip={game.autoFlip}
@@ -1042,6 +1062,7 @@ export default function XiangqiPage() {
                 setResignModalOpen(true);
               } else {
                 game.setIsGameOver(true);
+                setIsConsoleCollapsed(false);
                 audio.current?.playDefeat();
                 game.setModalData({
                   title: 'Đầu Hàng',
@@ -1062,6 +1083,7 @@ export default function XiangqiPage() {
               socket.leaveRoom();
               game.setGameMode('pve-red');
               game.startNewGame('pve-red');
+              setIsConsoleCollapsed(true);
             }}
             onRequestRematch={handleGameOverRematch}
             rematchRequestedByOpponent={rematchRequestedByOpponent}
@@ -1093,6 +1115,7 @@ export default function XiangqiPage() {
         onClose={() => {
           setIsConsoleDocked(true);
           setStartMenuOpen(false);
+          setIsConsoleCollapsed(true);
         }}
         variant={game.variant}
         onChangeVariant={(newV) => {
@@ -1103,12 +1126,14 @@ export default function XiangqiPage() {
           setHasSelectedMode(true);
           if (m === 'online') {
             setStartMenuOpen(false);
+            setIsConsoleCollapsed(true);
             setLobbyInitialTab('ranked');
             setIsOnlineModalOpen(true);
           } else {
             if (game.gameMode === 'online') socket.leaveRoom();
             game.setGameMode(m);
             game.startNewGame(m);
+            setIsConsoleCollapsed(true);
           }
         }}
         difficulty={game.difficulty}
@@ -1136,6 +1161,7 @@ export default function XiangqiPage() {
             setIsOnlineModalOpen(true);
           } else {
             game.startNewGame(game.gameMode, game.variant);
+            setIsConsoleCollapsed(true);
             showToast(
               `Bắt đầu ván mới: ${game.variant === 'jieqi' ? 'Cờ Úp' : 'Cờ Ngửa'} · ${
                 game.gameMode === 'pvp' ? 'Đấu 2 người (local)' : `Đấu với máy (${game.difficulty.toUpperCase()})`
@@ -1206,6 +1232,7 @@ export default function XiangqiPage() {
           socket.leaveRoom();
           game.setGameMode('pve-red');
           game.startNewGame('pve-red');
+          setIsConsoleCollapsed(true);
         }}
         roomState={socket.roomState}
         myColor={socket.myColor}
@@ -1268,6 +1295,7 @@ export default function XiangqiPage() {
           setHasSelectedMode(true);
           game.setGameMode('pve-red');
           game.startNewGame('pve-red');
+          setIsConsoleCollapsed(true);
           showToast('Đã bắt đầu ván cờ mới! Bạn cầm Đỏ thi triển thế cờ.');
           scrollToBoard();
         }}

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import './globals.css';
 
 const appUrl = process.env.APP_URL || 'https://cotuong-online.web.app';
@@ -167,9 +166,8 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="vi" suppressHydrationWarning>
       <head>
         {/* Google Tag Manager */}
-        <Script
-          id="google-tag-manager"
-          strategy="afterInteractive"
+        {/* eslint-disable-next-line @next/next/next-script-for-ga */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -227,7 +225,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             src="https://www.googletagmanager.com/ns.html?id=GTM-5Z7H2M7D"
             height="0"
             width="0"
-            className="hidden"
+            style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
         {children}

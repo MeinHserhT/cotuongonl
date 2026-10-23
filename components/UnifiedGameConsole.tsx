@@ -164,92 +164,13 @@ export function UnifiedGameConsole({
     setChatInput('');
   };
 
-  if (isCollapsed) {
-    return (
-      <div
-        className={`w-11 sm:w-12 h-full min-h-[480px] rounded-xl border flex flex-col items-center justify-start gap-3 py-3 px-1 transition-all select-none shrink-0 ${
-          isDark
-            ? 'bg-[#151C28] border-[#232D3F] text-slate-200'
-            : 'bg-white border-slate-200 text-slate-800 shadow-xs'
-        }`}
-      >
-        <button
-          onClick={onToggleCollapse}
-          className={`p-2 rounded-lg transition-colors cursor-pointer ${
-            isDark ? 'hover:bg-[#1C2536] text-amber-400' : 'hover:bg-slate-100 text-amber-700'
-          }`}
-          title="Mở rộng bảng điều khiển"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <div className="flex flex-col items-center gap-2">
-          <button
-            onClick={() => {
-              setActiveTab('moves');
-              onToggleCollapse?.();
-            }}
-            className={`p-2 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'moves'
-                ? isDark
-                  ? 'bg-[#1C2536] text-amber-400'
-                  : 'bg-slate-100 text-amber-800'
-                : isDark
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            title="Biên bản ván đấu"
-          >
-            <FileText className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('controls');
-              onToggleCollapse?.();
-            }}
-            className={`p-2 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'controls'
-                ? isDark
-                  ? 'bg-[#1C2536] text-amber-400'
-                  : 'bg-slate-100 text-amber-800'
-                : isDark
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            title="Thao tác & Cài đặt"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
-
-          {isOnlineGame && (
-            <button
-              onClick={() => {
-                setActiveTab('chat');
-                onToggleCollapse?.();
-              }}
-              className={`p-2 rounded-lg relative transition-colors cursor-pointer ${
-                activeTab === 'chat'
-                  ? isDark
-                    ? 'bg-[#1C2536] text-amber-400'
-                    : 'bg-slate-100 text-amber-800'
-                  : isDark
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Trò chuyện"
-            >
-              <MessageSquare className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
-      className={`relative w-full max-w-[440px] lg:max-w-[460px] xl:max-w-[480px] mx-auto rounded-xl border flex flex-col h-auto transition-all duration-300 select-none overflow-hidden ${
+      className={`relative mx-auto rounded-xl border flex flex-col transition-all duration-150 ease-out select-none overflow-hidden shrink-0 ${
+        isCollapsed
+          ? 'w-full max-w-[420px] lg:w-12 lg:max-w-[48px] lg:min-h-[480px]'
+          : 'w-full max-w-[440px] lg:w-[440px] lg:max-w-[460px] xl:max-w-[480px] h-auto'
+      } ${
         isHiddenBeforeDock
           ? 'opacity-0 invisible pointer-events-none scale-95'
           : 'opacity-100 visible scale-100'
@@ -259,12 +180,88 @@ export function UnifiedGameConsole({
           : 'bg-white border-slate-200 text-slate-900 shadow-xs'
       }`}
     >
-      {/* 1. Header with Segmented Navigation & Collapse Trigger */}
-      <div
-        className={`px-3 py-2.5 border-b flex items-center justify-between shrink-0 gap-2 ${
-          isDark ? 'border-[#232D3F]' : 'border-slate-200'
-        }`}
-      >
+      {isCollapsed ? (
+        <div className="w-full h-full lg:min-h-[480px] flex flex-row lg:flex-col items-center justify-between lg:justify-start gap-2 lg:gap-3 py-2 lg:py-3 px-3 lg:px-1 animate-in fade-in duration-150">
+          <button
+            onClick={onToggleCollapse}
+            className={`p-2 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+              isDark ? 'hover:bg-[#1C2536] text-amber-400' : 'hover:bg-slate-100 text-amber-700'
+            }`}
+            title="Mở rộng bảng điều khiển"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-xs font-semibold lg:hidden">Mở bảng điều khiển</span>
+          </button>
+
+          <div className="flex flex-row lg:flex-col items-center gap-2">
+            <button
+              onClick={() => {
+                setActiveTab('moves');
+                onToggleCollapse?.();
+              }}
+              className={`p-2 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'moves'
+                  ? isDark
+                    ? 'bg-[#1C2536] text-amber-400'
+                    : 'bg-slate-100 text-amber-800'
+                  : isDark
+                  ? 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Biên bản ván đấu"
+            >
+              <FileText className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('controls');
+                onToggleCollapse?.();
+              }}
+              className={`p-2 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'controls'
+                  ? isDark
+                    ? 'bg-[#1C2536] text-amber-400'
+                    : 'bg-slate-100 text-amber-800'
+                  : isDark
+                  ? 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Thao tác & Cài đặt"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+
+            {isOnlineGame && (
+              <button
+                onClick={() => {
+                  setActiveTab('chat');
+                  onToggleCollapse?.();
+                }}
+                className={`p-2 rounded-lg relative transition-colors cursor-pointer ${
+                  activeTab === 'chat'
+                    ? isDark
+                      ? 'bg-[#1C2536] text-amber-400'
+                      : 'bg-slate-100 text-amber-800'
+                    : isDark
+                    ? 'text-slate-400 hover:text-slate-200'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Trò chuyện"
+              >
+                <MessageSquare className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="w-full lg:w-[438px] flex flex-col animate-in fade-in duration-150">
+          {/* 1. Header with Segmented Navigation & Collapse Trigger */}
+          <div
+            className={`px-3 py-2.5 border-b flex items-center justify-between shrink-0 gap-2 ${
+              isDark ? 'border-[#232D3F]' : 'border-slate-200'
+            }`}
+          >
         <div
           className={`flex items-center p-1 rounded-lg border text-xs font-semibold ${
             isDark ? 'bg-[#0E131B] border-[#232D3F]' : 'bg-slate-100 border-slate-200'
@@ -325,7 +322,7 @@ export function UnifiedGameConsole({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className={`p-1.5 rounded-lg border transition-colors cursor-pointer hidden lg:flex items-center justify-center ${
+              className={`p-1.5 rounded-lg border transition-colors cursor-pointer flex items-center justify-center ${
                 isDark
                   ? 'border-[#232D3F] bg-[#0E131B] text-slate-400 hover:text-white hover:bg-[#1C2536]'
                   : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -837,6 +834,8 @@ export function UnifiedGameConsole({
           </div>
         )}
       </div>
+        </div>
+      )}
     </div>
   );
 }
