@@ -134,6 +134,8 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   variant
 }) => {
   const isZen = theme === 'zen';
+  const isMarble = theme === 'marble';
+  const isLacquer = theme === 'lacquer';
 
   // Coordinate mapping helper
   const getPct = (r: number, c: number) => {
@@ -145,21 +147,92 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
     };
   };
 
-  // Find King in check for red alert ring
-  const checkedGeneral = isCheck ? findGeneral(board, turn) : null;
+  // O(1) lookup set for capturable squares & memoized empty valid moves
+  const { capturableSet, emptyValidMoves } = React.useMemo(() => {
+    const capSet = new Set<string>();
+    const emptyMoves: Move[] = [];
+    if (!isInspecting) {
+      for (let i = 0; i < validMoves.length; i++) {
+        const m = validMoves[i];
+        if (board[m.toR]?.[m.toC] !== null) {
+          capSet.add(`${m.toR},${m.toC}`);
+        } else {
+          emptyMoves.push(m);
+        }
+      }
+    }
+    return { capturableSet: capSet, emptyValidMoves: emptyMoves };
+  }, [validMoves, board, isInspecting]);
 
-  const gridStroke = isZen ? '#5c3917' : '#3d1c06';
+  // Find King in check for red alert ring
+  const checkedGeneral = React.useMemo(
+    () => (isCheck ? findGeneral(board, turn) : null),
+    [isCheck, board, turn]
+  );
+
+  // Theme tokens for SVG board and pieces
+  const boardFrameClass = isMarble
+    ? 'bg-gradient-to-b from-[#1f5c52] via-[#15463e] to-[#0e332d] border-[#09221e] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.28),inset_0_-2px_4px_rgba(0,0,0,0.45)]'
+    : isLacquer
+    ? 'bg-gradient-to-b from-[#2c1509] via-[#1f0e05] to-[#130802] border-[#92400e] shadow-[0_12px_36px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(251,191,36,0.35),inset_0_-2px_4px_rgba(0,0,0,0.7)]'
+    : isZen
+    ? 'bg-gradient-to-b from-[#b88c5a] via-[#a77c4b] to-[#916738] border-[#5e3e1a] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
+    : 'bg-gradient-to-b from-[#c47b33] via-[#b36c24] to-[#9b5815] border-[#4a2206] shadow-[0_12px_36px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]';
+
+  const surfaceStops = isMarble
+    ? ['#dff2eb', '#c6e5da', '#add6c8']
+    : isLacquer
+    ? ['#221c17', '#18130f', '#100c09']
+    : isZen
+    ? ['#caa272', '#be9565', '#b28755']
+    : ['#df9b54', '#d58f48', '#cb823b'];
+
+  const riverStops = isMarble
+    ? ['#9bc9ba', '#7fb5a4', '#9bc9ba']
+    : isLacquer
+    ? ['#451a03', '#290f02', '#451a03']
+    : isZen
+    ? ['#b88958', '#a87848', '#b88958']
+    : ['#c47d33', '#b26e25', '#c47d33'];
+
+  const gridStroke = isMarble
+    ? '#114b43'
+    : isLacquer
+    ? '#d97706'
+    : isZen
+    ? '#5c3917'
+    : '#3d1c06';
+
+  const riverTextColor = isMarble
+    ? '#0d3b35'
+    : isLacquer
+    ? '#f59e0b'
+    : isZen
+    ? '#4d2d10'
+    : '#2b1203';
+
+  const pieceBgStyle = isMarble
+    ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #f4fbf8 75%, #dceee7 92%, #c6e2d8 100%)'
+    : isLacquer
+    ? 'radial-gradient(circle at 32% 28%, #fffbeb 0%, #fef3c7 72%, #fde68a 92%, #f59e0b 100%)'
+    : isZen
+    ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #faf8f5 75%, #ece5d8 92%, #e2d9c8 100%)'
+    : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #ffffff 75%, #f8fafc 92%, #f1f5f9 100%)';
+
+  const pieceBorderClass = isMarble
+    ? 'border-[#e6f5ef]'
+    : isLacquer
+    ? 'border-amber-300'
+    : isZen
+    ? 'border-[#f5efe6]'
+    : 'border-white';
 
   return (
     <div
       ref={boardRef}
-      className={`relative w-full max-w-[560px] sm:max-w-[600px] md:max-w-[640px] rounded-2xl p-2 sm:p-2.5 shadow-2xl select-none border-4 ${
+      className={`relative w-full max-w-[540px] sm:max-w-[590px] md:max-w-[640px] rounded-2xl p-1.5 sm:p-2.5 shadow-2xl select-none border-4 ${
         boardShake ? 'transition-none' : 'transition-all duration-300'
-      } ${
-        isZen
-          ? 'bg-gradient-to-b from-[#b88c5a] via-[#a77c4b] to-[#916738] border-[#5e3e1a] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
-          : 'bg-gradient-to-b from-[#c47b33] via-[#b36c24] to-[#9b5815] border-[#4a2206] shadow-[0_12px_36px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
-      } ${
+      } ${boardFrameClass} ${
         boardShake === 'check'
           ? 'animate-shake-intense shake-checkmate'
           : boardShake === 'capture'
@@ -176,25 +249,25 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
         >
           <defs>
             <linearGradient id="boardWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={isZen ? '#caa272' : '#df9b54'} />
-              <stop offset="50%" stopColor={isZen ? '#be9565' : '#d58f48'} />
-              <stop offset="100%" stopColor={isZen ? '#b28755' : '#cb823b'} />
+              <stop offset="0%" stopColor={surfaceStops[0]} />
+              <stop offset="50%" stopColor={surfaceStops[1]} />
+              <stop offset="100%" stopColor={surfaceStops[2]} />
             </linearGradient>
             <linearGradient id="riverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={isZen ? '#b88958' : '#c47d33'} stopOpacity="0.4" />
-              <stop offset="50%" stopColor={isZen ? '#a87848' : '#b26e25'} stopOpacity="0.7" />
-              <stop offset="100%" stopColor={isZen ? '#b88958' : '#c47d33'} stopOpacity="0.4" />
+              <stop offset="0%" stopColor={riverStops[0]} stopOpacity="0.45" />
+              <stop offset="50%" stopColor={riverStops[1]} stopOpacity="0.75" />
+              <stop offset="100%" stopColor={riverStops[2]} stopOpacity="0.45" />
             </linearGradient>
           </defs>
 
-          {/* Background Wooden Surface */}
+          {/* Background Surface */}
           <rect x="0" y="0" width="450" height="500" rx="12" fill="url(#boardWoodGrad)" />
 
-          {/* Symmetrical Inner Bevel Highlight & Shadow (360-degree seamless) */}
-          <rect x="2.5" y="2.5" width="445" height="495" rx="10" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
-          <rect x="5.5" y="5.5" width="439" height="489" rx="8" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" />
+          {/* Symmetrical Inner Bevel Highlight & Shadow */}
+          <rect x="2.5" y="2.5" width="445" height="495" rx="10" fill="none" stroke={isLacquer ? 'rgba(251,191,36,0.22)' : 'rgba(255,255,255,0.22)'} strokeWidth="1.5" />
+          <rect x="5.5" y="5.5" width="439" height="489" rx="8" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="1.2" />
 
-          {/* Khung Viền Đôi Ngoài Liền Mạch (Traditional Outer Boundary Frame - 100% seamless) */}
+          {/* Traditional Outer Boundary Frame */}
           <rect
             x="14"
             y="14"
@@ -207,7 +280,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
             strokeLinejoin="round"
           />
 
-          {/* Khung Viền Trong Chu Vi Lưới Cờ Liền Mạch (Inner Grid Boundary Frame - 100% seamless) */}
+          {/* Inner Grid Boundary Frame */}
           <rect
             x="25"
             y="25"
@@ -222,7 +295,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
           {/* River Background Band */}
           <rect x="25" y="225" width="400" height="50" fill="url(#riverGrad)" />
 
-          {/* Inner Horizontal Lines (Lines 1 through 8, while line 0 & 9 are the seamless rect) */}
+          {/* Inner Horizontal Lines */}
           {Array.from({ length: 8 }).map((_, i) => (
             <line
               key={`h-${i + 1}`}
@@ -235,12 +308,11 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
             />
           ))}
 
-          {/* Inner Vertical Lines (Files 1 through 7, interrupted by River, while file 0 & 8 are the seamless rect) */}
+          {/* Inner Vertical Lines */}
           {Array.from({ length: 7 }).map((_, i) => {
             const x = 75 + i * 50;
             return (
               <g key={`v-${i + 1}`}>
-                {/* Top Half */}
                 <line
                   x1={x}
                   y1="25"
@@ -249,7 +321,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                   stroke={gridStroke}
                   strokeWidth={1.2}
                 />
-                {/* Bottom Half */}
                 <line
                   x1={x}
                   y1="275"
@@ -263,45 +334,17 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
           })}
 
           {/* Palace Diagonals (Top & Bottom) */}
-          <line
-            x1="175"
-            y1="25"
-            x2="275"
-            y2="125"
-            stroke={isZen ? '#5c3917' : '#3d1c06'}
-            strokeWidth={1.2}
-          />
-          <line
-            x1="275"
-            y1="25"
-            x2="175"
-            y2="125"
-            stroke={isZen ? '#5c3917' : '#3d1c06'}
-            strokeWidth={1.2}
-          />
-          <line
-            x1="175"
-            y1="375"
-            x2="275"
-            y2="475"
-            stroke={isZen ? '#5c3917' : '#3d1c06'}
-            strokeWidth={1.2}
-          />
-          <line
-            x1="275"
-            y1="375"
-            x2="175"
-            y2="475"
-            stroke={isZen ? '#5c3917' : '#3d1c06'}
-            strokeWidth={1.2}
-          />
+          <line x1="175" y1="25" x2="275" y2="125" stroke={gridStroke} strokeWidth={1.2} />
+          <line x1="275" y1="25" x2="175" y2="125" stroke={gridStroke} strokeWidth={1.2} />
+          <line x1="175" y1="375" x2="275" y2="475" stroke={gridStroke} strokeWidth={1.2} />
+          <line x1="275" y1="375" x2="175" y2="475" stroke={gridStroke} strokeWidth={1.2} />
 
           {/* Traditional Star Markers */}
           {BOARD_MARKERS.map((m, idx) => (
             <path
               key={`marker-${idx}`}
               d={buildMarkerPath(m.x, m.y, m.hasLeft, m.hasRight)}
-              stroke={isZen ? '#5c3917' : '#3d1c06'}
+              stroke={gridStroke}
               strokeWidth={1.2}
               fill="none"
             />
@@ -311,12 +354,12 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
           <text
             x="110"
             y="258"
-            fill={isZen ? '#4d2d10' : '#2b1203'}
+            fill={riverTextColor}
             fontSize="24"
             fontFamily="var(--font-piece), 'Iansui', 'Ma Shan Zheng', cursive, serif"
             fontWeight="bold"
             letterSpacing="8"
-            opacity="0.85"
+            opacity="0.88"
             textAnchor="middle"
           >
             楚河
@@ -324,12 +367,12 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
           <text
             x="340"
             y="258"
-            fill={isZen ? '#4d2d10' : '#2b1203'}
+            fill={riverTextColor}
             fontSize="24"
             fontFamily="var(--font-piece), 'Iansui', 'Ma Shan Zheng', cursive, serif"
             fontWeight="bold"
             letterSpacing="8"
-            opacity="0.85"
+            opacity="0.88"
             textAnchor="middle"
           >
             漢界
@@ -348,13 +391,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
               const isHintFrom = hintMove?.fromR === r && hintMove?.fromC === c;
               const isHintTo = hintMove?.toR === r && hintMove?.toC === c;
               const isCheckedKing = checkedGeneral?.r === r && checkedGeneral?.c === c;
-
-              // Is this square an opponent piece that can be captured?
-              const isCapturable =
-                !isInspecting &&
-                validMoves.some(
-                  m => m.toR === r && m.toC === c && pieceCode !== null
-                );
+              const isCapturable = pieceCode !== null && capturableSet.has(`${r},${c}`);
 
               const isAnimatingThisPiece =
                 animatingPiece &&
@@ -373,7 +410,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                     <div className="absolute -inset-0.5 sm:-inset-1 rounded-full border-2 border-amber-400 bg-amber-400/20 ring-2 ring-amber-300 animate-pulse pointer-events-none z-30" />
                   )}
 
-                  {/* Last move: Origin square (vòng tròn mờ nhỏ tại vị trí quân cờ vừa rời đi) */}
+                  {/* Last move: Origin square */}
                   {isLastMoveFrom && !isSelected && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-15">
                       <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-400/25 border-1.5 sm:border-2 border-dashed border-amber-400/80 shadow-[0_0_10px_rgba(251,191,36,0.6)] flex items-center justify-center animate-pulse">
@@ -382,7 +419,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                     </div>
                   )}
 
-                  {/* Last move: Destination square (vòng tròn mờ & hào quang bao quanh quân cờ vừa đáp xuống) */}
+                  {/* Last move: Destination square */}
                   {isLastMoveTo && !isSelected && (
                     <>
                       <div className="absolute -inset-0.5 rounded-full border-2 border-amber-400 bg-amber-400/20 ring-2 ring-amber-300/60 shadow-[0_0_14px_rgba(251,191,36,0.85)] pointer-events-none z-25 animate-pulse" />
@@ -404,6 +441,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                   {/* Chess piece rendering */}
                   {pieceCode && !isAnimatingThisPiece && (() => {
                     const piece = PIECES[pieceCode];
+                    if (!piece) return null;
                     const isRed = piece.color === 'r';
                     const isKing = piece.type === 'k';
                     const isHidden = pieceCode === 'r_u' || pieceCode === 'b_u';
@@ -426,17 +464,13 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                             boxShadow: '0 4px 10px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.6)'
                           }}
                         >
-                          {/* Inner decorative rim */}
                           <div className={`absolute inset-[2.5px] sm:inset-[3px] rounded-full border border-dashed ${isRed ? 'border-amber-500/40' : 'border-slate-400/30'} pointer-events-none`} />
-
-                          {/* Center ancient seal / secret symbol */}
                           <div className={`w-[58%] h-[58%] rounded-full flex items-center justify-center border shadow-inner ${
                             isRed
                               ? 'bg-red-950/70 border-amber-500/50 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
                               : 'bg-slate-900/80 border-slate-400/40 text-slate-200 shadow-[0_0_8px_rgba(148,163,184,0.2)]'
                           }`} />
 
-                          {/* Capturable pulsing red ring */}
                           {isCapturable && (
                             <div className="absolute -inset-1 sm:-inset-1.5 rounded-full border-2 border-red-500 bg-red-600/20 ring-2 ring-red-400/80 shadow-[0_0_16px_rgba(239,68,68,0.9)] animate-pulse pointer-events-none flex items-center justify-center z-40">
                               <div className="w-[84%] h-[84%] rounded-full border border-dashed border-red-300 pointer-events-none" />
@@ -452,23 +486,15 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                           isSelected ? 'scale-110 shadow-2xl' : '[@media(hover:hover)]:hover:scale-105'
                         } ${isKing ? 'piece-king' : ''} ${
                           isJustRevealed ? 'animate-bounce ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.9)]' : ''
-                        } ${
-                          isZen
-                            ? 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#faf8f5_75%,#ece5d8_92%,#e2d9c8_100%)] border-[#f5efe6]'
-                            : 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#ffffff_75%,#f8fafc_92%,#f1f5f9_100%)] border-white'
-                        } ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
+                        } ${pieceBorderClass} ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
                         style={{
-                          background: isZen
-                            ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #faf8f5 75%, #ece5d8 92%, #e2d9c8 100%)'
-                            : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #ffffff 75%, #f8fafc 92%, #f1f5f9 100%)',
+                          background: pieceBgStyle,
                           boxShadow:
-                            '0 4px 10px rgba(0,0,0,0.35), inset 0 2px 4px #ffffff, inset 0 -2px 4px rgba(0,0,0,0.2)'
+                            '0 4px 10px rgba(0,0,0,0.38), inset 0 2px 4px #ffffff, inset 0 -2px 4px rgba(0,0,0,0.22)'
                         }}
                       >
-                        {/* Inner concentric ring */}
-                        <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-300/50 pointer-events-none" />
+                        <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-400/45 pointer-events-none" />
 
-                        {/* Traditional Calligraphy Character */}
                         <span
                           className="font-piece font-bold select-none pointer-events-none text-[clamp(15px,4.5vw,28px)] sm:text-[24px] md:text-[28px] tracking-tight leading-none"
                           style={{
@@ -485,7 +511,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                           {piece.nameCn}
                         </span>
 
-                        {/* Capturable pulsing red ring */}
                         {isCapturable && (
                           <div className="absolute -inset-1 sm:-inset-1.5 rounded-full border-2 border-red-500 bg-red-600/20 ring-2 ring-red-400/80 shadow-[0_0_16px_rgba(239,68,68,0.9)] animate-pulse pointer-events-none flex items-center justify-center z-40">
                             <div className="w-[84%] h-[84%] rounded-full border border-dashed border-red-300 pointer-events-none" />
@@ -499,40 +524,24 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
             })
           )}
 
-          {/* Valid Move Dots for Empty Squares (Full intersection touch hitbox on mobile) */}
+          {/* Valid Move Dots for Empty Squares */}
           {!isInspecting && selectedSquare &&
-            validMoves
-              .filter(m => board[m.toR][m.toC] === null)
-              .map((m, idx) => {
-                const pos = getPct(m.toR, m.toC);
-                return (
-                  <div
-                    key={`dot-${m.toR}-${m.toC}-${idx}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onExecuteMove(m);
-                    }}
-                    style={pos}
-                    className="absolute w-[10.8%] h-[9.72%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-35 flex items-center justify-center touch-manipulation group/dot"
-                  >
-                    <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9),inset_0_0_2px_#fff] transition-transform [@media(hover:hover)]:group-hover/dot:scale-135 active:scale-125" />
-                  </div>
-                );
-              })}
-
-          {/* Dynamic Parabolic Flight Shadow */}
-          {animatingPiece && (
-            <div
-              ref={animatingShadowRef}
-              className="absolute pointer-events-none z-45 w-[9.6%] h-[8.64%] rounded-full bg-black/60 -translate-x-1/2 -translate-y-1/2"
-              style={{
-                left: `${animatingPiece.trajectory.getPoint(0).groundPctX}%`,
-                top: `${animatingPiece.trajectory.getPoint(0).groundPctY}%`,
-                filter: 'blur(3px)',
-                opacity: 0.45
-              }}
-            />
-          )}
+            emptyValidMoves.map((m, idx) => {
+              const pos = getPct(m.toR, m.toC);
+              return (
+                <div
+                  key={`dot-${m.toR}-${m.toC}-${idx}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onExecuteMove(m);
+                  }}
+                  style={pos}
+                  className="absolute w-[10.8%] h-[9.72%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-35 flex items-center justify-center touch-manipulation group/dot"
+                >
+                  <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9),inset_0_0_2px_#fff] transition-transform [@media(hover:hover)]:group-hover/dot:scale-135 active:scale-125" />
+                </div>
+              );
+            })}
 
           {/* Dynamic Parabolic Flight Piece */}
           {animatingPiece && (() => {
@@ -576,22 +585,16 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                 ref={animatingPieceRef}
                 className={`piece absolute z-50 pointer-events-none w-[9.6%] h-[8.64%] rounded-full flex items-center justify-center select-none border-2 ${
                   isAnimKing ? 'piece-king' : ''
-                } ${
-                  isZen
-                    ? 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#faf8f5_75%,#ece5d8_92%,#e2d9c8_100%)] border-[#f5efe6]'
-                    : 'bg-[radial-gradient(circle_at_32%_28%,#ffffff_0%,#ffffff_75%,#f8fafc_92%,#f1f5f9_100%)] border-white'
-                } ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
+                } ${pieceBorderClass} ${isRed ? 'text-[#dc2626]' : 'text-[#0f172a]'}`}
                 style={{
                   left: `${initPt.pctX}%`,
                   top: `${initPt.pctY}%`,
                   transform: 'translate(-50%, -50%) scale(1)',
-                  background: isZen
-                    ? 'radial-gradient(circle at 32% 28%, #ffffff 0%, #faf8f5 75%, #ece5d8 92%, #e2d9c8 100%)'
-                    : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #ffffff 75%, #f8fafc 92%, #f1f5f9 100%)',
+                  background: pieceBgStyle,
                   boxShadow: '0 6px 16px rgba(0,0,0,0.45), inset 0 2px 4px #ffffff'
                 }}
               >
-                <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-300/50 pointer-events-none" />
+                <div className="absolute inset-[2px] sm:inset-[3px] rounded-full border border-slate-400/45 pointer-events-none" />
                 <span
                   className="font-piece font-bold select-none pointer-events-none text-[clamp(15px,4.5vw,28px)] sm:text-[24px] md:text-[28px] tracking-tight leading-none"
                   style={{
@@ -614,7 +617,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
           {/* Landing Shockwave Ripple */}
           {landingEffect && (
             <div
-              className={`absolute pointer-events-none z-30 rounded-full shockwave-ripple ${
+              className={`absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 rounded-full shockwave-ripple ${
                 landingEffect.isCapture
                   ? 'w-[9.6%] h-[8.64%] border-2 border-red-500 bg-red-500/30'
                   : 'w-[9.6%] h-[8.64%] border-2 border-amber-400 bg-amber-400/25'

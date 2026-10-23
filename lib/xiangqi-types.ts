@@ -1,7 +1,14 @@
 export type PieceColor = 'r' | 'b';
 export type PieceType = 'k' | 'a' | 'e' | 'h' | 'r' | 'c' | 'p' | 'u';
-export type BoardTheme = 'imperial' | 'zen';
+export type BoardTheme = 'imperial' | 'zen' | 'marble' | 'lacquer';
 export type GameVariant = 'standard' | 'jieqi';
+
+export const BOARD_THEME_LABELS: Record<BoardTheme, { name: string; subtitle: string }> = {
+  imperial: { name: 'Hoàng Cung', subtitle: 'Gỗ Đàn Hương' },
+  zen: { name: 'Thiền Trà', subtitle: 'Gỗ Tếch Cổ' },
+  marble: { name: 'Cẩm Thạch', subtitle: 'Ngọc Bích' },
+  lacquer: { name: 'Sơn Mài', subtitle: 'Hắc Kim' }
+};
 
 export interface PieceInfo {
   type: PieceType;

@@ -54,7 +54,7 @@ export function ChariotChargeAnimation({
 
     let animId: number;
     const startTime = performance.now();
-    const chargeDuration = 270;
+    const chargeDuration = 320;
     const impactDuration = 180;
     const totalDuration = chargeDuration + impactDuration;
 

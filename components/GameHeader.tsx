@@ -6,9 +6,9 @@ import {
   UserCircle2,
   Share2,
   Check,
-  BookOpen,
   User as UserIcon,
-  Swords
+  Swords,
+  Flame
 } from 'lucide-react';
 import { BoardTheme, getRankTier } from '@/lib/xiangqi-types';
 import { User } from 'firebase/auth';
@@ -27,6 +27,8 @@ interface GameHeaderProps {
   onShareRoom: () => void;
   copiedShareLink: boolean;
   onOpenOpeningBook: () => void;
+  onOpenPuzzles?: () => void;
+  isPuzzleMode?: boolean;
   onOpenAuthModal: () => void;
   onOpenProfileDrawer: () => void;
   onOpenOnlineLobby: () => void;
@@ -42,7 +44,8 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
   onToggleColorMode,
   onShareRoom,
   copiedShareLink,
-  onOpenOpeningBook,
+  onOpenPuzzles,
+  isPuzzleMode = false,
   onOpenAuthModal,
   onOpenProfileDrawer,
   onOpenOnlineLobby,
@@ -57,7 +60,7 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
 
   return (
     <header
-      className={`w-full max-w-5xl mx-auto mb-2.5 sm:mb-3 flex items-center justify-between gap-2 sm:gap-8 px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-xl border transition-colors ${
+      className={`w-full max-w-5xl mx-auto mb-2.5 sm:mb-3 flex items-center justify-between gap-1.5 sm:gap-4 px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl border transition-colors ${
         isDark
           ? 'bg-[#151C28] border-[#232D3F] text-slate-100'
           : 'bg-white border-slate-200 text-slate-900 shadow-2xs'
@@ -83,16 +86,16 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
           </span>
         </div>
         <span className="font-heading font-bold text-xs sm:text-base tracking-tight whitespace-nowrap truncate">
-          Cờ Tướng<span className="hidden min-[380px]:inline"> Master</span>
+          Cờ Tướng<span className="hidden min-[420px]:inline"> Master</span>
         </span>
       </div>
 
       {/* Zone 2: Clean Single-Line Navigation & Workspace Utilities */}
-      <nav className="flex items-center gap-1.5 sm:gap-4 text-xs sm:text-sm font-medium shrink-0">
+      <nav className="flex items-center gap-1 sm:gap-2.5 text-xs sm:text-sm font-medium shrink-0">
         <button
           type="button"
           onClick={onOpenOnlineLobby}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[36px] rounded-lg border font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${
+          className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 min-h-[36px] rounded-lg border font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${
             isDark
               ? 'bg-[#0E131B] hover:bg-[#1C2536] border-[#232D3F] text-slate-100'
               : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'
@@ -103,21 +106,25 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
           <span>Phòng Đấu</span>
         </button>
 
-        <button
-          type="button"
-          onClick={onOpenOpeningBook}
-          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[36px] rounded-lg border font-medium text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${
-            isDark
-              ? 'bg-[#0E131B] hover:bg-[#1C2536] border-[#232D3F] text-slate-300 hover:text-white'
-              : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:text-slate-900'
-          }`}
-          title="Cẩm nang khai cuộc cờ tướng"
-        >
-          <BookOpen className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span>Khai Cuộc</span>
-        </button>
+        {onOpenPuzzles && (
+          <button
+            type="button"
+            onClick={onOpenPuzzles}
+            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 min-h-[36px] rounded-lg border font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${
+              isPuzzleMode
+                ? 'bg-amber-600 border-amber-400 text-white shadow-2xs'
+                : isDark
+                ? 'bg-[#0E131B] hover:bg-[#1C2536] border-[#232D3F] text-amber-300 hover:text-amber-200'
+                : 'bg-amber-50/70 hover:bg-amber-100 border-amber-300/70 text-amber-900'
+            }`}
+            title="Giải Cờ Thế Kinh Điển & Thử Thách Sát Pháp"
+          >
+            <Flame className={`w-3.5 h-3.5 shrink-0 ${isPuzzleMode ? 'text-white' : 'text-amber-500'}`} />
+            <span>Cờ Thế</span>
+          </button>
+        )}
 
-        <div className="flex items-center justify-center shrink-0">
+        <div className="hidden min-[370px]:flex items-center justify-center shrink-0">
           <DayNightSwitch
             isDark={isDark}
             onToggle={onToggleColorMode || (() => {})}

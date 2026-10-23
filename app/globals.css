@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Lemonada:wght@300;400;500;600;700&family=Iansui&family=Zhi+Mang+Xing&family=Ma+Shan+Zheng&family=LXGW+WenKai+TC:wght@300;400;700&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@700;900&display=swap');
 
 @theme {
   --font-lemonada: "Lemonada", cursive, sans-serif;
@@ -113,7 +112,7 @@ html,
 body {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
-  font-family: 'Lemonada', cursive, sans-serif !important;
+  font-family: 'Lemonada', cursive, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -140,30 +139,14 @@ select,
 textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
 }
 
-/* Enforce Lemonada on all text elements across the entire page */
-*:not(.font-piece):not(.piece *),
-*::before:not(.font-piece):not(.piece *),
-*::after:not(.font-piece):not(.piece *) {
-  font-family: 'Lemonada', cursive, sans-serif !important;
-}
-
-button,
-input,
-select,
-textarea,
-span:not(.font-piece):not(.piece *),
-p,
-div:not(.font-piece):not(.piece *),
-a,
-label,
-h1, h2, h3, h4, h5, h6,
 .font-sans,
 .font-mono,
 .font-serif,
 .font-heading {
-  font-family: 'Lemonada', cursive, sans-serif !important;
+  font-family: 'Lemonada', cursive, sans-serif;
 }
 
 /* ==========================================================================
@@ -374,11 +357,11 @@ textarea {
 /* Concentric Shockwave Ripple on Move Landing */
 @keyframes shockwave-expand-2d {
   0% {
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: scale(0.95);
     opacity: 0.95;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.75);
+    transform: scale(1.75);
     opacity: 0;
   }
 }
@@ -497,17 +480,17 @@ textarea {
 
 @keyframes cannon-screen-ring {
   0% {
-    transform: translate(-50%, -50%) scale(0.9);
+    transform: scale(0.9);
     opacity: 0.95;
     box-shadow: 0 0 15px rgba(245, 158, 11, 0.8), inset 0 0 10px rgba(245, 158, 11, 0.6);
   }
   50% {
-    transform: translate(-50%, -50%) scale(1.35);
+    transform: scale(1.35);
     opacity: 0.6;
     box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), inset 0 0 15px rgba(239, 68, 68, 0.8);
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.6);
+    transform: scale(1.6);
     opacity: 0;
   }
 }
@@ -518,17 +501,17 @@ textarea {
 
 @keyframes cannon-explosion-flash {
   0% {
-    transform: translate(-50%, -50%) scale(0.4);
+    transform: scale(0.4);
     opacity: 1;
     filter: brightness(2.5);
   }
   40% {
-    transform: translate(-50%, -50%) scale(1.6);
+    transform: scale(1.6);
     opacity: 0.95;
     filter: brightness(1.8);
   }
   100% {
-    transform: translate(-50%, -50%) scale(2.4);
+    transform: scale(2.4);
     opacity: 0;
     filter: brightness(1);
   }
@@ -554,210 +537,125 @@ textarea {
 }
 
 /* ==========================================================================
-   CodePen: yexx/pen/yLvyxWP - Aggressive Bump Switch
+   From Uiverse.io by Cobp - Hand Switch
    ========================================================================== */
-.yexx-switch-container {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
-
-.yexx-switch {
-  --displacement: -0.1rem;
-  --tremble: -10deg;
-  --trembleF: 5deg;
-  --iPos: 50%;
-  --bPos: -75%;
-  --fPos: -50%;
-  --time: 430ms;
+.switch {
+  font-size: 17px;
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 0;
-  padding: 0;
-  outline: none;
+  display: inline-block;
+  width: 4em;
+  height: 2em;
+  border-radius: 30px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.yexx-switch .switch__wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.5rem;
-  height: 1.75rem;
-  border: 2px solid #ef4444;
-  border-radius: 99rem;
-  transform-origin: left center;
-  background-color: #151b27;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+.switch:hover {
+  transform: scale(1.05);
 }
 
-/* Light mode specific styling: high contrast against white card backgrounds */
-.yexx-switch.is-light .switch__wrapper {
-  background-color: #1a2332;
-  border-color: #ef4444;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.5);
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-.yexx-switch.is-light input:checked + .switch__wrapper {
-  border-color: #10b981;
-  background-color: #111a26;
-}
-
-.yexx-switch .switch__wrapper::before,
-.yexx-switch .switch__wrapper::after {
-  content: "";
+.slider {
   position: absolute;
-  width: 100%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
   height: 100%;
-  border: 2px solid transparent;
-  border-radius: inherit;
-  transform-origin: inherit;
+  width: 0;
+  background-color: #d0b0ff;
+  transition: 0.4s 0.4s;
+}
+
+.slider:after {
+  position: absolute;
+  content: "";
+  height: 1.4em;
+  width: 1.4em;
+  border-radius: 20px;
+  left: 0.3em;
+  bottom: 0.3em;
+  background-color: #242824;
+  transition: 0.4s 0.4s;
+  z-index: 10;
+}
+
+.switch input:checked + .slider::before {
+  width: 100%;
+}
+
+.switch input:checked + .slider:after {
+  transform: translateX(2em);
+  background-color: #9147ff;
+}
+
+.switch .hand {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 62px;
+  height: 62px;
+  transition: 0.4s ease;
   pointer-events: none;
 }
 
-.yexx-switch .switch__wrapper::before {
-  --tremble: -12deg;
-  --trembleF: -7deg;
-  border-color: #22c55e;
+.switch .hand.left {
+  left: -62px;
 }
 
-.yexx-switch .switch__wrapper::after {
-  --tremble: -8deg;
-  --trembleF: -4deg;
-  border-color: #3b82f6;
+.switch .hand.right {
+  right: -62px;
 }
 
-.yexx-switch .switch__toggle {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 99rem;
-  box-shadow: inset 0 0 0 2px #ffffff, 0 2px 4px rgba(0, 0, 0, 0.4);
-  transform-origin: inherit;
-  transform: translateX(var(--fPos));
-  background: rgba(255, 255, 255, 0.2);
-  transition: background 0.2s ease, width 0.15s ease, box-shadow 0.2s ease;
+.switch .hand.left,
+.switch .hand.right {
+  animation: none;
 }
 
-.yexx-switch input:active + .switch__wrapper .switch__toggle {
-  width: 1.35rem;
+.switch:focus-within input:checked ~ .hand.right,
+.switch.has-toggled input:checked ~ .hand.right {
+  animation: hand-right 0.7s linear;
 }
 
-.yexx-switch input:checked + .switch__wrapper {
-  transform-origin: right center;
-  border-color: #10b981;
-  background-color: #0f1824;
+.switch:focus-within input:not(:checked) ~ .hand.left,
+.switch.has-toggled input:not(:checked) ~ .hand.left {
+  animation: hand-left 0.7s linear;
 }
 
-.yexx-switch input:checked + .switch__wrapper .switch__toggle {
-  background: #ffffff;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(0, 0, 0, 0.45);
-  transform: translateX(calc(-1 * var(--fPos)));
-}
-
-.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper {
-  animation: checked__wrapper var(--time) ease-in forwards;
-}
-.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper::before {
-  animation: checked__wrapper var(--time) 50ms ease-in forwards;
-}
-.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper::after {
-  animation: checked__wrapper var(--time) 75ms ease-in forwards;
-}
-.yexx-switch.has-toggled input:not(:checked) + .switch__wrapper .switch__toggle {
-  animation: checked__toggle var(--time) ease-in forwards;
-}
-
-.yexx-switch.has-toggled input:checked + .switch__wrapper {
-  animation: checked__wrapper--r var(--time) ease-in forwards;
-}
-.yexx-switch.has-toggled input:checked + .switch__wrapper::before {
-  animation: checked__wrapper--r var(--time) 50ms ease-in forwards;
-}
-.yexx-switch.has-toggled input:checked + .switch__wrapper::after {
-  animation: checked__wrapper--r var(--time) 75ms ease-in forwards;
-}
-.yexx-switch.has-toggled input:checked + .switch__wrapper .switch__toggle {
-  animation: checked__toggle--r var(--time) ease-in forwards;
-}
-
-@keyframes checked__wrapper {
-  0%, 45%, 100% {
-    transform: rotateY(0deg);
-  }
-  48% {
-    transform: translateX(var(--displacement));
-    filter: blur(0);
-  }
-  55% {
-    transform: rotateZ(var(--tremble));
-    filter: blur(1px);
-  }
-  65% {
-    transform: rotateZ(var(--trembleF));
-  }
-}
-
-@keyframes checked__wrapper--r {
-  0%, 45%, 100% {
-    transform: rotateY(0deg);
-  }
-  48% {
-    transform: translateX(calc(-1 * var(--displacement)));
-    filter: blur(0);
-  }
-  55% {
-    transform: rotateZ(calc(-1 * var(--tremble)));
-    filter: blur(1px);
-  }
-  65% {
-    transform: rotateZ(calc(-1 * var(--trembleF)));
-  }
-}
-
-@keyframes checked__toggle {
+@keyframes hand-left {
   0% {
-    background: #fff;
-    transform: translateX(var(--iPos)) scale(1.25, 1);
-  }
-  45% {
-    background: #fff;
-    transform: translateX(var(--bPos)) scale(1, 1);
+    left: -62px;
   }
   50% {
-    background: transparent;
-    transform: translateX(var(--bPos)) scale(0.5, 1.1);
-  }
-  65% {
-    transform: translateX(var(--bPos)) scale(1, 1);
+    left: 0px;
   }
   100% {
-    transform: translateX(var(--fPos));
+    left: -62px;
   }
 }
 
-@keyframes checked__toggle--r {
+@keyframes hand-right {
   0% {
-    background: transparent;
-    transform: translateX(calc(-1 * var(--iPos))) scale(1.25, 1);
-  }
-  45% {
-    background: transparent;
-    transform: translateX(calc(-1 * var(--bPos))) scale(1, 1);
+    right: -62px;
   }
   50% {
-    background: #fff;
-    transform: translateX(calc(-1 * var(--bPos))) scale(0.5, 1.1);
-  }
-  65% {
-    transform: translateX(calc(-1 * var(--bPos))) scale(1, 1);
+    right: 0px;
   }
   100% {
-    transform: translateX(var(--fPos));
+    right: -62px;
   }
 }
 

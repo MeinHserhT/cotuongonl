@@ -927,6 +927,7 @@ export function findBestMoveEngine(
   let finalDepthReached = 1;
 
   clearHeuristics();
+  clearTranspositionTable();
 
   for (let currentDepth = 1; currentDepth <= maxDepth; currentDepth++) {
     let currentBestMove = legalMoves[0];

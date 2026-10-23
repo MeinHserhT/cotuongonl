@@ -29,8 +29,8 @@ import {
   formatJieqiNotation,
   isPieceHidden
 } from '@/lib/jieqi-rules';
-import { findBestMoveEngine } from '@/lib/xiangqi-engine';
-import { findBestJieqiMove } from '@/lib/jieqi-engine';
+import { computeAIMoveAsync } from '@/lib/ai-worker-client';
+import { triggerHaptic } from '@/lib/mobile-ergonomics';
 import { AudioEngine } from '@/lib/audio';
 import { CurveTrajectory, computeCurveTrajectory, computeStraightTrajectory } from '@/lib/trajectory';
 import { CannonJumpData } from '@/components/CannonJumpAnimation';
@@ -115,19 +115,47 @@ export function useXiangqiGame(
   const [horseKickAnim, setHorseKickAnim] = useState<HorseKickData | null>(null);
   const pendingMoveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Piece animations toggle (Xe, Pháo, Mã special capture effects)
+  // Piece animations & Mobile Ergonomics toggles
   const [enablePieceAnimations, setEnablePieceAnimations] = useState<boolean>(true);
+  const [enableHaptics, setEnableHaptics] = useState<boolean>(true);
+  const [enableWakeLock, setEnableWakeLock] = useState<boolean>(true);
+
+  // Match Configuration & Flow
+  const [gameMode, setGameMode] = useState<'pve-red' | 'pve-black' | 'pvp' | 'online'>('pve-red');
+  const [difficulty, setDifficulty] = useState<BotDifficulty>('medium');
+  const [timeLimit, setTimeLimit] = useState<number>(60);
+  const [topTimer, setTopTimer] = useState<number>(60);
+  const [bottomTimer, setBottomTimer] = useState<number>(60);
+  const [autoFlip, setAutoFlip] = useState<boolean>(false);
+  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const [theme, setThemeState] = useState<BoardTheme>('imperial');
 
   useEffect(() => {
     queueMicrotask(() => {
       try {
-        const saved = localStorage.getItem('xiangqi_enable_piece_animations');
-        if (saved !== null) {
-          setEnablePieceAnimations(saved === 'true');
+        const savedAnim = localStorage.getItem('xiangqi_enable_piece_animations');
+        if (savedAnim !== null) setEnablePieceAnimations(savedAnim === 'true');
+        const savedHaptics = localStorage.getItem('xiangqi_enable_haptics');
+        if (savedHaptics !== null) setEnableHaptics(savedHaptics === 'true');
+        const savedWake = localStorage.getItem('xiangqi_enable_wakelock');
+        if (savedWake !== null) setEnableWakeLock(savedWake === 'true');
+        const savedTheme = localStorage.getItem('xiangqi_board_theme') as BoardTheme | null;
+        if (savedTheme && ['imperial', 'zen', 'marble', 'lacquer'].includes(savedTheme)) {
+          setThemeState(savedTheme);
         }
       } catch {
         // ignore
       }
+    });
+  }, []);
+
+  const setTheme = useCallback((next: BoardTheme | ((prev: BoardTheme) => BoardTheme)) => {
+    setThemeState((prev) => {
+      const resolved = typeof next === 'function' ? next(prev) : next;
+      try {
+        localStorage.setItem('xiangqi_board_theme', resolved);
+      } catch {}
+      return resolved;
     });
   }, []);
 
@@ -141,15 +169,47 @@ export function useXiangqiGame(
     });
   }, []);
 
-  // Match Configuration & Flow
-  const [gameMode, setGameMode] = useState<'pve-red' | 'pve-black' | 'pvp' | 'online'>('pve-red');
-  const [difficulty, setDifficulty] = useState<BotDifficulty>('medium');
-  const [timeLimit, setTimeLimit] = useState<number>(60);
-  const [topTimer, setTopTimer] = useState<number>(60);
-  const [bottomTimer, setBottomTimer] = useState<number>(60);
-  const [autoFlip, setAutoFlip] = useState<boolean>(false);
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
-  const [theme, setTheme] = useState<BoardTheme>('imperial');
+  const enableHapticsRef = useRef<boolean>(enableHaptics);
+  useEffect(() => {
+    enableHapticsRef.current = enableHaptics;
+    if (!enableHaptics) {
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+        shakeTimeoutRef.current = null;
+      }
+      setBoardShake(null);
+    }
+  }, [enableHaptics]);
+
+  const toggleEnableHaptics = useCallback(() => {
+    setEnableHaptics((prev) => {
+      const next = !prev;
+      enableHapticsRef.current = next;
+      try {
+        localStorage.setItem('xiangqi_enable_haptics', String(next));
+      } catch {}
+      if (next) {
+        triggerHaptic('select', true);
+      } else {
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+          shakeTimeoutRef.current = null;
+        }
+        setBoardShake(null);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleEnableWakeLock = useCallback(() => {
+    setEnableWakeLock((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('xiangqi_enable_wakelock', String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
@@ -158,11 +218,16 @@ export function useXiangqiGame(
   const shakeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const triggerBoardShake = useCallback((type: 'check' | 'capture') => {
+    if (!enableHapticsRef.current) {
+      setBoardShake(null);
+      return;
+    }
     if (shakeTimeoutRef.current) {
       clearTimeout(shakeTimeoutRef.current);
     }
     setBoardShake(null);
     requestAnimationFrame(() => {
+      if (!enableHapticsRef.current) return;
       setBoardShake(type);
       shakeTimeoutRef.current = setTimeout(() => {
         setBoardShake(null);
@@ -370,7 +435,10 @@ export function useXiangqiGame(
     const trajectory = (isCapture && enablePieceAnimations && (pieceInfo?.type === 'c' || pieceInfo?.type === 'h'))
       ? computeCurveTrajectory(m.fromR, m.fromC, m.toR, m.toC, isFlipped, pieceInfo.type, isCapture)
       : computeStraightTrajectory(m.fromR, m.fromC, m.toR, m.toC, isFlipped);
-    const duration = isCapture ? Math.max(160, Math.min(300, trajectory.dist * 0.85)) : Math.max(120, Math.min(220, trajectory.dist * 0.6));
+    const duration =
+      (isCapture
+        ? Math.max(160, Math.min(300, trajectory.dist * 0.85))
+        : Math.max(120, Math.min(220, trajectory.dist * 0.6))) + 50;
 
     setAnimatingPiece({
       move: m,
@@ -400,11 +468,13 @@ export function useXiangqiGame(
       // Phát tức thì tiếng Soundsnap Plywood B (di chuyển) hoặc Plywood PS (ăn quân)
       if (isCapture) {
         audioEngineRef.current?.playCapture();
+        triggerHaptic('capture', enableHaptics);
         setLandingEffect({ r: m.toR, c: m.toC, isCapture: true });
         setTimeout(() => setLandingEffect(null), 400);
         triggerBoardShake('capture');
       } else {
         audioEngineRef.current?.playMove();
+        triggerHaptic('move', enableHaptics);
       }
 
       // Xử lý quân bị ăn vào khay tù binh
@@ -429,6 +499,7 @@ export function useXiangqiGame(
 
       if (nextInCheck) {
         audioEngineRef.current?.playCheck();
+        triggerHaptic('check', enableHaptics);
         triggerBoardShake('check');
       }
 
@@ -483,6 +554,7 @@ export function useXiangqiGame(
         if (nextInCheck) {
           const winner = turn === 'r' ? 'Đỏ' : 'Đen';
           audioEngineRef.current?.playVictory();
+          triggerHaptic('victory', enableHaptics);
           setModalData({
             title: 'CHIẾU BÍ!',
             desc: `Bên ${winner} đã chiếu bí thành công và giành chiến thắng vẻ vang!`,
@@ -508,9 +580,9 @@ export function useXiangqiGame(
         setIsFlipped(prev => !prev);
       }
     }, duration);
-  }, [board, hiddenBoard, turn, variant, isGameOver, isFlipped, autoFlip, gameMode, timeLimit, audioEngineRef, triggerBoardShake, enablePieceAnimations, moveHistory]);
+  }, [board, hiddenBoard, turn, variant, isGameOver, isFlipped, autoFlip, gameMode, timeLimit, audioEngineRef, triggerBoardShake, enablePieceAnimations, enableHaptics, moveHistory]);
 
-  // AI bot move trigger
+  // AI bot move trigger (Offloaded to Web Worker via computeAIMoveAsync so UI stays at 60fps)
   const isPaused = !!options?.isPaused;
   useEffect(() => {
     if (isPaused || isGameOver || gameMode === 'pvp' || gameMode === 'online' || inspectMoveIndex !== null) return;
@@ -519,31 +591,29 @@ export function useXiangqiGame(
     if (!isBotTurn) return;
 
     let isCancelled = false;
-    const thinkDelay = difficulty === 'easy' ? 400 : difficulty === 'medium' ? 700 : 1000;
+    const thinkDelay = difficulty === 'easy' ? 280 : difficulty === 'medium' ? 420 : 550;
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (isCancelled) return;
       setIsAiThinking(true);
-      setTimeout(() => {
-        if (isCancelled) return;
-        try {
-          if (variant === 'jieqi') {
-            const botMove = findBestJieqiMove(board, hiddenBoard, turn, difficulty);
-            if (botMove) {
-              executeMove(botMove, true);
-            }
-          } else {
-            const result = findBestMoveEngine(board, turn, difficulty);
-            if (result && result.move) {
-              executeMove(result.move, true);
-            }
-          }
-        } catch (e) {
-          console.error('AI Move calculation error:', e);
-        } finally {
+      try {
+        const botMove = await computeAIMoveAsync(
+          variant,
+          board,
+          hiddenBoard,
+          turn,
+          difficulty
+        );
+        if (!isCancelled && botMove) {
+          executeMove(botMove, true);
+        }
+      } catch (e) {
+        console.error('AI Move calculation error:', e);
+      } finally {
+        if (!isCancelled) {
           setIsAiThinking(false);
         }
-      }, 50);
+      }
     }, thinkDelay);
 
     return () => {
@@ -579,6 +649,7 @@ export function useXiangqiGame(
       const pieceCol: PieceColor = pieceCode.startsWith('r') ? 'r' : 'b';
       if (pieceCol === turn) {
         audioEngineRef.current?.playSelect();
+        triggerHaptic('select', enableHaptics);
         setSelectedSquare({ r, c });
         const moves = variant === 'jieqi'
           ? getJieqiLegalMoves(board, r, c)
@@ -593,7 +664,7 @@ export function useXiangqiGame(
     // Deselect if clicking empty space or invalid piece
     setSelectedSquare(null);
     setValidMoves([]);
-  }, [board, turn, variant, selectedSquare, validMoves, isGameOver, isAiThinking, inspectMoveIndex, executeMove, audioEngineRef]);
+  }, [board, turn, variant, selectedSquare, validMoves, isGameOver, isAiThinking, inspectMoveIndex, executeMove, audioEngineRef, enableHaptics]);
 
   // Reset & Start New Game (hỗ trợ chuyển đổi giữa Cờ Sáng và Cờ Úp)
   const startNewGame = useCallback((
@@ -736,9 +807,13 @@ export function useXiangqiGame(
     turn,
     setTurn,
     selectedSquare,
+    setSelectedSquare,
     validMoves,
+    setValidMoves,
     lastMove: inspectMoveIndex !== null && moveHistory[inspectMoveIndex] ? moveHistory[inspectMoveIndex].move : lastMove,
+    setLastMove,
     hintMove,
+    setHintMove,
     moveHistory,
     setMoveHistory,
     inspectMoveIndex,
@@ -783,6 +858,10 @@ export function useXiangqiGame(
     setHorseKickAnim,
     enablePieceAnimations,
     toggleEnablePieceAnimations,
+    enableHaptics,
+    toggleEnableHaptics,
+    enableWakeLock,
+    toggleEnableWakeLock,
     isCheck,
     executeMove,
     handleSquareClick,

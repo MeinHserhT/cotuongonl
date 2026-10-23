@@ -12,15 +12,13 @@ export interface AggressiveToggleProps {
 }
 
 /**
- * Aggressive Bump Switch from CodePen (yexx/pen/yLvyxWP)
- * Features RGB chromatic aberration borders (red, lime, blue) and bounce animation
+ * Hand-pushing Toggle Switch from Uiverse.io by Cobp
  */
 export const AggressiveToggle: React.FC<AggressiveToggleProps> = ({
   checked,
   onChange,
   disabled = false,
   size = 'sm',
-  isDark = true,
   ariaLabel = 'Chuyển đổi',
 }) => {
   const [hasToggled, setHasToggled] = useState(false);
@@ -32,15 +30,15 @@ export const AggressiveToggle: React.FC<AggressiveToggleProps> = ({
   };
 
   const scaleClasses = {
-    sm: 'scale-[0.62] origin-center -my-1 -mx-2',
-    md: 'scale-[0.8] origin-center -my-0.5',
+    sm: 'scale-[0.75] origin-center -my-1 -mx-1.5',
+    md: 'scale-[0.88] origin-center -my-0.5',
     lg: 'scale-100 origin-center',
   }[size];
 
   return (
-    <div className="inline-flex items-center justify-center self-center shrink-0">
+    <div className={`inline-flex items-center justify-center self-center shrink-0 ${scaleClasses}`}>
       <label
-        className={`yexx-switch ${isDark ? 'is-dark' : 'is-light'} ${hasToggled ? 'has-toggled' : ''} ${scaleClasses} ${
+        className={`switch ${hasToggled ? 'has-toggled' : ''} ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         }`}
         aria-label={ariaLabel}
@@ -50,11 +48,50 @@ export const AggressiveToggle: React.FC<AggressiveToggleProps> = ({
           checked={checked}
           disabled={disabled}
           onChange={handleToggle}
-          hidden
         />
-        <div className="switch__wrapper shadow-xs">
-          <div className="switch__toggle" />
-        </div>
+        <span className="slider" />
+        <span className="hand left">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M0 9H13V15C13 15.2761 12.7761 15.5 12.5 15.5H0V9Z"
+              fill="#3B82F6"
+            />
+            <path
+              d="M13.5 9H21C21.5523 9 22 9.44772 22 10V15C22 15.5523 21.5523 16 21 16H17.5C15.2909 16 13.5 14.2091 13.5 12V9Z"
+              fill="#FED5CD"
+            />
+            <path
+              d="M13 9H15V14.5C15 14.7761 14.7761 15 14.5 15H13V9Z"
+              fill="#ffffff"
+            />
+            <path
+              className="thumb"
+              d="M23.25 9.19999H15V14.2C16.933 14.2 18.5 12.633 18.5 10.7L22.25 10.7C22.9403 10.7 23.5 10.1404 23.5 9.44999C23.5 9.31192 23.3881 9.19999 23.25 9.19999Z"
+              fill="#FDE3D9"
+            />
+          </svg>
+        </span>
+        <span className="hand right">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M24 9H11V15C11 15.2761 11.2239 15.5 11.5 15.5H24V9Z"
+              fill="#3B82F6"
+            />
+            <path
+              d="M10.5 9H3C2.44772 9 2 9.44772 2 10V15C2 15.5523 2.44772 16 3 16H6.5C8.70914 16 10.5 14.2091 10.5 12V9Z"
+              fill="#FED5CD"
+            />
+            <path
+              d="M11 9H9V14.5C9 14.7761 9.22386 15 9.5 15H11V9Z"
+              fill="#ffffff"
+            />
+            <path
+              className="thumb"
+              d="M0.750003 9.19999H9V14.2C7.067 14.2 5.5 12.633 5.5 10.7L1.75002 10.7C1.05965 10.7 0.5 10.1404 0.5 9.44999C0.5 9.31192 0.61193 9.19999 0.750003 9.19999Z"
+              fill="#FDE3D9"
+            />
+          </svg>
+        </span>
       </label>
     </div>
   );

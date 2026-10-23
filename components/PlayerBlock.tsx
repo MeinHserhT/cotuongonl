@@ -30,7 +30,7 @@ export interface PlayerBlockProps {
   colorMode?: 'dark' | 'light';
 }
 
-export function PlayerBlock({
+export const PlayerBlock = React.memo(function PlayerBlock({
   isActive,
   isRed,
   avatarChar,
@@ -275,4 +275,4 @@ export function PlayerBlock({
       </div>
     </div>
   );
-}
+});
