@@ -19,6 +19,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  verification: {
+    google: 'yAvrW9i9Z8WcAH6NczFOhNtznW5L9KVrX92bzpNzgI0',
+  },
   metadataBase: new URL(appUrl),
   title: {
     default: seoTitle,
@@ -203,7 +206,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             `,
           }}
         />
-        <meta name="google-site-verification" content="yAvrW9i9Z8WcAH6NczFOhNtznW5L9KVrX92bzpNzgI0" />
       </head>
       <body className="antialiased bg-[#11141a] text-neutral-100 selection:bg-amber-500 selection:text-black" suppressHydrationWarning>
         {children}
