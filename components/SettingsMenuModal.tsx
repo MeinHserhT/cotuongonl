@@ -13,7 +13,6 @@ import {
   Sliders,
   Check,
   Smartphone,
-  Flame,
   BookOpen
 } from 'lucide-react';
 import { BoardTheme } from '@/lib/xiangqi-types';
@@ -38,9 +37,7 @@ interface SettingsMenuModalProps {
   boardTheme: BoardTheme;
   onSelectBoardTheme: (theme: BoardTheme) => void;
   onOpenRules?: () => void;
-  onOpenOnlineLobby?: () => void;
   onOpenOpeningBook?: () => void;
-  onOpenPuzzles?: () => void;
 }
 
 export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
@@ -61,8 +58,7 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
   boardTheme,
   onSelectBoardTheme,
   onOpenRules,
-  onOpenOpeningBook,
-  onOpenPuzzles
+  onOpenOpeningBook
 }) => {
   if (!isOpen) return null;
 
@@ -356,29 +352,8 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
             </div>
           </div>
 
-          {/* 5. Phím tắt mở nhanh tính năng (Giải Cờ Thế, Khai Cuộc, Luật Cờ) */}
+          {/* 5. Phím tắt mở nhanh tính năng (Khai Cuộc, Luật Cờ) */}
           <div className="pt-1 space-y-1.5">
-            {onOpenPuzzles && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenPuzzles();
-                }}
-                className={`w-full px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer ${
-                  isDark
-                    ? 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300'
-                    : 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-900'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Flame className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Giải Cờ Thế Kinh Điển (10 thế)</span>
-                </div>
-                <span className="text-[10px] text-amber-400">→</span>
-              </button>
-            )}
-
             {onOpenOpeningBook && (
               <button
                 type="button"

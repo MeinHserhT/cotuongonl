@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 export type HapticPatternType =
   | 'select'
@@ -49,16 +49,8 @@ interface WakeLockSentinelLike {
  * Manages the Screen Wake Lock API to keep mobile screens awake during active games.
  * Automatically re-acquires the lock when returning to the tab.
  */
-export function useScreenWakeLock(enabled: boolean, isGameActive: boolean) {
+export function useScreenWakeLock(enabled: boolean, isGameActive: boolean): void {
   const sentinelRef = useRef<WakeLockSentinelLike | null>(null);
-  const [isSupported, setIsSupported] = useState<boolean>(false);
-  const [isLocked, setIsLocked] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
-      setIsSupported(true);
-    }
-  }, []);
 
   const releaseWakeLock = useCallback(async () => {
     if (sentinelRef.current) {
@@ -68,7 +60,6 @@ export function useScreenWakeLock(enabled: boolean, isGameActive: boolean) {
         // Ignore release errors
       }
       sentinelRef.current = null;
-      setIsLocked(false);
     }
   }, []);
 
@@ -85,7 +76,6 @@ export function useScreenWakeLock(enabled: boolean, isGameActive: boolean) {
     }
 
     if (sentinelRef.current && !sentinelRef.current.released) {
-      setIsLocked(true);
       return;
     }
 
@@ -96,13 +86,9 @@ export function useScreenWakeLock(enabled: boolean, isGameActive: boolean) {
       const sentinel = await navWithWakeLock.wakeLock?.request('screen');
       if (sentinel) {
         sentinelRef.current = sentinel;
-        setIsLocked(!sentinel.released);
-        sentinel.addEventListener('release', () => {
-          setIsLocked(false);
-        });
       }
     } catch {
-      setIsLocked(false);
+      // Ignore request errors
     }
   }, [enabled, isGameActive]);
 
@@ -141,9 +127,4 @@ export function useScreenWakeLock(enabled: boolean, isGameActive: boolean) {
       releaseWakeLock();
     };
   }, [releaseWakeLock]);
-
-  return {
-    isSupported,
-    isLocked
-  };
 }

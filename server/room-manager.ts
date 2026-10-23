@@ -194,7 +194,26 @@ export class RoomManager {
         }
       }
 
-      for (const room of this.rooms.values()) {
+      for (const [wsKey, limit] of this.rateLimits.entries()) {
+        if (now > limit.resetTime + 60000) {
+          this.rateLimits.delete(wsKey);
+        }
+      }
+
+      for (const [roomCode, room] of this.rooms.entries()) {
+        const bothDisconnected =
+          (!room.redPlayer || !room.redPlayer.connected) &&
+          (!room.blackPlayer || !room.blackPlayer.connected);
+        const roomAge = now - room.createdAt;
+        if (
+          (bothDisconnected && roomAge > 5 * 60 * 1000) ||
+          (room.isGameOver && bothDisconnected && roomAge > 60 * 1000) ||
+          (room.isGameOver && roomAge > 60 * 60 * 1000)
+        ) {
+          this.rooms.delete(roomCode);
+          continue;
+        }
+
         if (!room.isGameStarted || room.isGameOver) continue;
         if (!room.redPlayer?.connected || !room.blackPlayer?.connected) continue;
         // Chưa đánh nước đầu tiên thì không trừ thời gian
@@ -831,6 +850,26 @@ export class RoomManager {
       return;
     }
 
+    if (
+      !move ||
+      typeof move !== 'object' ||
+      !Number.isInteger(move.fromR) ||
+      !Number.isInteger(move.fromC) ||
+      !Number.isInteger(move.toR) ||
+      !Number.isInteger(move.toC) ||
+      move.fromR < 0 ||
+      move.fromR > 9 ||
+      move.toR < 0 ||
+      move.toR > 9 ||
+      move.fromC < 0 ||
+      move.fromC > 8 ||
+      move.toC < 0 ||
+      move.toC > 8
+    ) {
+      ws.send(JSON.stringify({ type: 'ERROR', message: 'Tọa độ nước đi không hợp lệ!' }));
+      return;
+    }
+
     const movingPiece = room.board[move.fromR][move.fromC];
     if (!movingPiece) return;
 
@@ -930,16 +969,18 @@ export class RoomManager {
     const nextLegalMoves = isJieqi
       ? getAllJieqiLegalMoves(nextBoard, nextTurn)
       : getAllLegalMoves(nextBoard, nextTurn);
-    if (nextLegalMoves.length === 0) {
+    if (nextLegalMoves.length === 0 && !room.isGameOver) {
       room.isGameOver = true;
-      room.winner = player.color;
-      const winnerName = player.color === 'r' ? 'Đỏ' : 'Đen';
       if (inCheck) {
+        room.winner = player.color;
+        const winnerName = player.color === 'r' ? 'Đỏ' : 'Đen';
         room.gameOverReason = `Chiếu bí! Bên ${winnerName} đã giành chiến thắng.`;
+        this.settleMatchElo(room, room.winner);
       } else {
-        room.gameOverReason = `Hết nước đi (Vây khốn)! Bên ${winnerName} thắng cuộc.`;
+        room.winner = 'draw';
+        room.gameOverReason = 'Hòa cờ (Hết nước đi)! Không còn nước đi hợp lệ nào.';
+        this.settleMatchElo(room, 'draw');
       }
-      this.settleMatchElo(room, room.winner);
     }
 
     // Đổi lượt đi: Đặt lại đồng hồ đếm ngược 60s cho người đi tiếp theo
@@ -1082,9 +1123,18 @@ export class RoomManager {
         oldBlack.color = 'r';
         room.redPlayer = oldBlack;
         room.blackPlayer = oldRed;
+        room.redElo = room.redPlayer.elo || 1200;
+        room.blackElo = room.blackPlayer.elo || 1200;
       }
 
-      room.board = INITIAL_BOARD.map(r => [...r]);
+      if (room.variant === 'jieqi') {
+        const jieqiInit = createInitialJieqiGame();
+        room.board = jieqiInit.board;
+        room.hiddenBoard = jieqiInit.hiddenBoard;
+      } else {
+        room.board = INITIAL_BOARD.map(r => [...r]);
+        room.hiddenBoard = undefined;
+      }
       room.turn = 'r';
       room.moveHistory = [];
       room.lastMove = null;

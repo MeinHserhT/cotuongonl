@@ -5,8 +5,7 @@ import {
   PieceColor,
   PIECES,
   Move,
-  BoardTheme,
-  GameVariant
+  BoardTheme
 } from '@/lib/xiangqi-types';
 import { findGeneral } from '@/lib/xiangqi-rules';
 import { CannonJumpAnimation, CannonJumpData } from '@/components/CannonJumpAnimation';
@@ -74,7 +73,6 @@ interface XiangqiBoardProps {
   selectedSquare: { r: number; c: number } | null;
   validMoves: Move[];
   lastMove: Move | null;
-  hintMove: Move | null;
   turn: PieceColor;
   isCheck: boolean;
   isInspecting?: boolean;
@@ -84,7 +82,6 @@ interface XiangqiBoardProps {
   // Animation props
   animatingPiece: AnimatingPieceData | null;
   animatingPieceRef: React.RefObject<HTMLDivElement | null>;
-  animatingShadowRef: React.RefObject<HTMLDivElement | null>;
   landingEffect: { r: number; c: number; isCapture: boolean } | null;
   boardShake: 'check' | 'capture' | null;
   cannonJumpAnim: CannonJumpData | null;
@@ -98,7 +95,6 @@ interface XiangqiBoardProps {
   onHorseComplete: () => void;
   boardRef?: React.Ref<HTMLDivElement>;
   justRevealedSquare?: { r: number; c: number } | null;
-  variant?: GameVariant;
 }
 
 export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
@@ -108,7 +104,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   selectedSquare,
   validMoves,
   lastMove,
-  hintMove,
   turn,
   isCheck,
   isInspecting = false,
@@ -117,7 +112,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   onExecuteMove,
   animatingPiece,
   animatingPieceRef,
-  animatingShadowRef,
   landingEffect,
   boardShake,
   cannonJumpAnim,
@@ -130,8 +124,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   onHorseImpact,
   onHorseComplete,
   boardRef,
-  justRevealedSquare,
-  variant
+  justRevealedSquare
 }) => {
   const isZen = theme === 'zen';
   const isMarble = theme === 'marble';
@@ -388,8 +381,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
               const isSelected = selectedSquare?.r === r && selectedSquare?.c === c;
               const isLastMoveFrom = lastMove?.fromR === r && lastMove?.fromC === c;
               const isLastMoveTo = lastMove?.toR === r && lastMove?.toC === c;
-              const isHintFrom = hintMove?.fromR === r && hintMove?.fromC === c;
-              const isHintTo = hintMove?.toR === r && hintMove?.toC === c;
               const isCheckedKing = checkedGeneral?.r === r && checkedGeneral?.c === c;
               const isCapturable = pieceCode !== null && capturableSet.has(`${r},${c}`);
 
@@ -426,11 +417,6 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
                       <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 border border-white shadow-[0_0_8px_rgba(251,191,36,1)] pointer-events-none z-30 animate-ping opacity-75" />
                       <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 border border-white shadow-[0_0_8px_rgba(251,191,36,1)] pointer-events-none z-30" />
                     </>
-                  )}
-
-                  {/* AI Hint indicator */}
-                  {(isHintFrom || isHintTo) && (
-                    <div className="absolute -inset-0.5 sm:-inset-1 rounded-full border-2 border-emerald-400 bg-emerald-400/20 ring-2 ring-emerald-300 animate-bounce pointer-events-none z-30" />
                   )}
 
                   {/* King in check warning ring */}

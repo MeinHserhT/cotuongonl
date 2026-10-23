@@ -2,27 +2,17 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { PieceColor, Move, BOARD_THEME_LABELS } from '@/lib/xiangqi-types';
-import { isKingInCheck, getAllLegalMoves, getLegalMoves, formatNotation } from '@/lib/xiangqi-rules';
 import { AudioEngine } from '@/lib/audio';
 import { boardToFen } from '@/lib/xiangqi-openings';
 import { useAuth } from '@/hooks/useAuth';
 import { useXiangqiSocket } from '@/hooks/useXiangqiSocket';
 import { recordMatchProgress, saveGameState, SavedGameData } from '@/lib/firebase';
 import { useXiangqiGame } from '@/hooks/useXiangqiGame';
-import { computeAIMoveAsync } from '@/lib/ai-worker-client';
-import { useScreenWakeLock, triggerHaptic } from '@/lib/mobile-ergonomics';
-import {
-  XIANGQI_PUZZLES,
-  XiangqiPuzzle,
-  PuzzleProgressMap,
-  getPuzzleProgressMap,
-  savePuzzleProgressItem,
-  isSameMove
-} from '@/lib/xiangqi-puzzles';
+import { useScreenWakeLock } from '@/lib/mobile-ergonomics';
 
 import dynamic from 'next/dynamic';
 
-// Modular UI Components (Refactored according to Ponytail & Addy Osmani Agent Skills)
+// Modular UI Components
 import { GameHeader } from '@/components/GameHeader';
 import { XiangqiBoard } from '@/components/XiangqiBoard';
 import { UnifiedGameConsole } from '@/components/UnifiedGameConsole';
@@ -30,7 +20,6 @@ import { GameOverModal, RulesModal, ResignModal, DrawOfferModal } from '@/compon
 import { BoardSideTray } from '@/components/BoardSideTray';
 import { PlayerBlock } from '@/components/PlayerBlock';
 import { StartGameMenuModal } from '@/components/StartGameMenuModal';
-import { PuzzleBanner } from '@/components/PuzzleBanner';
 
 // Dynamic lazy-loaded modals to minimize initial bundle size and boost Core Web Vitals (FCP/LCP)
 const OnlineLobbyModal = dynamic(
@@ -55,10 +44,6 @@ const OpeningBookModal = dynamic(
 );
 const SettingsMenuModal = dynamic(
   () => import('@/components/SettingsMenuModal').then((m) => m.SettingsMenuModal),
-  { ssr: false }
-);
-const PuzzleModal = dynamic(
-  () => import('@/components/PuzzleModal').then((m) => m.PuzzleModal),
   { ssr: false }
 );
 
@@ -138,345 +123,22 @@ export default function XiangqiPage() {
     }, 340);
   }, []);
 
-  // Classical Endgame Puzzle Mode State (AI-driven real-time opponent & hints)
-  const [puzzleModalOpen, setPuzzleModalOpen] = useState<boolean>(false);
-  const [activePuzzle, setActivePuzzle] = useState<XiangqiPuzzle | null>(null);
-  const [puzzleStatus, setPuzzleStatus] = useState<'solving' | 'ai-thinking' | 'wrong' | 'solved'>('solving');
-  const [puzzleStatusMsg, setPuzzleStatusMsg] = useState<string | null>(null);
-  const [puzzleHintsUsed, setPuzzleHintsUsed] = useState<number>(0);
-  const [puzzleMistakes, setPuzzleMistakes] = useState<number>(0);
-  const [puzzleEarnedStars, setPuzzleEarnedStars] = useState<number>(3);
-  const [isPuzzleHintLoading, setIsPuzzleHintLoading] = useState<boolean>(false);
-  const [puzzleProgressMap, setPuzzleProgressMap] = useState<PuzzleProgressMap>({});
-  const puzzleReplyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const processedPuzzleHistoryLenRef = useRef<number>(0);
-
-  const handlePuzzleMoveAttemptRef = useRef<((move: Move) => boolean) | null>(null);
+  const recordMatchOutcomeRef = useRef<((result: 'win' | 'loss' | 'draw', turnsCount: number) => void) | null>(null);
+  const handleLocalGameEnd = useCallback((result: 'win' | 'loss' | 'draw', turnsCount: number) => {
+    recordMatchOutcomeRef.current?.(result, turnsCount);
+  }, []);
 
   // Primary Xiangqi Local Game Engine
   const game = useXiangqiGame(audio, {
-    isPaused: startMenuOpen || (!hasSelectedMode && !activePuzzle) || !!activePuzzle,
+    isPaused: startMenuOpen || !hasSelectedMode,
     onMove: handleLocalMove,
-    onMoveAttempt: (move) => {
-      if (handlePuzzleMoveAttemptRef.current) {
-        return handlePuzzleMoveAttemptRef.current(move);
-      }
-      return true;
-    },
     onWrongTurnClick: handleWrongTurnClick,
-    onPerpetualCheckWarning: handlePerpetualCheckWarning
+    onPerpetualCheckWarning: handlePerpetualCheckWarning,
+    onGameEnd: handleLocalGameEnd
   });
 
-  // Keep mobile screen awake during active match or puzzle solving
-  useScreenWakeLock(
-    game.enableWakeLock,
-    !game.isGameOver && (hasSelectedMode || !!activePuzzle)
-  );
-
-  const redMovesUsedInPuzzle = useMemo(
-    () => Math.ceil(game.moveHistory.length / 2),
-    [game.moveHistory.length]
-  );
-
-  // Load puzzle onto the board
-  const startPuzzle = useCallback((puzzle: XiangqiPuzzle) => {
-    if (puzzleReplyTimeoutRef.current) {
-      clearTimeout(puzzleReplyTimeoutRef.current);
-      puzzleReplyTimeoutRef.current = null;
-    }
-    if (socketRef.current?.roomState) {
-      socketRef.current.leaveRoom();
-    }
-    processedPuzzleHistoryLenRef.current = 0;
-    setStartMenuOpen(false);
-    setHasSelectedMode(true);
-    setIsConsoleDocked(true);
-    setActivePuzzle(puzzle);
-    setPuzzleStatus('solving');
-    setPuzzleStatusMsg(
-      `Hãy đi nước cờ Đỏ để công sát (Mục tiêu: chiếu bí trong ≤ ${puzzle.maxMoves} nước) — AI Kiện Tướng sẽ tự động đáp trả tối ưu!`
-    );
-    setPuzzleHintsUsed(0);
-    setPuzzleMistakes(0);
-    setPuzzleEarnedStars(3);
-    setIsPuzzleHintLoading(false);
-
-    game.setVariant('standard');
-    game.setGameMode('pvp');
-    game.setBoard(puzzle.initialBoard.map((r) => [...r]));
-    game.setTurn('r');
-    game.setSelectedSquare(null);
-    game.setValidMoves([]);
-    game.setLastMove(null);
-    game.setHintMove(null);
-    game.setMoveHistory([]);
-    game.setInspectMoveIndex(null);
-    game.setCapturedRecords([]);
-    game.setIsGameOver(false);
-    game.setModalData(null);
-    game.setIsFlipped(false);
-    game.setTimeLimit(0);
-  }, [game]);
-
-  const exitPuzzleMode = useCallback(() => {
-    if (puzzleReplyTimeoutRef.current) {
-      clearTimeout(puzzleReplyTimeoutRef.current);
-      puzzleReplyTimeoutRef.current = null;
-    }
-    processedPuzzleHistoryLenRef.current = 0;
-    setActivePuzzle(null);
-    setPuzzleStatus('solving');
-    setPuzzleStatusMsg(null);
-    setIsPuzzleHintLoading(false);
-    game.setTimeLimit(60);
-    game.startNewGame('pve-red', 'standard');
-    showToast('Đã thoát chế độ Giải Cờ Thế, quay về bàn đấu chuẩn.');
-  }, [game, showToast]);
-
-  // Allow any legal Red move during active solving state
-  useEffect(() => {
-    if (!activePuzzle) {
-      handlePuzzleMoveAttemptRef.current = null;
-      return;
-    }
-
-    handlePuzzleMoveAttemptRef.current = (): boolean => {
-      if (
-        puzzleStatus === 'solved' ||
-        puzzleStatus === 'wrong' ||
-        puzzleStatus === 'ai-thinking' ||
-        game.turn !== 'r'
-      ) {
-        return false;
-      }
-      game.setHintMove(null);
-      return true;
-    };
-  }, [activePuzzle, puzzleStatus, game]);
-
-  // Real-time AI Evaluation & Optimal Counter-Move after Player Moves
-  useEffect(() => {
-    if (!activePuzzle) {
-      processedPuzzleHistoryLenRef.current = 0;
-      return;
-    }
-
-    const histLen = game.moveHistory.length;
-    if (histLen === 0 || histLen === processedPuzzleHistoryLenRef.current) {
-      return;
-    }
-    processedPuzzleHistoryLenRef.current = histLen;
-
-    const currentRedMoves = Math.ceil(histLen / 2);
-
-    // 1. Player (Red) just finished a move
-    if (histLen % 2 === 1) {
-      const blackLegalMoves = getAllLegalMoves(game.board, 'b');
-
-      // Check if Red checkmated / stalemated Black
-      if (blackLegalMoves.length === 0) {
-        game.setModalData(null);
-        const penalty = puzzleHintsUsed + puzzleMistakes;
-        const stars: 1 | 2 | 3 = penalty === 0 ? 3 : penalty === 1 ? 2 : 1;
-        setPuzzleEarnedStars(stars);
-        setPuzzleStatus('solved');
-        const stepRef =
-          activePuzzle.steps[currentRedMoves - 1] ||
-          activePuzzle.steps[activePuzzle.steps.length - 1];
-        setPuzzleStatusMsg(
-          stepRef?.explanation ||
-            `Tuyệt kỹ! Bạn đã chiếu bí AI Kiện Tướng trong ${currentRedMoves}/${activePuzzle.maxMoves} nước (${stars}★)!`
-        );
-        const updated = savePuzzleProgressItem(activePuzzle.id, stars, currentRedMoves);
-        setPuzzleProgressMap(updated);
-        return;
-      }
-
-      // Black still has moves -> AI Master calculates optimal defense / counter-attack
-      setPuzzleStatus('ai-thinking');
-      const lastRedMove = game.moveHistory[histLen - 1]?.move;
-      const refStep = activePuzzle.steps[currentRedMoves - 1];
-      const matchedTextbook =
-        refStep && lastRedMove && isSameMove(lastRedMove, refStep.playerMove);
-
-      setPuzzleStatusMsg(
-        matchedTextbook && refStep.explanation
-          ? `${refStep.explanation} · AI Kiện Tướng đang tính nước đỡ tối ưu...`
-          : 'AI Kiện Tướng đang phân tích và tính nước đáp trả tối ưu...'
-      );
-
-      if (puzzleReplyTimeoutRef.current) clearTimeout(puzzleReplyTimeoutRef.current);
-      const boardSnapshot = game.board.map((r) => [...r]);
-      const hiddenSnapshot = game.hiddenBoard.map((r) => [...r]);
-
-      puzzleReplyTimeoutRef.current = setTimeout(async () => {
-        const aiMove = await computeAIMoveAsync(
-          'standard',
-          boardSnapshot,
-          hiddenSnapshot,
-          'b',
-          'master'
-        );
-        if (!aiMove) return;
-        gameRef.current.executeMove(aiMove, true);
-      }, 240);
-
-      return;
-    }
-
-    // 2. AI (Black) just finished its optimal counter-move
-    if (histLen % 2 === 0) {
-      const lastAiRec = game.moveHistory[histLen - 1];
-      const aiMoveText = lastAiRec?.notation?.vn || 'nước tối ưu';
-      const redLegalMoves = getAllLegalMoves(game.board, 'r');
-
-      // Subcase 2a: AI counter-attacked and checkmated/stalemated Red
-      if (redLegalMoves.length === 0) {
-        game.setModalData(null);
-        triggerHaptic('defeat', game.enableHaptics);
-        setPuzzleMistakes((prev) => prev + 1);
-        setPuzzleStatus('wrong');
-        setPuzzleStatusMsg(
-          `Thất bại! AI Kiện Tướng đi ${aiMoveText} phản công chiếu bí Quân Đỏ. Hãy bấm Lùi nước hoặc Đi lại!`
-        );
-        return;
-      }
-
-      // Subcase 2b: Red reached/exceeded the target move quota (maxMoves) and AI survived
-      if (currentRedMoves >= activePuzzle.maxMoves) {
-        game.setModalData(null);
-        triggerHaptic('defeat', game.enableHaptics);
-        setPuzzleMistakes((prev) => prev + 1);
-        setPuzzleStatus('wrong');
-        setPuzzleStatusMsg(
-          `Thất bại! Đã hết ${activePuzzle.maxMoves}/${activePuzzle.maxMoves} nước mục tiêu mà chưa chiếu bí — AI đi ${aiMoveText} hóa giải thành công. Hãy bấm Lùi nước hoặc Đi lại!`
-        );
-        return;
-      }
-
-      // Subcase 2c: AI defended, Red still has moves remaining
-      const remaining = activePuzzle.maxMoves - currentRedMoves;
-      setPuzzleStatus('solving');
-      setPuzzleStatusMsg(
-        `AI Kiện Tướng đáp trả: ${aiMoveText}. Bạn còn ${remaining} nước để chiếu bí Tướng Đen!`
-      );
-    }
-  }, [activePuzzle, game.moveHistory, game.board, game.hiddenBoard, game.enableHaptics, puzzleHintsUsed, puzzleMistakes, game]);
-
-  // Undo last move pair in Puzzle Mode
-  const handlePuzzleUndo = useCallback(() => {
-    if (!activePuzzle || puzzleStatus === 'ai-thinking' || game.moveHistory.length === 0) return;
-    if (puzzleReplyTimeoutRef.current) {
-      clearTimeout(puzzleReplyTimeoutRef.current);
-      puzzleReplyTimeoutRef.current = null;
-    }
-
-    const histLen = game.moveHistory.length;
-    const stepsToUndo = histLen % 2 === 0 ? 2 : 1;
-    const targetLen = Math.max(0, histLen - stepsToUndo);
-    processedPuzzleHistoryLenRef.current = targetLen;
-
-    const newHistory = game.moveHistory.slice(0, targetLen);
-    const lastRec = newHistory.length > 0 ? newHistory[newHistory.length - 1] : null;
-    const restoredBoard = lastRec?.boardAfter
-      ? lastRec.boardAfter.map((r) => [...r])
-      : activePuzzle.initialBoard.map((r) => [...r]);
-
-    game.setBoard(restoredBoard);
-    game.setMoveHistory(newHistory);
-    game.setTurn('r');
-    game.setLastMove(lastRec ? lastRec.move : null);
-    game.setSelectedSquare(null);
-    game.setValidMoves([]);
-    game.setHintMove(null);
-    game.setIsGameOver(false);
-    game.setModalData(null);
-
-    // Rebuild captured records up to targetLen
-    const newCaps: import('@/hooks/useXiangqiGame').CapturedPieceRecord[] = [];
-    for (let i = 0; i < newHistory.length; i++) {
-      const rec = newHistory[i];
-      if (rec.captured) {
-        newCaps.push({
-          id: `puz_${i}_${rec.captured}`,
-          actualCode: rec.capturedActual || rec.captured,
-          capturedBy: i % 2 === 0 ? 'r' : 'b',
-          wasHidden: false
-        });
-      }
-    }
-    game.setCapturedRecords(newCaps);
-
-    const remaining = activePuzzle.maxMoves - Math.ceil(newHistory.length / 2);
-    setPuzzleStatus('solving');
-    setPuzzleStatusMsg(`Đã lùi lại nước đi! Bạn còn ${remaining} nước để chiếu bí AI Kiện Tướng.`);
-    audio.current?.playMove();
-  }, [activePuzzle, puzzleStatus, game, audio]);
-
-  // Real-time AI Hint + Tactical Commentary
-  const handlePuzzleHint = useCallback(async () => {
-    if (!activePuzzle || puzzleStatus === 'solved' || puzzleStatus === 'ai-thinking' || isPuzzleHintLoading) {
-      return;
-    }
-    if (puzzleStatus === 'wrong') {
-      setPuzzleStatusMsg('Hãy bấm "Lùi nước" hoặc "Đi lại" để khôi phục lượt đi trước khi dùng Gợi ý AI!');
-      return;
-    }
-
-    setIsPuzzleHintLoading(true);
-    try {
-      const currentRedIdx = Math.floor(game.moveHistory.length / 2);
-      const refStep = activePuzzle.steps[currentRedIdx];
-
-      // Check if reference step move is legal on the current board
-      let refMoveLegal = false;
-      if (refStep) {
-        const pieceAtFrom = game.board[refStep.playerMove.fromR]?.[refStep.playerMove.fromC];
-        if (pieceAtFrom && pieceAtFrom.startsWith('r')) {
-          const legalFromPiece = getLegalMoves(
-            game.board,
-            refStep.playerMove.fromR,
-            refStep.playerMove.fromC
-          );
-          refMoveLegal = legalFromPiece.some((m) => isSameMove(m, refStep.playerMove));
-        }
-      }
-
-      // Compute real-time optimal attacking move via AI Master engine
-      const aiBestMove = await computeAIMoveAsync(
-        'standard',
-        game.board.map((r) => [...r]),
-        game.hiddenBoard.map((r) => [...r]),
-        'r',
-        'master'
-      );
-
-      // Prefer textbook killer move if legal on current board, otherwise use real-time AI move
-      const chosenMove = refMoveLegal ? refStep.playerMove : aiBestMove;
-      if (!chosenMove) return;
-
-      const moveNotation = formatNotation(game.board, chosenMove).vn;
-      game.setHintMove(chosenMove);
-      setPuzzleHintsUsed((prev) => prev + 1);
-      setPuzzleStatus('solving');
-
-      const commentary =
-        refStep?.hint ||
-        refStep?.explanation ||
-        'Tập trung binh lực công kích trực diện vào Cửu cung Tướng Đen.';
-
-      setPuzzleStatusMsg(`Gợi ý AI Kiện Tướng: Đi ${moveNotation} — ${commentary}`);
-    } finally {
-      setIsPuzzleHintLoading(false);
-    }
-  }, [activePuzzle, puzzleStatus, isPuzzleHintLoading, game]);
-
-  const handleNextPuzzle = useCallback(() => {
-    if (!activePuzzle) return;
-    const idx = XIANGQI_PUZZLES.findIndex((p) => p.id === activePuzzle.id);
-    const nextPuzzle = XIANGQI_PUZZLES[(idx + 1) % XIANGQI_PUZZLES.length];
-    startPuzzle(nextPuzzle);
-  }, [activePuzzle, startPuzzle]);
+  // Keep mobile screen awake during active match
+  useScreenWakeLock(game.enableWakeLock, !game.isGameOver && hasSelectedMode);
 
   // Firebase Auth & Cloud Storage
   const {
@@ -527,7 +189,6 @@ export default function XiangqiPage() {
         if (statsStd) setLocalStatsStandard(JSON.parse(statsStd));
         const statsJq = localStorage.getItem('xq_player_stats_jieqi');
         if (statsJq) setLocalStatsJieqi(JSON.parse(statsJq));
-        setPuzzleProgressMap(getPuzzleProgressMap());
 
         const params = new URLSearchParams(window.location.search);
         if (params.get('room')) {
@@ -868,6 +529,10 @@ export default function XiangqiPage() {
     }
   }, [user, game.gameMode, game.difficulty, game.turn, game.variant, profile, localEloStandard, localEloJieqi]);
 
+  useEffect(() => {
+    recordMatchOutcomeRef.current = recordMatchOutcome;
+  }, [recordMatchOutcome]);
+
   // GameOverModal Action Handlers (Bảo đảm không bị đơ hoặc kẹt lặp lại)
   const handleCloseGameOverModal = useCallback(() => {
     if (socket.roomState) {
@@ -1059,21 +724,19 @@ export default function XiangqiPage() {
 
   // Player Names & Info
   const isRedAtBottom = !game.isFlipped;
-  const bottomPlayerName = activePuzzle
-    ? (user?.displayName || 'Bạn (Đỏ - Phá Thế)')
-    : game.gameMode === 'online'
-    ? (isRedAtBottom ? socket.roomState?.redPlayer?.name : socket.roomState?.blackPlayer?.name) || 'Bạn'
-    : isRedAtBottom
-    ? (game.gameMode === 'pvp' ? 'Người chơi 1 (Đỏ)' : (user?.displayName || 'Bạn'))
-    : (game.gameMode === 'pvp' ? 'Người chơi 2 (Đen)' : (game.gameMode === 'pve-black' ? `Máy (${game.difficulty.toUpperCase()})` : 'P2'));
+  const bottomPlayerName =
+    game.gameMode === 'online'
+      ? (isRedAtBottom ? socket.roomState?.redPlayer?.name : socket.roomState?.blackPlayer?.name) || 'Bạn'
+      : isRedAtBottom
+      ? (game.gameMode === 'pvp' ? 'Người chơi 1 (Đỏ)' : (user?.displayName || 'Bạn'))
+      : (game.gameMode === 'pvp' ? 'Người chơi 2 (Đen)' : (game.gameMode === 'pve-black' ? `Máy (${game.difficulty.toUpperCase()})` : 'P2'));
 
-  const topPlayerName = activePuzzle
-    ? 'AI Kiện Tướng (Trấn Thủ Cờ Thế)'
-    : game.gameMode === 'online'
-    ? (!isRedAtBottom ? socket.roomState?.redPlayer?.name : socket.roomState?.blackPlayer?.name) || 'Đối thủ'
-    : !isRedAtBottom
-    ? (game.gameMode === 'pvp' ? 'Người chơi 1 (Đỏ)' : (user?.displayName || 'Bạn'))
-    : (game.gameMode === 'pvp' ? 'Người chơi 2 (Đen)' : (game.gameMode === 'pve-red' ? `Máy (${game.difficulty.toUpperCase()})` : 'P2'));
+  const topPlayerName =
+    game.gameMode === 'online'
+      ? (!isRedAtBottom ? socket.roomState?.redPlayer?.name : socket.roomState?.blackPlayer?.name) || 'Đối thủ'
+      : !isRedAtBottom
+      ? (game.gameMode === 'pvp' ? 'Người chơi 1 (Đỏ)' : (user?.displayName || 'Bạn'))
+      : (game.gameMode === 'pvp' ? 'Người chơi 2 (Đen)' : (game.gameMode === 'pve-red' ? `Máy (${game.difficulty.toUpperCase()})` : 'P2'));
 
   const bottomTimerValue = game.gameMode === 'online'
     ? (isRedAtBottom ? socket.roomState?.redTimer || 0 : socket.roomState?.blackTimer || 0)
@@ -1118,29 +781,10 @@ export default function XiangqiPage() {
     >
       {/* Top Application Header */}
       <GameHeader
-        variant={game.variant}
-        onToggleVariant={() => {
-          if (activePuzzle) setActivePuzzle(null);
-          const next = game.variant === 'standard' ? 'jieqi' : 'standard';
-          game.handleToggleVariant(next);
-          showToast(`Đã chuyển sang chế độ ${next === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}!`);
-        }}
-        theme={game.theme}
         colorMode={colorMode}
         onToggleColorMode={handleToggleColorMode}
-        onToggleTheme={() =>
-          game.setTheme((prev) => {
-            const order: import('@/lib/xiangqi-types').BoardTheme[] = ['imperial', 'zen', 'marble', 'lacquer'];
-            return order[(order.indexOf(prev) + 1) % order.length];
-          })
-        }
-        isMuted={soundMuted}
-        onToggleMute={handleToggleMute}
-        onFlipBoard={() => game.setIsFlipped(prev => !prev)}
         onShareRoom={handleShareRoom}
         copiedShareLink={copiedShareLink}
-        onOpenOpeningBook={() => setOpeningBookModalOpen(true)}
-        isPuzzleMode={!!activePuzzle}
         onOpenAuthModal={() => setAuthModalOpen(true)}
         onOpenProfileDrawer={() => setUserDrawerOpen(true)}
         onOpenOnlineLobby={() => {
@@ -1158,27 +802,6 @@ export default function XiangqiPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-center gap-3 sm:gap-4 lg:gap-6 px-1.5 sm:px-4">
         {/* Left Column: Board & Players */}
         <div ref={boardStageRef} className="w-full max-w-[640px] sm:max-w-[680px] lg:max-w-[720px] flex flex-col items-center shrink-0 gap-2 sm:gap-2.5">
-          {/* Active Classical Puzzle Banner */}
-          {activePuzzle && (
-            <PuzzleBanner
-              puzzle={activePuzzle}
-              redMovesUsed={redMovesUsedInPuzzle}
-              status={puzzleStatus}
-              statusMessage={puzzleStatusMsg}
-              earnedStars={puzzleEarnedStars}
-              hintsUsed={puzzleHintsUsed}
-              isHintLoading={isPuzzleHintLoading}
-              canUndo={game.moveHistory.length > 0 && puzzleStatus !== 'ai-thinking'}
-              onHint={handlePuzzleHint}
-              onUndo={handlePuzzleUndo}
-              onRetry={() => startPuzzle(activePuzzle)}
-              onNextPuzzle={handleNextPuzzle}
-              onOpenPuzzleList={() => setPuzzleModalOpen(true)}
-              onExitPuzzleMode={exitPuzzleMode}
-              colorMode={colorMode}
-            />
-          )}
-
           {/* Top Player Block */}
           <div className="w-full">
             <PlayerBlock
@@ -1187,9 +810,7 @@ export default function XiangqiPage() {
               avatarChar={!isRedAtBottom ? '帥' : '將'}
               title={topPlayerName}
               badgeLabel={
-                activePuzzle
-                  ? 'AI MASTER'
-                  : game.gameMode === 'online'
+                game.gameMode === 'online'
                   ? 'Đối thủ'
                   : game.gameMode === 'pvp'
                   ? (!isRedAtBottom ? 'P1' : 'P2')
@@ -1257,13 +878,11 @@ export default function XiangqiPage() {
                   ? game.moveHistory[game.inspectMoveIndex].move
                   : game.lastMove
               }
-              hintMove={game.hintMove}
               turn={game.turn}
               isCheck={game.isCheck}
               isInspecting={game.inspectMoveIndex !== null}
               disabled={
                 game.isAiThinking ||
-                Boolean(activePuzzle && (puzzleStatus !== 'solving' || game.turn !== 'r')) ||
                 (game.gameMode === 'online' && (
                   !socket.roomState?.isGameStarted ||
                   game.turn !== socket.myColor ||
@@ -1274,7 +893,6 @@ export default function XiangqiPage() {
               onExecuteMove={game.executeMove}
               animatingPiece={game.animatingPiece}
               animatingPieceRef={game.animatingPieceRef}
-              animatingShadowRef={game.animatingShadowRef}
               landingEffect={game.landingEffect}
               boardShake={game.enableHaptics ? game.boardShake : null}
               cannonJumpAnim={game.cannonJumpAnim}
@@ -1292,7 +910,6 @@ export default function XiangqiPage() {
                 game.triggerBoardShake('capture');
               }}
               onHorseComplete={() => game.setHorseKickAnim(null)}
-              variant={game.variant}
               justRevealedSquare={game.justRevealedSquare}
             />
 
@@ -1378,7 +995,6 @@ export default function XiangqiPage() {
           <UnifiedGameConsole
             variant={game.variant}
             onChangeVariant={(newV) => {
-              if (activePuzzle) setActivePuzzle(null);
               game.handleToggleVariant(newV);
               showToast(`Đã chuyển sang chế độ ${newV === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}!`);
               scrollToBoard();
@@ -1394,7 +1010,6 @@ export default function XiangqiPage() {
             }}
             gameMode={hasSelectedMode ? game.gameMode : null}
             onChangeGameMode={(m) => {
-              if (activePuzzle) setActivePuzzle(null);
               setHasSelectedMode(true);
               if (m === 'online') {
                 setLobbyInitialTab('ranked');
@@ -1420,16 +1035,10 @@ export default function XiangqiPage() {
             }}
             autoFlip={game.autoFlip}
             onToggleAutoFlip={game.setAutoFlip}
-            onUndo={activePuzzle ? handlePuzzleUndo : game.handleUndo}
-            canUndo={
-              activePuzzle
-                ? game.moveHistory.length > 0 && puzzleStatus !== 'ai-thinking'
-                : game.moveHistory.length > 0 && !game.isAiThinking && !game.isGameOver
-            }
+            onUndo={game.handleUndo}
+            canUndo={game.moveHistory.length > 0 && !game.isAiThinking && !game.isGameOver}
             onResign={() => {
-              if (activePuzzle) {
-                exitPuzzleMode();
-              } else if (game.gameMode === 'online') {
+              if (game.gameMode === 'online') {
                 setResignModalOpen(true);
               } else {
                 game.setIsGameOver(true);
@@ -1443,7 +1052,7 @@ export default function XiangqiPage() {
               }
             }}
             canResign={!game.isGameOver}
-            onNewGame={activePuzzle ? () => startPuzzle(activePuzzle) : handleGameOverNewGame}
+            onNewGame={handleGameOverNewGame}
             isOnlineGame={game.gameMode === 'online'}
             isGameOver={game.isGameOver}
             drawOfferedByOpponent={socket.incomingDrawOffer}
@@ -1664,27 +1273,12 @@ export default function XiangqiPage() {
         }}
       />
 
-      {/* Cẩm nang Cờ Thế Kinh Điển */}
-      <PuzzleModal
-        isOpen={puzzleModalOpen}
-        onClose={() => setPuzzleModalOpen(false)}
-        activePuzzleId={activePuzzle?.id || null}
-        progressMap={puzzleProgressMap}
-        onSelectPuzzle={(puzzle) => {
-          startPuzzle(puzzle);
-          showToast(`Bắt đầu giải thế cờ: ${puzzle.title} (${puzzle.difficultyLabel})`);
-          scrollToBoard();
-        }}
-        colorMode={colorMode}
-      />
-
       {/* Cài đặt Menu: Bật/Tắt Tiếng, Hiệu ứng Quân cờ, Rung, Wake Lock, Giao diện, 4 Bàn Cờ */}
       <SettingsMenuModal
         isOpen={settingsModalOpen}
         onClose={() => setSettingsModalOpen(false)}
         variant={game.variant}
         onToggleVariant={() => {
-          if (activePuzzle) setActivePuzzle(null);
           const next = game.variant === 'standard' ? 'jieqi' : 'standard';
           game.handleToggleVariant(next);
           showToast(`Đã chuyển sang chế độ ${next === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}!`);
@@ -1705,10 +1299,6 @@ export default function XiangqiPage() {
           showToast(`Đã đổi bàn cờ: ${BOARD_THEME_LABELS[t]?.name || t}`);
         }}
         onOpenRules={() => setRulesOpen(true)}
-        onOpenOnlineLobby={() => {
-          setLobbyInitialTab('ranked');
-          setIsOnlineModalOpen(true);
-        }}
         onOpenOpeningBook={() => setOpeningBookModalOpen(true)}
       />
 

@@ -7,28 +7,17 @@ import {
   Share2,
   Check,
   User as UserIcon,
-  Swords,
-  Flame
+  Swords
 } from 'lucide-react';
-import { BoardTheme, getRankTier } from '@/lib/xiangqi-types';
+import { getRankTier } from '@/lib/xiangqi-types';
 import { User } from 'firebase/auth';
 import { DayNightSwitch } from '@/components/ui/DayNightSwitch';
 
 interface GameHeaderProps {
-  variant?: 'standard' | 'jieqi';
-  onToggleVariant?: () => void;
-  theme?: BoardTheme;
   colorMode?: 'dark' | 'light';
-  onToggleTheme?: () => void;
   onToggleColorMode?: () => void;
-  isMuted: boolean;
-  onToggleMute: () => void;
-  onFlipBoard?: () => void;
   onShareRoom: () => void;
   copiedShareLink: boolean;
-  onOpenOpeningBook: () => void;
-  onOpenPuzzles?: () => void;
-  isPuzzleMode?: boolean;
   onOpenAuthModal: () => void;
   onOpenProfileDrawer: () => void;
   onOpenOnlineLobby: () => void;
@@ -44,8 +33,6 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
   onToggleColorMode,
   onShareRoom,
   copiedShareLink,
-  onOpenPuzzles,
-  isPuzzleMode = false,
   onOpenAuthModal,
   onOpenProfileDrawer,
   onOpenOnlineLobby,
@@ -105,24 +92,6 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
           <Swords className="w-3.5 h-3.5 text-red-500 shrink-0" />
           <span>Phòng Đấu</span>
         </button>
-
-        {onOpenPuzzles && (
-          <button
-            type="button"
-            onClick={onOpenPuzzles}
-            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 min-h-[36px] rounded-lg border font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${
-              isPuzzleMode
-                ? 'bg-amber-600 border-amber-400 text-white shadow-2xs'
-                : isDark
-                ? 'bg-[#0E131B] hover:bg-[#1C2536] border-[#232D3F] text-amber-300 hover:text-amber-200'
-                : 'bg-amber-50/70 hover:bg-amber-100 border-amber-300/70 text-amber-900'
-            }`}
-            title="Giải Cờ Thế Kinh Điển & Thử Thách Sát Pháp"
-          >
-            <Flame className={`w-3.5 h-3.5 shrink-0 ${isPuzzleMode ? 'text-white' : 'text-amber-500'}`} />
-            <span>Cờ Thế</span>
-          </button>
-        )}
 
         <div className="hidden min-[370px]:flex items-center justify-center shrink-0">
           <DayNightSwitch

@@ -12,7 +12,6 @@ import {
   GameVariant
 } from '@/lib/xiangqi-types';
 import {
-  findGeneral,
   isKingInCheck,
   getLegalMoves,
   getAllLegalMoves,
@@ -32,7 +31,7 @@ import {
 import { computeAIMoveAsync } from '@/lib/ai-worker-client';
 import { triggerHaptic } from '@/lib/mobile-ergonomics';
 import { AudioEngine } from '@/lib/audio';
-import { CurveTrajectory, computeCurveTrajectory, computeStraightTrajectory } from '@/lib/trajectory';
+import { computeCurveTrajectory, computeStraightTrajectory } from '@/lib/trajectory';
 import { CannonJumpData } from '@/components/CannonJumpAnimation';
 import { ChariotChargeData } from '@/components/ChariotChargeAnimation';
 import { HorseKickData } from '@/components/HorseKickAnimation';
@@ -43,9 +42,9 @@ export interface UseXiangqiGameOptions {
   initialVariant?: GameVariant;
   isPaused?: boolean;
   onMove?: (move: Move) => void;
-  onMoveAttempt?: (move: Move) => boolean;
   onWrongTurnClick?: (clickedColor: PieceColor, currentTurn: PieceColor) => void;
   onPerpetualCheckWarning?: (count: number, color: PieceColor) => void;
+  onGameEnd?: (result: 'win' | 'loss' | 'draw', movesCount: number) => void;
 }
 
 export interface CapturedPieceRecord {
@@ -74,10 +73,10 @@ export function useXiangqiGame(
     onPerpetualCheckWarningRef.current = options?.onPerpetualCheckWarning;
   }, [options?.onPerpetualCheckWarning]);
 
-  const onMoveAttemptRef = useRef(options?.onMoveAttempt);
+  const onGameEndRef = useRef(options?.onGameEnd);
   useEffect(() => {
-    onMoveAttemptRef.current = options?.onMoveAttempt;
-  }, [options?.onMoveAttempt]);
+    onGameEndRef.current = options?.onGameEnd;
+  }, [options?.onGameEnd]);
 
   // Game Variant State: 'standard' (Cờ Sáng) | 'jieqi' (Cờ Úp)
   const [variant, setVariant] = useState<GameVariant>(options?.initialVariant || 'standard');
@@ -91,7 +90,6 @@ export function useXiangqiGame(
   const [selectedSquare, setSelectedSquare] = useState<{ r: number; c: number } | null>(null);
   const [validMoves, setValidMoves] = useState<Move[]>([]);
   const [lastMove, setLastMove] = useState<Move | null>(null);
-  const [hintMove, setHintMove] = useState<Move | null>(null);
   const [moveHistory, setMoveHistory] = useState<MoveRecord[]>([]);
   const [inspectMoveIndex, setInspectMoveIndex] = useState<number | null>(null);
 
@@ -100,14 +98,8 @@ export function useXiangqiGame(
 
   // Animation States
   const [animatingPiece, setAnimatingPiece] = useState<AnimatingPieceData | null>(null);
-  const animatingPieceRefState = useRef<boolean>(false);
-  useEffect(() => {
-    animatingPieceRefState.current = !!animatingPiece;
-  }, [animatingPiece]);
-
   const [landingEffect, setLandingEffect] = useState<{ r: number; c: number; isCapture: boolean } | null>(null);
   const animatingPieceRef = useRef<HTMLDivElement | null>(null);
-  const animatingShadowRef = useRef<HTMLDivElement | null>(null);
 
   const [boardShake, setBoardShake] = useState<'check' | 'capture' | null>(null);
   const [cannonJumpAnim, setCannonJumpAnim] = useState<CannonJumpData | null>(null);
@@ -172,13 +164,6 @@ export function useXiangqiGame(
   const enableHapticsRef = useRef<boolean>(enableHaptics);
   useEffect(() => {
     enableHapticsRef.current = enableHaptics;
-    if (!enableHaptics) {
-      if (shakeTimeoutRef.current) {
-        clearTimeout(shakeTimeoutRef.current);
-        shakeTimeoutRef.current = null;
-      }
-      setBoardShake(null);
-    }
   }, [enableHaptics]);
 
   const toggleEnableHaptics = useCallback(() => {
@@ -274,13 +259,6 @@ export function useXiangqiGame(
         animatingPieceRef.current.style.boxShadow = `0 ${pt.shadowOffsetY}px ${pt.shadowBlur}px rgba(0,0,0,0.55), inset 0 2px 4px #ffffff`;
       }
 
-      if (animatingShadowRef.current) {
-        animatingShadowRef.current.style.left = `${pt.groundPctX}%`;
-        animatingShadowRef.current.style.top = `${pt.groundPctY}%`;
-        animatingShadowRef.current.style.opacity = `${0.45 * (1 - pt.lift * 0.4)}`;
-        animatingShadowRef.current.style.transform = `translate(-50%, -50%) scale(${1 - pt.lift * 0.25})`;
-      }
-
       if (t < 1) {
         animId = requestAnimationFrame(animate);
       }
@@ -292,14 +270,23 @@ export function useXiangqiGame(
 
   const handleTimeOut = useCallback((color: PieceColor) => {
     setIsGameOver(true);
-    audioEngineRef.current?.playDefeat();
+    const humanColor: PieceColor = gameMode === 'pve-black' ? 'b' : 'r';
+    const isHumanVictory = color !== humanColor;
+    if (isHumanVictory) {
+      audioEngineRef.current?.playVictory();
+    } else {
+      audioEngineRef.current?.playDefeat();
+    }
     setModalData({
       title: 'Hết giờ!',
       desc: `Bên ${color === 'r' ? 'Đỏ' : 'Đen'} đã hết thời gian đi quân. Bên ${color === 'r' ? 'Đen' : 'Đỏ'} giành chiến thắng!`,
-      icon: '⏳',
-      resultType: color === 'r' ? 'defeat' : 'victory'
+      icon: isHumanVictory ? '🏆' : '⏳',
+      resultType: isHumanVictory ? 'victory' : 'defeat'
     });
-  }, [audioEngineRef]);
+    if (gameMode !== 'online') {
+      onGameEndRef.current?.(isHumanVictory ? 'win' : 'loss', Math.max(1, Math.ceil(moveHistory.length / 2)));
+    }
+  }, [audioEngineRef, gameMode, moveHistory.length]);
 
   // Turn timers countdown loop
   useEffect(() => {
@@ -461,7 +448,6 @@ export function useXiangqiGame(
       setLastMove(m);
       setSelectedSquare(null);
       setValidMoves([]);
-      setHintMove(null);
       setAnimatingPiece(null);
 
       // Sound effect trigger & Landing ripple:
@@ -518,6 +504,8 @@ export function useXiangqiGame(
       };
       setMoveHistory(prev => [...prev, record]);
 
+      const turnsCount = Math.max(1, Math.ceil((moveHistory.length + 1) / 2));
+
       // Perpetual Check Rule
       if (nextInCheck) {
         const consecutiveCheckCount = countConsecutiveChecksSamePieceAndPos(
@@ -538,6 +526,9 @@ export function useXiangqiGame(
             icon: '🤝',
             resultType: 'draw'
           });
+          if (gameMode !== 'online') {
+            onGameEndRef.current?.('draw', turnsCount);
+          }
           return;
         } else if (consecutiveCheckCount === 3) {
           onPerpetualCheckWarningRef.current?.(3, turn);
@@ -553,20 +544,34 @@ export function useXiangqiGame(
         setIsGameOver(true);
         if (nextInCheck) {
           const winner = turn === 'r' ? 'Đỏ' : 'Đen';
-          audioEngineRef.current?.playVictory();
-          triggerHaptic('victory', enableHaptics);
+          const humanColor: PieceColor = gameMode === 'pve-black' ? 'b' : 'r';
+          const isHumanVictory = gameMode === 'pvp' ? true : turn === humanColor;
+          if (isHumanVictory) {
+            audioEngineRef.current?.playVictory();
+            triggerHaptic('victory', enableHaptics);
+          } else {
+            audioEngineRef.current?.playDefeat();
+          }
           setModalData({
             title: 'CHIẾU BÍ!',
             desc: `Bên ${winner} đã chiếu bí thành công và giành chiến thắng vẻ vang!`,
-            icon: '🏆'
+            icon: isHumanVictory ? '🏆' : '🍂',
+            resultType: isHumanVictory ? 'victory' : 'defeat'
           });
+          if (gameMode !== 'online') {
+            onGameEndRef.current?.(isHumanVictory ? 'win' : 'loss', turnsCount);
+          }
         } else {
           audioEngineRef.current?.playDraw();
           setModalData({
             title: 'Hòa cờ (Hết nước đi)',
             desc: 'Không còn nước đi hợp lệ nào. Trận đấu kết thúc với kết quả Hòa.',
-            icon: '🤝'
+            icon: '🤝',
+            resultType: 'draw'
           });
+          if (gameMode !== 'online') {
+            onGameEndRef.current?.('draw', turnsCount);
+          }
         }
         return;
       }
@@ -630,14 +635,6 @@ export function useXiangqiGame(
     if (selectedSquare) {
       const targetMove = validMoves.find(m => m.toR === r && m.toC === c);
       if (targetMove) {
-        if (onMoveAttemptRef.current) {
-          const allowed = onMoveAttemptRef.current(targetMove);
-          if (!allowed) {
-            setSelectedSquare(null);
-            setValidMoves([]);
-            return;
-          }
-        }
         executeMove(targetMove);
         return;
       }
@@ -694,7 +691,6 @@ export function useXiangqiGame(
     setSelectedSquare(null);
     setValidMoves([]);
     setLastMove(null);
-    setHintMove(null);
     setMoveHistory([]);
     setInspectMoveIndex(null);
     setCapturedRecords([]);
@@ -751,7 +747,6 @@ export function useXiangqiGame(
     setLastMove(lastRecord ? lastRecord.move : null);
     setSelectedSquare(null);
     setValidMoves([]);
-    setHintMove(null);
     setMoveHistory(newHistory);
     setInspectMoveIndex(null);
     audioEngineRef.current?.playMove();
@@ -812,8 +807,6 @@ export function useXiangqiGame(
     setValidMoves,
     lastMove: inspectMoveIndex !== null && moveHistory[inspectMoveIndex] ? moveHistory[inspectMoveIndex].move : lastMove,
     setLastMove,
-    hintMove,
-    setHintMove,
     moveHistory,
     setMoveHistory,
     inspectMoveIndex,
@@ -847,7 +840,6 @@ export function useXiangqiGame(
     animatingPiece,
     landingEffect,
     animatingPieceRef,
-    animatingShadowRef,
     boardShake,
     triggerBoardShake,
     cannonJumpAnim,
