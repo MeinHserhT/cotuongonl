@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       'Chơi Cờ Tướng, Cờ Úp online miễn phí phong cách Ziga. Đấu cờ tướng trực tuyến xếp hạng Elo, đấu với máy AI Kiện Tướng, tạo phòng chơi cờ cùng bạn bè.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#0e1219',
-    theme_color: '#0e1219',
+    background_color: '#120E0A',
+    theme_color: '#120E0A',
     orientation: 'portrait',
     icons: [
       {

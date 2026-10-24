@@ -1,82 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#161F30" />
-      <stop offset="100%" stopColor="#0A0E17" />
-    </linearGradient>
-    <linearGradient id="goldRim" x1="64" y1="40" x2="448" y2="472" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#FDE68A" />
-      <stop offset="35%" stopColor="#F59E0B" />
-      <stop offset="70%" stopColor="#B45309" />
-      <stop offset="100%" stopColor="#FBBF24" />
-    </linearGradient>
-    <radialGradient id="crimsonDisc" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stopColor="#EF4444" />
-      <stop offset="52%" stopColor="#B91C1C" />
-      <stop offset="100%" stopColor="#690B0B" />
-    </radialGradient>
-    <linearGradient id="innerGold" x1="120" y1="120" x2="392" y2="392" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#FEF3C7" />
-      <stop offset="50%" stopColor="#F59E0B" />
-      <stop offset="100%" stopColor="#D97706" />
-    </linearGradient>
-    <filter id="dropShadow" x="10%" y="10%" width="80%" height="84%">
-      <feDropShadow dx="0" dy="12" stdDeviation="12" floodColor="#000000" floodOpacity="0.55" />
-    </filter>
-  </defs>
+  <!-- Simple Circular Brown Wooden Disc -->
+  <circle cx="256" cy="256" r="240" fill="#5C3A21" stroke="#C89D66" stroke-width="20" />
+  <circle cx="256" cy="256" r="204" stroke="#A67B4B" stroke-width="6" stroke-opacity="0.6" />
 
-  <!-- Rounded App Icon Squircle Base -->
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" stroke="url(#goldRim)" strokeWidth="12" />
-
-  <!-- Subtle Nine-Palace (Cửu Cung) Board Grid Background -->
-  <g stroke="#F59E0B" strokeOpacity="0.16" strokeWidth="4">
-    <rect x="68" y="68" width="376" height="376" rx="76" />
-    <line x1="68" y1="256" x2="444" y2="256" />
-    <line x1="256" y1="68" x2="256" y2="444" />
-    <line x1="96" y1="96" x2="416" y2="416" strokeDasharray="10 10" />
-    <line x1="416" y1="96" x2="96" y2="416" strokeDasharray="10 10" />
-  </g>
-
-  <!-- Corner Imperial Ornaments -->
-  <path d="M56 116 V76 Q56 56 76 56 H116" stroke="url(#goldRim)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.65" />
-  <path d="M456 116 V76 Q456 56 436 56 H396" stroke="url(#goldRim)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.65" />
-  <path d="M56 396 V436 Q56 456 76 456 H116" stroke="url(#goldRim)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.65" />
-  <path d="M456 396 V436 Q456 456 436 456 H396" stroke="url(#goldRim)" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.65" />
-
-  <!-- 3D Xiangqi Piece Shadow & Base Cylinder -->
-  <g filter="url(#dropShadow)">
-    <circle cx="256" cy="266" r="184" fill="#451A03" />
-    <!-- Outer Gold Bezel -->
-    <circle cx="256" cy="252" r="184" fill="url(#goldRim)" />
-    <!-- Crimson Lacquer Piece Body -->
-    <circle cx="256" cy="252" r="168" fill="url(#crimsonDisc)" />
-    <!-- Carved Inner Double Ring (Engraved Gold Groove) -->
-    <circle cx="256" cy="252" r="146" stroke="url(#innerGold)" strokeWidth="8" />
-    <circle cx="256" cy="252" r="132" stroke="#FDE68A" strokeOpacity="0.45" strokeWidth="2.5" strokeDasharray="12 8" />
-  </g>
-
-  <!-- Top Specular Highlight Arc -->
-  <path
-    d="M132 162 A152 152 0 0 1 380 162"
-    stroke="#FCA5A5"
-    strokeOpacity="0.35"
-    strokeWidth="6"
-    strokeLinecap="round"
-    fill="none"
-  />
-
-  <!-- Engraved Royal General Character (帥 / 將) -->
+  <!-- Character 將 -->
   <text
     x="256"
-    y="264"
-    textAnchor="middle"
-    dominantBaseline="central"
-    fill="url(#innerGold)"
-    fontFamily="'LXGW WenKai TC', 'STKaiti', 'KaiTi', 'Kaiti SC', 'Noto Serif SC', serif"
-    fontWeight="700"
-    fontSize="196"
-    style="filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.55));"
+    y="272"
+    text-anchor="middle"
+    dominant-baseline="central"
+    fill="#FDF6E9"
+    font-family="'Iansui', 'Ma Shan Zheng', 'LXGW WenKai TC', 'STKaiti', 'KaiTi', 'Kaiti SC', 'Noto Serif SC', serif"
+    font-weight="700"
+    font-size="256"
   >
-    帥
+    將
   </text>
 </svg>

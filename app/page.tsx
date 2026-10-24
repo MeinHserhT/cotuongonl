@@ -6,7 +6,7 @@ import { AudioEngine } from '@/lib/audio';
 import { boardToFen } from '@/lib/xiangqi-openings';
 import { useAuth } from '@/hooks/useAuth';
 import { useXiangqiSocket } from '@/hooks/useXiangqiSocket';
-import { recordMatchProgress, saveGameState, SavedGameData } from '@/lib/firebase';
+import type { SavedGameData } from '@/lib/firebase';
 import { useXiangqiGame } from '@/hooks/useXiangqiGame';
 import { useScreenWakeLock } from '@/lib/mobile-ergonomics';
 
@@ -16,10 +16,26 @@ import dynamic from 'next/dynamic';
 import { GameHeader } from '@/components/GameHeader';
 import { XiangqiBoard } from '@/components/XiangqiBoard';
 import { UnifiedGameConsole } from '@/components/UnifiedGameConsole';
-import { GameOverModal, RulesModal, ResignModal, DrawOfferModal } from '@/components/GameModals';
 import { BoardSideTray } from '@/components/BoardSideTray';
 import { PlayerBlock } from '@/components/PlayerBlock';
 import { StartGameMenuModal } from '@/components/StartGameMenuModal';
+
+const GameOverModal = dynamic(
+  () => import('@/components/GameModals').then((m) => m.GameOverModal),
+  { ssr: false }
+);
+const RulesModal = dynamic(
+  () => import('@/components/GameModals').then((m) => m.RulesModal),
+  { ssr: false }
+);
+const ResignModal = dynamic(
+  () => import('@/components/GameModals').then((m) => m.ResignModal),
+  { ssr: false }
+);
+const DrawOfferModal = dynamic(
+  () => import('@/components/GameModals').then((m) => m.DrawOfferModal),
+  { ssr: false }
+);
 
 // Dynamic lazy-loaded modals to minimize initial bundle size and boost Core Web Vitals (FCP/LCP)
 const OnlineLobbyModal = dynamic(
@@ -228,8 +244,11 @@ export default function XiangqiPage() {
     game.executeMove(m, false, true);
   }, [game]);
 
-  // Online Multiplayer WebSocket Hook
-  const socket = useXiangqiSocket(handleRemoteMove);
+  // Online Multiplayer WebSocket Hook (connects on-demand when online lobby/mode is active)
+  const socket = useXiangqiSocket(
+    handleRemoteMove,
+    game.gameMode === 'online' || isOnlineModalOpen
+  );
   useEffect(() => {
     socketRef.current = socket;
   }, [socket]);
@@ -354,21 +373,26 @@ export default function XiangqiPage() {
         if (user) {
           const oppPlayer = myC === 'r' ? rs.blackPlayer : rs.redPlayer;
           const resType = winner === 'draw' ? 'draw' : winner === myC ? 'win' : 'loss';
-          recordMatchProgress(user.uid, {
-            opponentName: oppPlayer?.name || 'Kỳ thủ Online',
-            opponentType: 'online',
-            playerColor: myC || 'r',
-            result: resType,
-            movesCount: rs.moveHistory.length,
-            durationSeconds: rs.timeLimit,
-            date: new Date().toISOString(),
-            eloChange: delta,
-            variant: isJieqi ? 'jieqi' : 'standard'
-          }).then(() => {
-            refreshProfile();
-          }).catch(err => {
-            console.error('Lỗi cập nhật Elo trận online lên Firestore:', err);
-          });
+          import('@/lib/firebase')
+            .then(({ recordMatchProgress }) =>
+              recordMatchProgress(user.uid, {
+                opponentName: oppPlayer?.name || 'Kỳ thủ Online',
+                opponentType: 'online',
+                playerColor: myC || 'r',
+                result: resType,
+                movesCount: rs.moveHistory.length,
+                durationSeconds: rs.timeLimit,
+                date: new Date().toISOString(),
+                eloChange: delta,
+                variant: isJieqi ? 'jieqi' : 'standard'
+              })
+            )
+            .then(() => {
+              refreshProfile();
+            })
+            .catch(err => {
+              console.error('Lỗi cập nhật Elo trận online lên Firestore:', err);
+            });
         }
       }
 
@@ -510,6 +534,7 @@ export default function XiangqiPage() {
 
     if (!user) return;
     try {
+      const { recordMatchProgress } = await import('@/lib/firebase');
       await recordMatchProgress(user.uid, {
         opponentName:
           game.gameMode === 'online'
@@ -613,6 +638,7 @@ export default function XiangqiPage() {
       setAuthModalOpen(true);
       throw new Error('Vui lòng đăng nhập để lưu ván cờ.');
     }
+    const { saveGameState } = await import('@/lib/firebase');
     await saveGameState(user.uid, {
       name,
       gameMode: game.gameMode,
@@ -790,8 +816,8 @@ export default function XiangqiPage() {
       data-theme={colorMode}
       className={`min-h-screen min-h-[100dvh] flex flex-col pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] px-[max(0.5rem,env(safe-area-inset-left))] sm:p-4 select-none overflow-x-hidden font-sans transition-colors duration-200 ${colorMode} ${
         colorMode === 'dark'
-          ? 'bg-[#0E131B] text-slate-100'
-          : 'bg-[#F4F5F7] text-slate-900'
+          ? 'bg-[#120E0A] text-[#EFE6D5]'
+          : 'bg-[#EEF2F0] text-[#132226]'
       }`}
     >
       {/* Top Application Header */}
@@ -885,6 +911,7 @@ export default function XiangqiPage() {
               boardRef={boardContainerRef}
               board={game.displayBoard}
               theme={game.theme}
+              colorMode={colorMode}
               isFlipped={game.isFlipped}
               selectedSquare={game.selectedSquare}
               validMoves={game.validMoves}
@@ -1005,7 +1032,9 @@ export default function XiangqiPage() {
               : 'w-full max-w-[420px] lg:w-[440px] lg:max-w-[440px]'
           } ${
             consoleDockHighlight
-              ? 'ring-2 ring-amber-500 scale-[1.01]'
+              ? colorMode === 'dark'
+                ? 'ring-2 ring-[#D97706] scale-[1.01]'
+                : 'ring-2 ring-[#0F766E] scale-[1.01]'
               : ''
           }`}
         >
@@ -1332,7 +1361,13 @@ export default function XiangqiPage() {
 
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#1b2230] border border-amber-400/80 text-amber-200 px-4 py-2 rounded-full text-xs font-bold shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 border px-4 py-2 rounded-full text-xs font-bold shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-3 duration-200 ${
+            colorMode === 'dark'
+              ? 'bg-[#1F1812] border-[#D97706] text-[#EFE6D5]'
+              : 'bg-[#FFFFFF] border-[#0F766E] text-[#132226]'
+          }`}
+        >
           {toastMsg}
         </div>
       )}

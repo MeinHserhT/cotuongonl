@@ -60,19 +60,19 @@ export const PlayerBlock = React.memo(function PlayerBlock({
       className={`relative w-full rounded-xl border flex flex-col transition-colors duration-200 min-h-[52px] overflow-hidden ${
         isDark
           ? isActive && isCheck
-            ? 'bg-[#1D1318] border-red-500 text-slate-100'
+            ? 'bg-[#261412] border-red-500 text-[#EFE6D5]'
             : isActive
             ? isRed
-              ? 'bg-[#151C28] border-red-500/80 text-slate-100'
-              : 'bg-[#151C28] border-amber-500/80 text-slate-100'
-            : 'bg-[#151C28]/80 border-[#232D3F] text-slate-300'
+              ? 'bg-[#1F1812] border-red-500/85 text-[#EFE6D5]'
+              : 'bg-[#1F1812] border-[#D97706] text-[#EFE6D5]'
+            : 'bg-[#1F1812]/90 border-[#36291E] text-[#B8A996]'
           : isActive && isCheck
-          ? 'bg-red-50 border-red-600 text-slate-900'
+          ? 'bg-red-50 border-red-600 text-[#132226]'
           : isActive
           ? isRed
-            ? 'bg-white border-red-500 text-slate-900 shadow-2xs'
-            : 'bg-white border-amber-600 text-slate-900 shadow-2xs'
-          : 'bg-white/85 border-slate-200 text-slate-700'
+            ? 'bg-[#FFFFFF] border-red-500 text-[#132226] shadow-2xs'
+            : 'bg-[#FFFFFF] border-[#0F766E] text-[#132226] shadow-2xs'
+          : 'bg-[#FFFFFF]/90 border-[#D5DFDB] text-[#4A6368]'
       }`}
     >
       {/* Inspection Header Strip */}
@@ -80,12 +80,12 @@ export const PlayerBlock = React.memo(function PlayerBlock({
         <div
           className={`w-full px-3 py-1 border-b flex items-center justify-between text-xs z-20 shrink-0 ${
             isDark
-              ? 'bg-amber-950/70 border-amber-500/30 text-amber-200'
-              : 'bg-amber-50 border-amber-200 text-amber-900'
+              ? 'bg-[#120E0A] border-[#36291E] text-[#EFE6D5]'
+              : 'bg-[#EEF2F0] border-[#D5DFDB] text-[#132226]'
           }`}
         >
           <div className="flex items-center gap-1.5 font-medium">
-            <Eye className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <Eye className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
             <span>
               Đang xem lại nước thứ <strong className="font-mono tabular-nums">{inspectMoveIndex + 1}</strong>
             </span>
@@ -94,7 +94,9 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             <button
               type="button"
               onClick={onExitInspect}
-              className="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap"
+              className={`px-2 py-0.5 rounded text-white font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap ${
+                isDark ? 'bg-[#D97706] hover:bg-amber-500' : 'bg-[#0F766E] hover:bg-teal-600'
+              }`}
             >
               Về nước hiện tại
             </button>
@@ -128,13 +130,15 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border shrink-0 transition-colors ${
               isRed
                 ? 'bg-[#FDF6E9] border-red-700/70 text-[#B91C1C]'
-                : 'bg-[#F4F1EA] border-slate-700 text-[#1E293B]'
+                : 'bg-[#F4F1EA] border-[#36291E] text-[#132226]'
             } ${
               isActive
                 ? isRed
                   ? 'ring-2 ring-red-500/40'
-                  : 'ring-2 ring-amber-500/40'
-                : 'opacity-80'
+                  : isDark
+                  ? 'ring-2 ring-[#D97706]/50'
+                  : 'ring-2 ring-[#0F766E]/45'
+                : 'opacity-85'
             }`}
           >
             <span
@@ -153,7 +157,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             <div className="flex items-baseline gap-1.5 min-w-0 truncate">
               <h3
                 className={`text-sm font-semibold truncate ${
-                  isDark ? 'text-slate-100' : 'text-slate-900'
+                  isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                 }`}
                 title={title}
               >
@@ -162,7 +166,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
 
               <div
                 className={`flex items-center gap-1 text-xs truncate shrink-0 ${
-                  isDark ? 'text-slate-400' : 'text-slate-500'
+                  isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                 }`}
               >
                 {badgeLabel && badgeLabel !== title && (
@@ -174,7 +178,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 {rank && elo ? (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="font-mono tabular-nums font-medium text-amber-500">
+                    <span className={`font-mono tabular-nums font-semibold ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>
                       {elo} Elo
                     </span>
                     <span aria-hidden="true" className="hidden sm:inline">
@@ -202,15 +206,15 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                           ? 'text-red-400'
                           : 'text-red-600'
                         : isDark
-                        ? 'text-amber-400'
-                        : 'text-amber-700'
+                        ? 'text-[#D97706]'
+                        : 'text-[#0F766E]'
                     }`}
                   >
                     Đến lượt đi
                   </span>
                 )
               ) : (
-                <span className={`truncate ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                <span className={`truncate ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>
                   Đợi lượt
                 </span>
               )}
@@ -226,15 +230,15 @@ export const PlayerBlock = React.memo(function PlayerBlock({
               className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors shrink-0 ${
                 !isTimerRunning
                   ? isDark
-                    ? 'bg-[#0E131B] border-[#232D3F] text-slate-400'
-                    : 'bg-slate-50 border-slate-200 text-slate-600'
+                    ? 'bg-[#120E0A] border-[#36291E] text-[#B8A996]'
+                    : 'bg-[#EEF2F0] border-[#D5DFDB] text-[#4A6368]'
                   : turnTimer <= 10
                   ? isDark
                     ? 'bg-red-950/80 text-red-300 border-red-500'
                     : 'bg-red-50 text-red-700 border-red-400'
                   : isDark
-                  ? 'bg-[#0E131B] text-amber-300 border-[#232D3F]'
-                  : 'bg-slate-50 text-amber-800 border-slate-200'
+                  ? 'bg-[#120E0A] text-[#D97706] border-[#36291E]'
+                  : 'bg-[#EEF2F0] text-[#0F766E] border-[#D5DFDB]'
               }`}
               title={`Thời gian nước đi này: còn ${turnTimer}s / ${moveTimeLimit}s`}
             >
@@ -253,14 +257,14 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                     : 'bg-red-50 border-red-500 text-red-700'
                   : isDark
                   ? isRed
-                    ? 'bg-[#0E131B] border-red-500/50 text-red-300'
-                    : 'bg-[#0E131B] border-amber-500/50 text-amber-300'
+                    ? 'bg-[#120E0A] border-red-500/60 text-red-300'
+                    : 'bg-[#120E0A] border-[#D97706]/70 text-[#EFE6D5]'
                   : isRed
-                  ? 'bg-slate-50 border-red-300 text-red-700'
-                  : 'bg-slate-50 border-amber-300 text-amber-800'
+                  ? 'bg-[#EEF2F0] border-red-300 text-red-700'
+                  : 'bg-[#EEF2F0] border-[#0F766E]/60 text-[#0F766E]'
                 : isDark
-                ? 'bg-[#0E131B] border-[#232D3F] text-slate-400'
-                : 'bg-slate-50 border-slate-200 text-slate-600'
+                ? 'bg-[#120E0A] border-[#36291E] text-[#B8A996]'
+                : 'bg-[#EEF2F0] border-[#D5DFDB] text-[#4A6368]'
             }`}
             title={
               !isTimerRunning

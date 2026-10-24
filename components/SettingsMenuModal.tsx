@@ -97,22 +97,22 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
 
       {/* Khung menu gọn gàng, padding và text nhỏ, KHÔNG FULLSCREEN */}
       <div
-        className={`pointer-events-auto relative w-full max-w-[320px] sm:max-w-[340px] rounded-2xl shadow-2xl border overflow-hidden flex flex-col text-neutral-100 transition-all ${
+        className={`pointer-events-auto relative w-full max-w-[320px] sm:max-w-[340px] rounded-2xl shadow-2xl border overflow-hidden flex flex-col transition-all ${
           isDark
-            ? 'bg-[#161b26]/98 border-[#2e394f] shadow-black/80'
-            : 'bg-[#faf6ee]/98 border-[#d2c5b0] text-neutral-900 shadow-stone-500/30'
+            ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5] shadow-black/80'
+            : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226] shadow-stone-500/20'
         }`}
       >
         {/* Header nhỏ gọn */}
         <div
           className={`flex items-center justify-between px-3.5 py-2.5 border-b ${
-            isDark ? 'bg-[#121622] border-[#263145]' : 'bg-[#f1eae0] border-[#d8cdbd]'
+            isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
           }`}
         >
           <div className="flex items-center gap-2">
-            <Sliders className="w-3.5 h-3.5 text-amber-500" />
+            <Sliders className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
             <h2 className={`font-serif font-bold text-xs sm:text-sm tracking-wide ${
-              isDark ? 'text-amber-300' : 'text-amber-900'
+              isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
             }`}>
               Cài Đặt &amp; Menu
             </h2>
@@ -121,8 +121,8 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
             onClick={onClose}
             className={`p-1 rounded-lg border transition-colors cursor-pointer ${
               isDark
-                ? 'bg-[#1d2433] hover:bg-[#283246] border-[#313e56] text-neutral-300'
-                : 'bg-white hover:bg-neutral-100 border-[#d2c5b0] text-neutral-700'
+                ? 'bg-[#1F1812] hover:bg-[#2A2018] border-[#36291E] text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'bg-[#FFFFFF] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#4A6368] hover:text-[#132226]'
             }`}
             aria-label="Đóng menu"
           >
@@ -135,15 +135,15 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {/* 0. Chế độ Thể loại: Cờ Tướng (Sáng) / Cờ Úp */}
           <div
             className={`p-2 rounded-xl border space-y-1.5 ${
-              isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
             }`}
           >
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="flex items-center gap-1.5 text-amber-400">
+              <span className={`flex items-center gap-1.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>
                 <span>🎭</span>
                 <span>Chế độ chơi Cờ</span>
               </span>
-              <span className={`text-[10px] font-semibold ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
+              <span className={`text-[10px] font-semibold ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>
                 {variant === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}
               </span>
             </div>
@@ -156,10 +156,12 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 }}
                 className={`py-1.5 px-2 rounded-lg border flex items-center justify-center gap-1 font-bold text-[11px] transition-all cursor-pointer ${
                   variant === 'standard'
-                    ? 'bg-gradient-to-r from-amber-600 to-amber-700 border-amber-400 text-white shadow-xs'
+                    ? isDark
+                      ? 'bg-[#D97706] border-[#D97706] text-white shadow-xs'
+                      : 'bg-[#0F766E] border-[#0F766E] text-white shadow-xs'
                     : isDark
-                    ? 'bg-[#141924] border-[#29354b] text-neutral-400 hover:bg-[#1f283a]'
-                    : 'bg-neutral-100 border-neutral-300 text-neutral-600 hover:bg-neutral-200'
+                    ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
+                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
                 }`}
               >
                 <span>⚔️ Cờ Ngửa</span>
@@ -173,10 +175,12 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 }}
                 className={`py-1.5 px-2 rounded-lg border flex items-center justify-center gap-1 font-bold text-[11px] transition-all cursor-pointer ${
                   variant === 'jieqi'
-                    ? 'bg-gradient-to-r from-red-600 to-rose-700 border-rose-400 text-white shadow-xs animate-pulse'
+                    ? isDark
+                      ? 'bg-[#D97706] border-[#D97706] text-white shadow-xs'
+                      : 'bg-[#0F766E] border-[#0F766E] text-white shadow-xs'
                     : isDark
-                    ? 'bg-[#141924] border-[#29354b] text-neutral-400 hover:bg-[#1f283a]'
-                    : 'bg-neutral-100 border-neutral-300 text-neutral-600 hover:bg-neutral-200'
+                    ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
+                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
                 }`}
               >
                 <span>🎭 Cờ Úp</span>
@@ -188,14 +192,14 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {/* 1. Âm thanh */}
           <div
             className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-              isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
             }`}
           >
             <div className="flex items-center gap-2 min-w-0">
               {isMuted ? (
                 <VolumeX className="w-4 h-4 text-neutral-400 shrink-0" />
               ) : (
-                <Volume2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <Volume2 className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
               )}
               <div className="min-w-0">
                 <div className="text-xs font-bold leading-tight">Âm thanh</div>
@@ -216,11 +220,11 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {/* 2. Hiệu ứng quân cờ (Xe - Pháo - Mã) */}
           <div
             className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-              isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
             }`}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+              <Sparkles className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
               <div className="min-w-0">
                 <div className="text-xs font-bold leading-tight">Hiệu ứng ăn cờ</div>
               </div>
@@ -241,11 +245,11 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {onToggleHaptics && (
             <div
               className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-                isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
               }`}
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Smartphone className="w-4 h-4 text-sky-400 shrink-0" />
+                <Smartphone className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                 <div className="min-w-0">
                   <div className="text-xs font-bold leading-tight">Rung phản hồi (Haptics)</div>
                 </div>
@@ -266,11 +270,11 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {onToggleWakeLock && (
             <div
               className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-                isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
               }`}
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                <Sun className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                 <div className="min-w-0">
                   <div className="text-xs font-bold leading-tight">Giữ sáng màn hình</div>
                 </div>
@@ -291,18 +295,18 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {/* 3. Giao diện Tối / Sáng */}
           <div
             className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-3 ${
-              isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
             }`}
           >
             <div className="flex items-center gap-2 min-w-0">
               <div
                 className={`p-1.5 rounded-lg border transition-colors shrink-0 ${
                   isDark
-                    ? 'bg-slate-800/80 border-sky-500/40 text-sky-300'
-                    : 'bg-amber-100/90 border-amber-300 text-amber-700'
+                    ? 'bg-[#1F1812] border-[#36291E] text-[#D97706]'
+                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#0F766E]'
                 }`}
               >
-                {isDark ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+                {isDark ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-bold leading-tight">Giao diện</div>
@@ -321,12 +325,12 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           {/* 4. Chất liệu Bàn Cờ (4 chủ đề: Hoàng Cung, Thiền Trà, Cẩm Thạch, Sơn Mài) */}
           <div
             className={`p-2 rounded-xl border space-y-1.5 ${
-              isDark ? 'bg-[#1c2333]/90 border-[#2a364d]' : 'bg-white border-[#e0d6c4]'
+              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
             }`}
           >
             <div className="flex items-center justify-between text-[11px] font-bold">
               <span className="flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-amber-400" />
+                <Palette className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                 Mặt bàn cờ
               </span>
             </div>
@@ -341,8 +345,8 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                     boardTheme === opt.id
                       ? opt.activeGradient
                       : isDark
-                      ? 'bg-[#141924] border-[#29354b] text-neutral-400 hover:bg-[#1f283a]'
-                      : 'bg-neutral-100 border-neutral-300 text-neutral-600 hover:bg-neutral-200'
+                      ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
+                      : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
                   }`}
                 >
                   <span>{opt.label}</span>
@@ -363,15 +367,15 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 }}
                 className={`w-full px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer ${
                   isDark
-                    ? 'bg-[#1b2333] hover:bg-[#253046] border-[#2e3b52] text-amber-300'
-                    : 'bg-white hover:bg-neutral-50 border-[#dfd5c4] text-amber-900'
+                    ? 'bg-[#120E0A] hover:bg-[#2A2018] border-[#36291E] text-[#EFE6D5]'
+                    : 'bg-[#EEF2F0] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#132226]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <BookOpen className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                   <span>Cẩm Nang Khai Cuộc</span>
                 </div>
-                <span className="text-[10px] text-neutral-400">→</span>
+                <span className={`text-[10px] ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>→</span>
               </button>
             )}
 
@@ -384,15 +388,15 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 }}
                 className={`w-full px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer ${
                   isDark
-                    ? 'bg-[#1b2333] hover:bg-[#253046] border-[#2e3b52] text-amber-300'
-                    : 'bg-white hover:bg-neutral-50 border-[#dfd5c4] text-amber-900'
+                    ? 'bg-[#120E0A] hover:bg-[#2A2018] border-[#36291E] text-[#EFE6D5]'
+                    : 'bg-[#EEF2F0] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#132226]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <HelpCircle className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                   <span>Hướng Dẫn Luật Cờ</span>
                 </div>
-                <span className="text-[10px] text-neutral-400">→</span>
+                <span className={`text-[10px] ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>→</span>
               </button>
             )}
           </div>

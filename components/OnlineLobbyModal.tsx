@@ -233,18 +233,18 @@ export function OnlineLobbyModal({
       <div
         className={`relative w-full max-w-xl rounded-xl border shadow-2xl flex flex-col max-h-[90dvh] overscroll-contain overflow-hidden ${
           isDark
-            ? 'border-[#232D3F] bg-[#151C28] text-slate-100'
-            : 'border-slate-200 bg-white text-slate-900'
+            ? 'border-[#36291E] bg-[#1F1812] text-[#EFE6D5]'
+            : 'border-[#D5DFDB] bg-[#FFFFFF] text-[#132226]'
         }`}
       >
         <div className={`px-5 py-3.5 border-b flex items-center justify-between shrink-0 ${
-          isDark ? 'border-amber-900/30' : 'border-amber-800/15'
+          isDark ? 'border-[#36291E] bg-[#120E0A]' : 'border-[#D5DFDB] bg-[#EEF2F0]'
         }`}>
           <div className="flex items-center gap-2.5">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${
               isDark
-                ? isZen ? 'bg-amber-950/40 border-amber-700/40 text-amber-300' : 'bg-red-950/80 border-red-700/50 text-red-400'
-                : isZen ? 'bg-amber-100 border-amber-600/30 text-amber-900' : 'bg-red-100 border-red-600/30 text-red-800'
+                ? 'bg-[#1F1812] border-[#D97706]/50 text-[#D97706]'
+                : 'bg-[#FFFFFF] border-[#0F766E]/40 text-[#0F766E]'
             }`}>
               <Swords className="w-4 h-4" />
             </div>

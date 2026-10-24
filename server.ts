@@ -46,13 +46,21 @@ app.prepare().then(() => {
       });
       return;
     }
-    if (pathname.startsWith('/fonts/')) {
-      const filePath = join(process.cwd(), 'public', pathname);
-      if (existsSync(filePath)) {
-        res.setHeader('Content-Type', pathname.endsWith('.woff2') ? 'font/woff2' : 'font/ttf');
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        createReadStream(filePath).pipe(res);
-        return;
+    if (
+      pathname.startsWith('/fonts/') ||
+      pathname.startsWith('/switch/') ||
+      pathname.startsWith('/sounds/') ||
+      pathname.startsWith('/assets/') ||
+      pathname === '/icon.svg'
+    ) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      if (pathname.startsWith('/fonts/')) {
+        const filePath = join(process.cwd(), 'public', pathname);
+        if (existsSync(filePath)) {
+          res.setHeader('Content-Type', pathname.endsWith('.woff2') ? 'font/woff2' : 'font/ttf');
+          createReadStream(filePath).pipe(res);
+          return;
+        }
       }
     }
     const manifestsExist =
@@ -63,7 +71,7 @@ app.prepare().then(() => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Retry-After', '1');
       res.end(
-        '<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="1"></head><body style="background:#11141a;color:#fcd34d;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">Đang khởi tạo bàn cờ...</body></html>'
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="1"></head><body style="background:#120E0A;color:#EFE6D5;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">Đang khởi tạo bàn cờ...</body></html>'
       );
       return;
     }

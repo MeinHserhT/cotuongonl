@@ -176,8 +176,8 @@ export function UnifiedGameConsole({
           : 'opacity-100 visible scale-100'
       } ${
         isDark
-          ? 'bg-[#151C28] border-[#232D3F] text-slate-100'
-          : 'bg-white border-slate-200 text-slate-900 shadow-xs'
+          ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5]'
+          : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226] shadow-xs'
       }`}
     >
       {isCollapsed ? (
@@ -185,7 +185,7 @@ export function UnifiedGameConsole({
           <button
             onClick={onToggleCollapse}
             className={`p-2 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
-              isDark ? 'hover:bg-[#1C2536] text-amber-400' : 'hover:bg-slate-100 text-amber-700'
+              isDark ? 'hover:bg-[#2A2018] text-[#D97706]' : 'hover:bg-[#EEF2F0] text-[#0F766E]'
             }`}
             title="Mở rộng bảng điều khiển"
           >
@@ -202,11 +202,11 @@ export function UnifiedGameConsole({
               className={`p-2 rounded-lg transition-colors cursor-pointer ${
                 activeTab === 'moves'
                   ? isDark
-                    ? 'bg-[#1C2536] text-amber-400'
-                    : 'bg-slate-100 text-amber-800'
+                    ? 'bg-[#2A2018] text-[#D97706]'
+                    : 'bg-[#EEF2F0] text-[#0F766E]'
                   : isDark
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                  : 'text-[#4A6368] hover:text-[#132226]'
               }`}
               title="Biên bản ván đấu"
             >
@@ -221,11 +221,11 @@ export function UnifiedGameConsole({
               className={`p-2 rounded-lg transition-colors cursor-pointer ${
                 activeTab === 'controls'
                   ? isDark
-                    ? 'bg-[#1C2536] text-amber-400'
-                    : 'bg-slate-100 text-amber-800'
+                    ? 'bg-[#2A2018] text-[#D97706]'
+                    : 'bg-[#EEF2F0] text-[#0F766E]'
                   : isDark
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                  : 'text-[#4A6368] hover:text-[#132226]'
               }`}
               title="Thao tác & Cài đặt"
             >
@@ -241,11 +241,11 @@ export function UnifiedGameConsole({
                 className={`p-2 rounded-lg relative transition-colors cursor-pointer ${
                   activeTab === 'chat'
                     ? isDark
-                      ? 'bg-[#1C2536] text-amber-400'
-                      : 'bg-slate-100 text-amber-800'
+                      ? 'bg-[#2A2018] text-[#D97706]'
+                      : 'bg-[#EEF2F0] text-[#0F766E]'
                     : isDark
-                    ? 'text-slate-400 hover:text-slate-200'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                    : 'text-[#4A6368] hover:text-[#132226]'
                 }`}
                 title="Trò chuyện"
               >
@@ -259,12 +259,12 @@ export function UnifiedGameConsole({
           {/* 1. Header with Segmented Navigation & Collapse Trigger */}
           <div
             className={`px-3 py-2.5 border-b flex items-center justify-between shrink-0 gap-2 ${
-              isDark ? 'border-[#232D3F]' : 'border-slate-200'
+              isDark ? 'border-[#36291E]' : 'border-[#D5DFDB]'
             }`}
           >
         <div
           className={`flex items-center p-1 rounded-lg border text-xs font-semibold ${
-            isDark ? 'bg-[#0E131B] border-[#232D3F]' : 'bg-slate-100 border-slate-200'
+            isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
           }`}
         >
           <button
@@ -272,11 +272,11 @@ export function UnifiedGameConsole({
             className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'controls'
                 ? isDark
-                  ? 'bg-[#1C2536] text-amber-400 font-semibold shadow-2xs'
-                  : 'bg-white text-slate-900 font-semibold shadow-2xs'
+                  ? 'bg-[#2A2018] text-[#D97706] font-semibold shadow-2xs'
+                  : 'bg-[#FFFFFF] text-[#0F766E] font-semibold shadow-2xs'
                 : isDark
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'text-[#4A6368] hover:text-[#132226]'
             }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
@@ -288,11 +288,11 @@ export function UnifiedGameConsole({
             className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'moves'
                 ? isDark
-                  ? 'bg-[#1C2536] text-amber-400 font-semibold shadow-2xs'
-                  : 'bg-white text-slate-900 font-semibold shadow-2xs'
+                  ? 'bg-[#2A2018] text-[#D97706] font-semibold shadow-2xs'
+                  : 'bg-[#FFFFFF] text-[#0F766E] font-semibold shadow-2xs'
                 : isDark
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'text-[#4A6368] hover:text-[#132226]'
             }`}
           >
             <FileText className="w-3.5 h-3.5 shrink-0" />
@@ -305,11 +305,11 @@ export function UnifiedGameConsole({
               className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === 'chat'
                   ? isDark
-                    ? 'bg-[#1C2536] text-amber-400 font-semibold shadow-2xs'
-                    : 'bg-white text-slate-900 font-semibold shadow-2xs'
+                    ? 'bg-[#2A2018] text-[#D97706] font-semibold shadow-2xs'
+                    : 'bg-[#FFFFFF] text-[#0F766E] font-semibold shadow-2xs'
                   : isDark
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                  : 'text-[#4A6368] hover:text-[#132226]'
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5 shrink-0" />
@@ -324,8 +324,8 @@ export function UnifiedGameConsole({
               onClick={onToggleCollapse}
               className={`p-1.5 rounded-lg border transition-colors cursor-pointer flex items-center justify-center ${
                 isDark
-                  ? 'border-[#232D3F] bg-[#0E131B] text-slate-400 hover:text-white hover:bg-[#1C2536]'
-                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'border-[#36291E] bg-[#120E0A] text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018]'
+                  : 'border-[#D5DFDB] bg-[#EEF2F0] text-[#4A6368] hover:text-[#132226] hover:bg-[#E6ECEA]'
               }`}
               title="Thu gọn bảng điều khiển"
             >
@@ -340,25 +340,25 @@ export function UnifiedGameConsole({
         <div
           className={`absolute top-12 right-2 left-2 z-40 p-3.5 rounded-xl border shadow-xl animate-in fade-in zoom-in-95 duration-150 ${
             isDark
-              ? 'bg-[#151C28] border-[#232D3F] text-slate-100'
-              : 'bg-white border-slate-200 text-slate-900'
+              ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5]'
+              : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226]'
           }`}
         >
           <div
             className={`flex items-center justify-between pb-2 mb-2.5 border-b ${
-              isDark ? 'border-[#232D3F]' : 'border-slate-200'
+              isDark ? 'border-[#36291E]' : 'border-[#D5DFDB]'
             }`}
           >
             <span className="text-xs font-semibold flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-amber-500" />
+              <Compass className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
               <span>Thiết lập ván đấu &amp; Biến thể</span>
             </span>
             <button
               onClick={() => setShowSettingsPopover(false)}
               className={`text-xs font-semibold px-1.5 py-0.5 rounded transition-colors ${
                 isDark
-                  ? 'text-slate-400 hover:text-white hover:bg-[#1C2536]'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018]'
+                  : 'text-[#4A6368] hover:text-[#132226] hover:bg-[#EEF2F0]'
               }`}
             >
               Đóng
@@ -367,7 +367,7 @@ export function UnifiedGameConsole({
 
           <div className="space-y-3 text-xs">
             <div>
-              <label className={`text-xs font-medium mb-1 block ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              <label className={`text-xs font-medium mb-1 block ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
                 Biến thể cờ
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -376,10 +376,12 @@ export function UnifiedGameConsole({
                   onClick={() => onChangeVariant?.('standard')}
                   className={`py-1.5 px-2 rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 border transition-colors cursor-pointer ${
                     variant === 'standard'
-                      ? 'bg-amber-600 text-white border-amber-500'
+                      ? isDark
+                        ? 'bg-[#D97706] text-white border-[#D97706]'
+                        : 'bg-[#0F766E] text-white border-[#0F766E]'
                       : isDark
-                      ? 'border-[#232D3F] text-slate-300 hover:bg-[#1C2536]'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-100 bg-slate-50'
+                      ? 'border-[#36291E] text-[#EFE6D5] hover:bg-[#2A2018]'
+                      : 'border-[#D5DFDB] text-[#132226] hover:bg-[#E6ECEA] bg-[#EEF2F0]'
                   }`}
                 >
                   <Swords className="w-3.5 h-3.5" />
@@ -390,10 +392,12 @@ export function UnifiedGameConsole({
                   onClick={() => onChangeVariant?.('jieqi')}
                   className={`py-1.5 px-2 rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 border transition-colors cursor-pointer ${
                     variant === 'jieqi'
-                      ? 'bg-red-600 text-white border-red-500'
+                      ? isDark
+                        ? 'bg-[#D97706] text-white border-[#D97706]'
+                        : 'bg-[#0F766E] text-white border-[#0F766E]'
                       : isDark
-                      ? 'border-[#232D3F] text-slate-300 hover:bg-[#1C2536]'
-                      : 'border-slate-200 text-slate-700 hover:bg-slate-100 bg-slate-50'
+                      ? 'border-[#36291E] text-[#EFE6D5] hover:bg-[#2A2018]'
+                      : 'border-[#D5DFDB] text-[#132226] hover:bg-[#E6ECEA] bg-[#EEF2F0]'
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5" />
@@ -403,7 +407,7 @@ export function UnifiedGameConsole({
             </div>
 
             <div>
-              <label className={`text-xs font-medium mb-1 block ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              <label className={`text-xs font-medium mb-1 block ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
                 Thời gian mỗi bên
               </label>
               <div className="grid grid-cols-4 gap-1">
@@ -418,10 +422,12 @@ export function UnifiedGameConsole({
                     onClick={() => onChangeTimeLimit(item.value)}
                     className={`py-1 rounded text-xs font-medium border transition-colors cursor-pointer ${
                       timeLimit === item.value
-                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-semibold'
+                        ? isDark
+                          ? 'bg-[#D97706] text-white border-[#D97706] font-semibold'
+                          : 'bg-[#0F766E] text-white border-[#0F766E] font-semibold'
                         : isDark
-                        ? 'border-[#232D3F] text-slate-300 hover:bg-[#1C2536]'
-                        : 'border-slate-200 text-slate-700 hover:bg-slate-100 bg-slate-50'
+                        ? 'border-[#36291E] text-[#EFE6D5] hover:bg-[#2A2018]'
+                        : 'border-[#D5DFDB] text-[#132226] hover:bg-[#E6ECEA] bg-[#EEF2F0]'
                     }`}
                   >
                     {item.label}
@@ -432,14 +438,14 @@ export function UnifiedGameConsole({
 
             {gameMode === 'pvp' && (
               <label className="flex items-center justify-between cursor-pointer pt-1">
-                <span className={isDark ? 'text-slate-300' : 'text-slate-800 font-medium'}>
+                <span className={isDark ? 'text-[#EFE6D5]' : 'text-[#132226] font-medium'}>
                   Tự động xoay bàn theo lượt
                 </span>
                 <input
                   type="checkbox"
                   checked={autoFlip}
                   onChange={(e) => onToggleAutoFlip(e.target.checked)}
-                  className="rounded text-amber-500 focus:ring-amber-400 w-4 h-4 cursor-pointer"
+                  className="rounded text-[#D97706] focus:ring-[#D97706] w-4 h-4 cursor-pointer"
                 />
               </label>
             )}
@@ -454,7 +460,7 @@ export function UnifiedGameConsole({
             ? 'flex items-center justify-between gap-2'
             : 'grid grid-cols-3 gap-2'
         } ${
-          isDark ? 'border-[#232D3F] bg-[#0E131B]/60' : 'border-slate-200 bg-slate-50/70'
+          isDark ? 'border-[#36291E] bg-[#120E0A]/75' : 'border-[#D5DFDB] bg-[#EEF2F0]/80'
         }`}
       >
         {isOnlineGame ? (
@@ -473,11 +479,11 @@ export function UnifiedGameConsole({
                 disabled={isGameOver}
                 className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 disabled:opacity-40 ${
                   isDark
-                    ? 'border-[#232D3F] bg-[#151C28] text-slate-200 hover:bg-[#1C2536]'
-                    : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                    ? 'border-[#36291E] bg-[#1F1812] text-[#EFE6D5] hover:bg-[#2A2018]'
+                    : 'border-[#D5DFDB] bg-[#FFFFFF] text-[#132226] hover:bg-[#E6ECEA]'
                 }`}
               >
-                <Handshake className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <Handshake className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
                 <span>Cầu hòa</span>
               </button>
             )}
@@ -499,7 +505,9 @@ export function UnifiedGameConsole({
               <button
                 onClick={onRequestRematch}
                 disabled={myRematchRequested}
-                className="flex-1 py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 disabled:opacity-40"
+                className={`flex-1 py-2 px-3 rounded-lg text-white font-semibold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 disabled:opacity-40 ${
+                  isDark ? 'bg-[#D97706] hover:bg-amber-500' : 'bg-[#0F766E] hover:bg-teal-600'
+                }`}
               >
                 <Swords className="w-3.5 h-3.5 shrink-0" />
                 <span className="truncate">
@@ -515,11 +523,11 @@ export function UnifiedGameConsole({
               disabled={!canUndo}
               className={`w-full py-2 px-2.5 rounded-lg border text-xs font-semibold disabled:opacity-40 transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isDark
-                  ? 'border-[#232D3F] bg-[#151C28] text-slate-200 hover:bg-[#1C2536]'
-                  : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-100'
+                  ? 'border-[#36291E] bg-[#1F1812] text-[#EFE6D5] hover:bg-[#2A2018]'
+                  : 'border-[#D5DFDB] bg-[#FFFFFF] text-[#132226] hover:bg-[#E6ECEA]'
               }`}
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <RotateCcw className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
               <span className="truncate">Hoãn nước</span>
             </button>
 
@@ -538,7 +546,9 @@ export function UnifiedGameConsole({
 
             <button
               onClick={onNewGame}
-              className="w-full py-2 px-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
+              className={`w-full py-2 px-2.5 rounded-lg text-white font-semibold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 ${
+                isDark ? 'bg-[#D97706] hover:bg-amber-500' : 'bg-[#0F766E] hover:bg-teal-600'
+              }`}
             >
               <Swords className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">Ván mới</span>
@@ -554,13 +564,17 @@ export function UnifiedGameConsole({
           <div className="flex flex-col space-y-2.5">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className={`font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <span className={`font-semibold ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>
                   Lịch sử ({moveHistory.length} nước)
                 </span>
                 {inspectMoveIndex !== null && (
                   <button
                     onClick={onExitInspect}
-                    className="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono hover:bg-amber-500 hover:text-black cursor-pointer"
+                    className={`text-[11px] px-2 py-0.5 rounded font-mono cursor-pointer ${
+                      isDark
+                        ? 'bg-[#D97706]/20 text-[#EFE6D5] border border-[#D97706]/50 hover:bg-[#D97706] hover:text-white'
+                        : 'bg-[#0F766E]/15 text-[#0F766E] border border-[#0F766E]/40 hover:bg-[#0F766E] hover:text-white'
+                    }`}
                   >
                     Về nước hiện tại
                   </button>
@@ -570,7 +584,7 @@ export function UnifiedGameConsole({
               <div className="flex items-center gap-1.5">
                 <div
                   className={`flex items-center rounded-md p-0.5 text-[11px] border ${
-                    isDark ? 'bg-[#0E131B] border-[#232D3F]' : 'bg-slate-100 border-slate-200'
+                    isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
                   }`}
                 >
                   <button
@@ -578,11 +592,11 @@ export function UnifiedGameConsole({
                     className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
                       notationMode === 'full'
                         ? isDark
-                          ? 'bg-[#1C2536] text-amber-400 font-semibold'
-                          : 'bg-white text-slate-900 font-semibold shadow-2xs'
+                          ? 'bg-[#2A2018] text-[#D97706] font-semibold'
+                          : 'bg-[#FFFFFF] text-[#0F766E] font-semibold shadow-2xs'
                         : isDark
-                        ? 'text-slate-400 hover:text-slate-200'
-                        : 'text-slate-600 hover:text-slate-900'
+                        ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                        : 'text-[#4A6368] hover:text-[#132226]'
                     }`}
                   >
                     Đầy đủ
@@ -592,11 +606,11 @@ export function UnifiedGameConsole({
                     className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
                       notationMode === 'short'
                         ? isDark
-                          ? 'bg-[#1C2536] text-amber-400 font-semibold'
-                          : 'bg-white text-slate-900 font-semibold shadow-2xs'
+                          ? 'bg-[#2A2018] text-[#D97706] font-semibold'
+                          : 'bg-[#FFFFFF] text-[#0F766E] font-semibold shadow-2xs'
                         : isDark
-                        ? 'text-slate-400 hover:text-slate-200'
-                        : 'text-slate-600 hover:text-slate-900'
+                        ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                        : 'text-[#4A6368] hover:text-[#132226]'
                     }`}
                   >
                     Ngắn
@@ -607,15 +621,15 @@ export function UnifiedGameConsole({
                   onClick={onCopyFen}
                   className={`p-1.5 rounded-md border transition-colors cursor-pointer ${
                     isDark
-                      ? 'border-[#232D3F] bg-[#0E131B] text-slate-300 hover:bg-[#1C2536]'
-                      : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                      ? 'border-[#36291E] bg-[#120E0A] text-[#EFE6D5] hover:bg-[#2A2018]'
+                      : 'border-[#D5DFDB] bg-[#EEF2F0] text-[#132226] hover:bg-[#E6ECEA]'
                   }`}
                   title="Sao chép FEN"
                 >
                   {copiedFen ? (
                     <Check className="w-3.5 h-3.5 text-emerald-500" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <Copy className={`w-3.5 h-3.5 ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`} />
                   )}
                 </button>
               </div>
@@ -625,13 +639,13 @@ export function UnifiedGameConsole({
             <div
               className={`h-[300px] sm:h-[340px] overflow-y-auto rounded-lg border p-1.5 font-mono tabular-nums text-xs divide-y scrollbar-thin ${
                 isDark
-                  ? 'bg-[#0E131B] border-[#232D3F] divide-[#232D3F]/60'
-                  : 'bg-slate-50 border-slate-200 divide-slate-200/70'
+                  ? 'bg-[#120E0A] border-[#36291E] divide-[#36291E]/60'
+                  : 'bg-[#EEF2F0] border-[#D5DFDB] divide-[#D5DFDB]/70'
               }`}
             >
               {pairedMoves.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center p-4 text-center gap-2">
-                  <div className={`text-xs font-sans font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  <div className={`text-xs font-sans font-semibold ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>
                     {variant === 'jieqi' ? 'Ván Đấu Cờ Úp' : 'Ván Đấu Cờ Ngửa'}
                     <span aria-hidden="true"> · </span>
                     <span className="font-mono tabular-nums">
@@ -640,7 +654,7 @@ export function UnifiedGameConsole({
                     <span aria-hidden="true"> · </span>
                     <span>{variant === 'jieqi' ? tierJq.tier : tierStd.tier}</span>
                   </div>
-                  <p className={`text-xs font-sans ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <p className={`text-xs font-sans ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
                     Chưa có nước đi nào. Chọn quân cờ trên bàn để khai cuộc.
                   </p>
                 </div>
@@ -655,12 +669,12 @@ export function UnifiedGameConsole({
                     <div
                       key={pair.index}
                       className={`flex items-center py-1 px-2 ${
-                        isDark ? 'hover:bg-[#151C28]' : 'hover:bg-white'
+                        isDark ? 'hover:bg-[#1F1812]' : 'hover:bg-[#FFFFFF]'
                       }`}
                     >
                       <span
                         className={`w-8 shrink-0 text-xs tabular-nums ${
-                          isDark ? 'text-slate-500' : 'text-slate-400'
+                          isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'
                         }`}
                       >
                         {pair.index}.
@@ -674,7 +688,7 @@ export function UnifiedGameConsole({
                               ? 'bg-red-950/60 text-red-300 font-semibold'
                               : 'bg-red-100 text-red-900 font-semibold'
                             : isDark
-                            ? 'text-red-400 hover:bg-[#1C2536]'
+                            ? 'text-red-400 hover:bg-[#2A2018]'
                             : 'text-red-700 hover:bg-red-50'
                         }`}
                       >
@@ -692,12 +706,14 @@ export function UnifiedGameConsole({
                           pair.black
                             ? isBlackActive
                               ? isDark
-                                ? 'bg-[#1C2536] text-amber-300 font-semibold cursor-pointer'
-                                : 'bg-slate-200 text-slate-900 font-semibold cursor-pointer'
+                                ? 'bg-[#2A2018] text-[#D97706] font-semibold cursor-pointer'
+                                : 'bg-[#0F766E]/15 text-[#0F766E] font-semibold cursor-pointer'
                               : isDark
-                              ? 'text-slate-300 hover:bg-[#1C2536] cursor-pointer'
-                              : 'text-slate-800 hover:bg-slate-100 cursor-pointer'
-                            : 'text-slate-500'
+                              ? 'text-[#EFE6D5] hover:bg-[#2A2018] cursor-pointer'
+                              : 'text-[#132226] hover:bg-[#E6ECEA] cursor-pointer'
+                            : isDark
+                            ? 'text-[#9C8A74]'
+                            : 'text-[#4A6368]'
                         }`}
                       >
                         {pair.black
@@ -720,7 +736,7 @@ export function UnifiedGameConsole({
             {isOnlineGame && (
               <div
                 className={`p-2.5 rounded-lg border flex items-center justify-between gap-2 shrink-0 ${
-                  isDark ? 'bg-[#0E131B] border-[#232D3F]' : 'bg-slate-50 border-slate-200'
+                  isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
                 }`}
               >
                 <div className="min-w-0 flex items-center gap-2">
@@ -728,7 +744,7 @@ export function UnifiedGameConsole({
                   <div className="truncate text-xs">
                     <span className="font-semibold">Phòng trực tuyến</span>
                     {spectatorCount > 0 && (
-                      <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>
+                      <span className={isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}>
                         {' '}
                         · Khán giả: {spectatorCount}
                       </span>
@@ -740,7 +756,9 @@ export function UnifiedGameConsole({
                   {onCreateOnlineRoom && (
                     <button
                       onClick={onCreateOnlineRoom}
-                      className="py-1 px-2.5 rounded-md bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                      className={`py-1 px-2.5 rounded-md text-white font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                        isDark ? 'bg-[#D97706] hover:bg-amber-500' : 'bg-[#0F766E] hover:bg-teal-600'
+                      }`}
                     >
                       <PlusCircle className="w-3.5 h-3.5" />
                       <span>Tạo phòng</span>
@@ -751,8 +769,8 @@ export function UnifiedGameConsole({
                       onClick={onLeaveRoom}
                       className={`py-1 px-2.5 rounded-md border text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                         isDark
-                          ? 'border-[#232D3F] text-slate-300 hover:bg-[#1C2536]'
-                          : 'border-slate-200 text-slate-700 hover:bg-slate-100'
+                          ? 'border-[#36291E] text-[#EFE6D5] hover:bg-[#2A2018]'
+                          : 'border-[#D5DFDB] text-[#132226] hover:bg-[#E6ECEA]'
                       }`}
                     >
                       <LogOut className="w-3.5 h-3.5" />
@@ -789,13 +807,13 @@ export function UnifiedGameConsole({
           <div className="flex flex-col space-y-2">
             <div
               className={`h-[280px] sm:h-[320px] overflow-y-auto rounded-lg border p-2.5 space-y-2 text-xs scrollbar-thin ${
-                isDark ? 'bg-[#0E131B] border-[#232D3F]' : 'bg-slate-50 border-slate-200'
+                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
               }`}
             >
               {chatMessages.length === 0 ? (
                 <div
                   className={`h-full flex items-center justify-center text-xs text-center p-3 ${
-                    isDark ? 'text-slate-400' : 'text-slate-500'
+                    isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                   }`}
                 >
                   Chưa có tin nhắn trong phòng. Hãy gửi lời chào đến đối thủ.
@@ -803,10 +821,10 @@ export function UnifiedGameConsole({
               ) : (
                 chatMessages.map((msg, i) => (
                   <div key={i} className="flex flex-col text-xs">
-                    <span className={`font-semibold text-[11px] ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                    <span className={`font-semibold text-[11px] ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>
                       {msg.senderName}
                     </span>
-                    <span className={isDark ? 'text-slate-200' : 'text-slate-800'}>{msg.text}</span>
+                    <span className={isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}>{msg.text}</span>
                   </div>
                 ))
               )}
@@ -820,13 +838,15 @@ export function UnifiedGameConsole({
                 placeholder="Nhập tin nhắn..."
                 className={`flex-1 px-3 py-1.5 rounded-lg border text-xs outline-none ${
                   isDark
-                    ? 'bg-[#0E131B] border-[#232D3F] text-slate-100 placeholder-slate-500 focus:border-amber-500'
-                    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-amber-600'
+                    ? 'bg-[#120E0A] border-[#36291E] text-[#EFE6D5] placeholder-[#9C8A74] focus:border-[#D97706]'
+                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226] placeholder-[#4A6368] focus:border-[#0F766E]'
                 }`}
               />
               <button
                 type="submit"
-                className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap"
+                className={`px-3.5 py-1.5 rounded-lg text-white font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap ${
+                  isDark ? 'bg-[#D97706] hover:bg-amber-500' : 'bg-[#0F766E] hover:bg-teal-600'
+                }`}
               >
                 Gửi
               </button>

@@ -162,7 +162,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = React.memo(({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 rounded-xl bg-[#202636] hover:bg-[#2b3347] text-neutral-200 font-bold text-xs border border-[#3b455d] transition-all active:scale-95 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[#1F1812] hover:bg-[#2A2018] text-[#EFE6D5] font-bold text-xs border border-[#36291E] transition-all active:scale-95 cursor-pointer"
                   >
                     Xem bàn cờ
                   </button>
@@ -175,8 +175,8 @@ export const GameOverModal: React.FC<GameOverModalProps> = React.memo(({
                   onClick={onNewGame}
                   className={`flex-1 py-2.5 rounded-xl font-black text-xs shadow-lg transition-all active:scale-95 cursor-pointer ${
                     modalData.resultType === 'victory'
-                      ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-400 text-neutral-950 shadow-amber-500/25'
-                      : 'bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 text-white border border-slate-600'
+                      ? 'bg-[#D97706] hover:bg-amber-500 text-white shadow-amber-500/25'
+                      : 'bg-[#2A2018] hover:bg-[#36291E] text-[#EFE6D5] border border-[#36291E]'
                   }`}
                 >
                   Chơi ván mới
@@ -184,7 +184,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = React.memo(({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl bg-[#202636] hover:bg-[#2b3347] text-neutral-200 font-bold text-xs border border-[#3b455d] transition-all active:scale-95 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#1F1812] hover:bg-[#2A2018] text-[#EFE6D5] font-bold text-xs border border-[#36291E] transition-all active:scale-95 cursor-pointer"
                 >
                   Xem bàn cờ
                 </button>
@@ -209,11 +209,11 @@ export const RulesModal: React.FC<RulesModalProps> = React.memo(({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#1c2230] border border-[#3b4760] rounded-2xl max-w-md w-full p-5 max-h-[85vh] overflow-y-auto shadow-2xl">
-        <h2 className="text-base font-extrabold text-amber-300 mb-3 text-center uppercase tracking-wide">
+      <div className="bg-[#1F1812] border border-[#36291E] rounded-2xl max-w-md w-full p-5 max-h-[85vh] overflow-y-auto shadow-2xl">
+        <h2 className="text-base font-extrabold text-[#D97706] mb-3 text-center uppercase tracking-wide">
           Luật Cờ Tướng (Xiangqi)
         </h2>
-        <div className="text-xs text-neutral-200 space-y-2.5 leading-relaxed">
+        <div className="text-xs text-[#EFE6D5] space-y-2.5 leading-relaxed">
           <p>🔹 <strong>Tướng (帥/將):</strong> Di chuyển 1 ô thẳng/ngang trong Cung (3x3). Hai Tướng không được nhìn thấy nhau trên cùng một đường thẳng không có quân cản (Lộ mặt tướng).</p>
           <p>🔹 <strong>Sĩ (仕/士):</strong> Di chuyển 1 ô đường chéo trong Cung (chỉ đi 5 điểm cố định).</p>
           <p>🔹 <strong>Tượng (相/象):</strong> Đi chéo 2 ô (hình vuông 2x2), không được qua sông. Bị cản khi có quân nằm giữa đường chéo (Mắt tượng).</p>
@@ -227,7 +227,7 @@ export const RulesModal: React.FC<RulesModalProps> = React.memo(({ isOpen, onClo
         <div className="mt-5 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-all cursor-pointer"
+            className="px-4 py-2 rounded-lg bg-[#D97706] hover:bg-amber-500 text-white font-bold text-xs transition-all cursor-pointer"
           >
             Đã hiểu
           </button>
@@ -250,12 +250,12 @@ export const ResignModal: React.FC<ResignModalProps> = React.memo(({ isOpen, onC
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#1c2230] border border-red-500/50 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#1F1812] border border-red-500/50 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="w-12 h-12 rounded-full bg-red-950/80 border border-red-500/50 flex items-center justify-center text-red-400 mx-auto mb-3">
           <Flag className="w-6 h-6" />
         </div>
         <h2 className="text-lg font-bold text-red-300 mb-1.5">Xác Nhận Đầu Hàng</h2>
-        <p className="text-xs text-neutral-300 mb-5 leading-relaxed">
+        <p className="text-xs text-[#EFE6D5] mb-5 leading-relaxed">
           Bạn có chắc chắn muốn xin hàng và chịu thua ván đấu này không?
         </p>
         <div className="flex gap-2.5 justify-center">
@@ -267,7 +267,7 @@ export const ResignModal: React.FC<ResignModalProps> = React.memo(({ isOpen, onC
           </button>
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl bg-[#2a3346] hover:bg-[#343e54] text-neutral-200 font-bold text-xs border border-[#414e6a] transition-all cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-[#120E0A] hover:bg-[#2A2018] text-[#EFE6D5] font-bold text-xs border border-[#36291E] transition-all cursor-pointer"
           >
             Hủy bỏ
           </button>
@@ -290,24 +290,24 @@ export const DrawOfferModal: React.FC<DrawOfferModalProps> = React.memo(({ isOpe
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#1c2230] border border-amber-500/60 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <div className="w-12 h-12 rounded-full bg-amber-950/80 border border-amber-500/50 flex items-center justify-center text-amber-400 mx-auto mb-3">
+      <div className="bg-[#1F1812] border border-[#D97706]/60 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-12 h-12 rounded-full bg-[#120E0A] border border-[#D97706]/50 flex items-center justify-center text-[#D97706] mx-auto mb-3">
           <Handshake className="w-6 h-6" />
         </div>
-        <h2 className="text-lg font-bold text-amber-200 mb-1.5">Lời Cầu Hòa</h2>
-        <p className="text-xs text-neutral-300 mb-5 leading-relaxed">
+        <h2 className="text-lg font-bold text-[#EFE6D5] mb-1.5">Lời Cầu Hòa</h2>
+        <p className="text-xs text-[#B8A996] mb-5 leading-relaxed">
           Đối thủ đề nghị bắt tay hòa ván cờ này. Bạn có đồng ý kết thúc trận đấu với tỷ số hòa không?
         </p>
         <div className="flex gap-2.5 justify-center">
           <button
             onClick={onAccept}
-            className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-bold text-xs shadow-lg transition-all cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-[#D97706] hover:bg-amber-500 text-white font-bold text-xs shadow-lg transition-all cursor-pointer"
           >
             Đồng ý hòa
           </button>
           <button
             onClick={onDecline}
-            className="flex-1 py-2.5 rounded-xl bg-[#2a3346] hover:bg-[#343e54] text-neutral-200 font-bold text-xs border border-[#414e6a] transition-all cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-[#120E0A] hover:bg-[#2A2018] text-[#EFE6D5] font-bold text-xs border border-[#36291E] transition-all cursor-pointer"
           >
             Từ chối
           </button>

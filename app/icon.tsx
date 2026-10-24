@@ -16,31 +16,27 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #161F30 0%, #0A0E17 100%)',
-          borderRadius: '15px',
-          border: '2px solid #F59E0B',
-          position: 'relative',
+          background: 'transparent',
         }}
       >
         <div
           style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '25px',
-            background: 'radial-gradient(circle at 35% 30%, #EF4444 0%, #B91C1C 60%, #7F1D1D 100%)',
-            border: '2.5px solid #FBBF24',
+            width: '60px',
+            height: '60px',
+            borderRadius: '30px',
+            background: '#5C3A21',
+            border: '3px solid #C89D66',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-            color: '#FEF3C7',
-            fontSize: '30px',
+            color: '#FDF6E9',
+            fontSize: '36px',
             fontWeight: 700,
             fontFamily: 'serif',
             lineHeight: 1,
           }}
         >
-          帥
+          將
         </div>
       </div>
     ),

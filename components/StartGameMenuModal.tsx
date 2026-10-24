@@ -104,7 +104,7 @@ export const StartGameMenuModal: React.FC<StartGameMenuModalProps> = React.memo(
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 select-none transition-opacity duration-500 ${
         isFlyingOut
           ? 'bg-black/0 pointer-events-none'
-          : 'bg-black/60 backdrop-blur-xs animate-in fade-in duration-200'
+          : 'bg-black/60 backdrop-blur-xs'
       }`}
       onClick={() => triggerFlyToConsole(onClose)}
     >
@@ -126,21 +126,25 @@ export const StartGameMenuModal: React.FC<StartGameMenuModalProps> = React.memo(
               }
         }
         className={`relative w-full max-w-[420px] sm:max-w-[440px] rounded-xl border shadow-xl flex flex-col overflow-hidden ${
-          !isFlyingOut ? 'animate-in zoom-in-95 duration-200' : 'ring-1 ring-amber-500'
+          isFlyingOut
+            ? isDark
+              ? 'ring-1 ring-[#D97706]'
+              : 'ring-1 ring-[#0F766E]'
+            : ''
         } ${
           isDark
-            ? 'bg-[#151C28] border-[#232D3F] text-slate-100'
-            : 'bg-white border-slate-200 text-slate-900'
+            ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5]'
+            : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226]'
         }`}
       >
         {/* Header */}
         <div
           className={`px-4 py-3 border-b flex items-center justify-between shrink-0 gap-2 ${
-            isDark ? 'border-[#232D3F]' : 'border-slate-200'
+            isDark ? 'border-[#36291E]' : 'border-[#D5DFDB]'
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <SlidersHorizontal className={`w-4 h-4 shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-700'}`} />
+            <SlidersHorizontal className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-semibold tracking-tight leading-snug whitespace-nowrap truncate">
                 Chọn Chế Độ Chơi
@@ -153,8 +157,8 @@ export const StartGameMenuModal: React.FC<StartGameMenuModalProps> = React.memo(
             onClick={() => triggerFlyToConsole(onClose)}
             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
               isDark
-                ? 'border-[#232D3F] bg-[#0E131B] text-slate-400 hover:text-white hover:bg-[#1C2536]'
-                : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                ? 'border-[#36291E] bg-[#120E0A] text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018]'
+                : 'border-[#D5DFDB] bg-[#EEF2F0] text-[#4A6368] hover:text-[#132226] hover:bg-[#E6ECEA]'
             }`}
             title="Đóng"
           >
@@ -215,7 +219,11 @@ export const StartGameMenuModal: React.FC<StartGameMenuModalProps> = React.memo(
               }
               triggerFlyToConsole(onStartGame);
             }}
-            className="w-full py-2.5 px-4 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            className={`w-full py-2.5 px-4 rounded-lg text-white font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 ${
+              isDark
+                ? 'bg-[#D97706] hover:bg-amber-500 focus-visible:ring-[#D97706]'
+                : 'bg-[#0F766E] hover:bg-teal-600 focus-visible:ring-[#0F766E]'
+            }`}
           >
             <Play className="w-4 h-4 fill-current shrink-0" />
             <span>Bắt Đầu Vào Ván</span>

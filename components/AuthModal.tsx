@@ -151,34 +151,34 @@ export function AuthModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 14 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-md bg-gradient-to-b from-[#1c2230] to-[#131722] border border-[#3b4760] rounded-2xl shadow-2xl overflow-hidden z-10 text-slate-100"
+        className="relative w-full max-w-md bg-gradient-to-b from-[#1F1812] to-[#120E0A] border border-[#36291E] rounded-2xl shadow-2xl overflow-hidden z-10 text-[#EFE6D5]"
       >
-        <div className="relative px-6 pt-6 pb-4 border-b border-[#2d374d] bg-gradient-to-r from-red-950/40 via-amber-950/30 to-red-950/40">
+        <div className="relative px-6 pt-6 pb-4 border-b border-[#36291E] bg-[#1F1812]">
           <button
             onClick={onClose}
             disabled={loading}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-600 to-amber-700 flex items-center justify-center font-piece text-2xl text-neutral-900 shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D97706] via-[#B45309] to-[#92400E] flex items-center justify-center font-piece text-2xl text-white shadow-md">
               帥
             </div>
             <div>
-              <h2 className="text-lg font-extrabold text-amber-200 tracking-wide flex items-center gap-1.5">
+              <h2 className="text-lg font-extrabold text-[#EFE6D5] tracking-wide flex items-center gap-1.5">
                 {tab === 'login' ? 'Đăng Nhập Kỳ Thủ' : tab === 'register' ? 'Đăng Ký Tài Khoản' : 'Khôi Phục Mật Khẩu'}
-                <Sparkles className="w-4 h-4 text-amber-400" />
+                <Sparkles className="w-4 h-4 text-[#F59E0B]" />
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#B8A996]">
                 Lưu lại tiến trình trận đấu, điểm Elo và bảng xếp hạng
               </p>
             </div>
           </div>
 
           {tab !== 'forgot' && (
-            <div className="flex rounded-lg bg-[#111622] p-1 mt-4 border border-[#2b354a]">
+            <div className="flex rounded-lg bg-[#120E0A] p-1 mt-4 border border-[#36291E]">
               <button
                 type="button"
                 onClick={() => {
@@ -187,8 +187,8 @@ export function AuthModal({
                 }}
                 className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   tab === 'login'
-                    ? 'bg-amber-500 text-neutral-950 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#D97706] text-white shadow-sm'
+                    : 'text-[#B8A996] hover:text-[#EFE6D5]'
                 }`}
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -202,8 +202,8 @@ export function AuthModal({
                 }}
                 className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   tab === 'register'
-                    ? 'bg-amber-500 text-neutral-950 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#D97706] text-white shadow-sm'
+                    : 'text-[#B8A996] hover:text-[#EFE6D5]'
                 }`}
               >
                 <UserPlus className="w-3.5 h-3.5" />

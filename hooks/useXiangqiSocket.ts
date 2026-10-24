@@ -17,7 +17,8 @@ export function useXiangqiSocket(
     notation: MoveNotation,
     finalBoard: (string | null)[][],
     capturedPiece: string | null
-  ) => void
+  ) => void,
+  enabled: boolean = false
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const clientIdRef = useRef<string>('');
@@ -248,13 +249,22 @@ export function useXiangqiSocket(
     }
 
     const envWs = process.env.NEXT_PUBLIC_WS_SERVER_URL?.trim();
-    let wsUrl: string;
-    if (envWs && /^(wss?|https?):\/\//i.test(envWs)) {
+    const isDeadRenderUrl = Boolean(envWs && /cotuongonl\.onrender\.com/i.test(envWs));
+    const isServerlessHost =
+      typeof window !== 'undefined' && /\.vercel\.app$/i.test(window.location.hostname);
+
+    let wsUrl: string | null = null;
+    if (envWs && !isDeadRenderUrl && /^(wss?|https?):\/\//i.test(envWs)) {
       wsUrl = envWs.replace(/^http:/i, 'ws:').replace(/^https:/i, 'wss:');
-    } else {
+    } else if (!isServerlessHost) {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;
       wsUrl = `${protocol}//${host}/api/ws`;
+    }
+
+    if (!wsUrl) {
+      // Serverless deployment (e.g. Vercel) uses /api/mp HTTP polling transport directly without console WS errors
+      return;
     }
 
     try {
@@ -294,6 +304,22 @@ export function useXiangqiSocket(
   }, [connect]);
 
   useEffect(() => {
+    let shouldAutoConnect = enabled;
+    if (!shouldAutoConnect && typeof window !== 'undefined') {
+      try {
+        if (
+          sessionStorage.getItem('xq_online_session') ||
+          window.location.search.includes('room=')
+        ) {
+          shouldAutoConnect = true;
+        }
+      } catch {}
+    }
+
+    if (!shouldAutoConnect) {
+      return;
+    }
+
     const initTimer = setTimeout(() => {
       connect();
     }, 0);
@@ -302,7 +328,7 @@ export function useXiangqiSocket(
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         void pollHttp([]);
       }
-    }, 900);
+    }, 1200);
 
     const pingTimer = setInterval(() => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -314,12 +340,17 @@ export function useXiangqiSocket(
       clearTimeout(initTimer);
       clearInterval(httpPollTimer);
       clearInterval(pingTimer);
+    };
+  }, [enabled, connect, pollHttp]);
+
+  useEffect(() => {
+    return () => {
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;
       }
     };
-  }, [connect, pollHttp]);
+  }, []);
 
   const fetchLobbyRooms = useCallback(() => {
     setIsLoadingRooms(true);

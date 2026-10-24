@@ -33,41 +33,33 @@ export const BoardSideTray = React.memo(function BoardSideTray({
 
   const trayBgVertical = isDark
     ? isMarble
-      ? 'border-[#334155] bg-gradient-to-b from-[#0f172a]/95 via-[#1e293b]/95 to-[#0f172a]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
+      ? 'border-[#24343D] bg-gradient-to-b from-[#131F24]/95 via-[#1B2B33]/95 to-[#131F24]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
       : isLacquer
       ? 'border-[#78350f] bg-gradient-to-b from-[#1a0505]/95 via-[#2b0908]/95 to-[#1a0505]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]'
-      : isZen
-      ? 'border-[#423c34] bg-gradient-to-b from-[#1c1a16]/95 via-[#23201a]/95 to-[#1c1a16]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)]'
-      : 'border-[#542d16] bg-gradient-to-b from-[#180a04]/95 via-[#261208]/95 to-[#180a04]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]'
+      : 'border-[#36291E] bg-gradient-to-b from-[#1F1812]/95 via-[#281F17]/95 to-[#1F1812]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
     : isMarble
-    ? 'border-[#94a3b8] bg-gradient-to-b from-[#f1f5f9]/95 via-[#e2e8f0]/95 to-[#f1f5f9]/95 shadow-[inset_0_1px_4px_rgba(15,23,42,0.18)]'
+    ? 'border-[#0F766E]/40 bg-gradient-to-b from-[#FFFFFF]/95 via-[#EEF2F0]/95 to-[#FFFFFF]/95 shadow-[inset_0_1px_4px_rgba(19,34,38,0.12)]'
     : isLacquer
     ? 'border-[#b45309] bg-gradient-to-b from-[#2b0908]/95 via-[#3d0e0b]/95 to-[#2b0908]/95 shadow-[inset_0_1px_6px_rgba(0,0,0,0.75)]'
-    : isZen
-    ? 'border-[#c2b29e] bg-gradient-to-b from-[#f2e7d5]/95 via-[#e8dac5]/95 to-[#f2e7d5]/95 shadow-[inset_0_1px_4px_rgba(100,80,60,0.2)]'
-    : 'border-[#b5885c] bg-gradient-to-b from-[#f3e3ce]/95 via-[#ebd5be]/95 to-[#f3e3ce]/95 shadow-[inset_0_1px_4px_rgba(120,70,30,0.25)]';
+    : 'border-[#D5DFDB] bg-gradient-to-b from-[#FFFFFF]/95 via-[#EEF2F0]/95 to-[#FFFFFF]/95 shadow-[inset_0_1px_4px_rgba(19,34,38,0.1)]';
 
   const trayBgHorizontal = isDark
     ? isMarble
-      ? 'border-[#334155] bg-gradient-to-r from-[#0f172a]/95 via-[#1e293b]/95 to-[#0f172a]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
+      ? 'border-[#24343D] bg-gradient-to-r from-[#131F24]/95 via-[#1B2B33]/95 to-[#131F24]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
       : isLacquer
       ? 'border-[#78350f] bg-gradient-to-r from-[#1a0505]/95 via-[#2b0908]/95 to-[#1a0505]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]'
-      : isZen
-      ? 'border-[#423c34] bg-gradient-to-r from-[#1c1a16]/95 via-[#23201a]/95 to-[#1c1a16]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)]'
-      : 'border-[#542d16] bg-gradient-to-r from-[#180a04]/95 via-[#261208]/95 to-[#180a04]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]'
+      : 'border-[#36291E] bg-gradient-to-r from-[#1F1812]/95 via-[#281F17]/95 to-[#1F1812]/95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.85)]'
     : isMarble
-    ? 'border-[#94a3b8] bg-gradient-to-r from-[#f1f5f9]/95 via-[#e2e8f0]/95 to-[#f1f5f9]/95 shadow-[inset_0_1px_4px_rgba(15,23,42,0.18)]'
+    ? 'border-[#0F766E]/40 bg-gradient-to-r from-[#FFFFFF]/95 via-[#EEF2F0]/95 to-[#FFFFFF]/95 shadow-[inset_0_1px_4px_rgba(19,34,38,0.12)]'
     : isLacquer
     ? 'border-[#b45309] bg-gradient-to-r from-[#2b0908]/95 via-[#3d0e0b]/95 to-[#2b0908]/95 shadow-[inset_0_1px_6px_rgba(0,0,0,0.75)]'
-    : isZen
-    ? 'border-[#c2b29e] bg-gradient-to-r from-[#f2e7d5]/95 via-[#e8dac5]/95 to-[#f2e7d5]/95 shadow-[inset_0_1px_4px_rgba(100,80,60,0.2)]'
-    : 'border-[#b5885c] bg-gradient-to-r from-[#f3e3ce]/95 via-[#ebd5be]/95 to-[#f3e3ce]/95 shadow-[inset_0_1px_4px_rgba(120,70,30,0.25)]';
+    : 'border-[#D5DFDB] bg-gradient-to-r from-[#FFFFFF]/95 via-[#EEF2F0]/95 to-[#FFFFFF]/95 shadow-[inset_0_1px_4px_rgba(19,34,38,0.1)]';
 
   if (isVertical) {
     return (
       <div
         style={style}
-        className={`self-stretch h-full min-h-0 w-9 sm:w-10 md:w-10.5 rounded-xl border-2 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-between select-none z-20 shrink-0 transition-all ${trayBgVertical} ${className || ''}`}
+        className={`self-stretch h-full min-h-0 w-9 sm:w-10 md:w-10.5 rounded-xl border-2 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-between select-none z-20 shrink-0 transition-colors ${trayBgVertical} ${className || ''}`}
       >
         {/* Top Indicator Dot */}
         <div className={`pb-1.5 mb-1 border-b shrink-0 w-full flex items-center justify-center opacity-85 ${
@@ -115,7 +107,7 @@ export const BoardSideTray = React.memo(function BoardSideTray({
                       title="Quân úp bí ẩn (chưa lật mở)"
                     >
                       <div
-                        className={`w-[22px] h-[22px] sm:w-[24px] sm:h-[24px] md:w-[26px] md:h-[26px] rounded-full flex items-center justify-center select-none font-serif font-black text-[9px] sm:text-[10px] md:text-[10.5px] border-[1.5px] shadow-sm transition-all ${
+                        className={`w-[22px] h-[22px] sm:w-[24px] sm:h-[24px] md:w-[26px] md:h-[26px] rounded-full flex items-center justify-center select-none font-serif font-black text-[9px] sm:text-[10px] md:text-[10.5px] border-[1.5px] shadow-sm transition-colors ${
                           isLatest ? 'ring-2 ring-amber-400/90 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : ''
                         } ${
                           isRedPiece
@@ -149,7 +141,7 @@ export const BoardSideTray = React.memo(function BoardSideTray({
                     title={`${piece.nameVn} (Ăn ở nước #${index + 1})`}
                   >
                     <div
-                      className={`w-[22px] h-[22px] sm:w-[24px] sm:h-[24px] md:w-[26px] md:h-[26px] rounded-full flex items-center justify-center select-none font-serif font-black text-[10px] sm:text-[11px] md:text-[11.5px] border-[1.5px] shadow-sm transition-all ${
+                      className={`w-[22px] h-[22px] sm:w-[24px] sm:h-[24px] md:w-[26px] md:h-[26px] rounded-full flex items-center justify-center select-none font-serif font-black text-[10px] sm:text-[11px] md:text-[11.5px] border-[1.5px] shadow-sm transition-colors ${
                         isLatest
                           ? 'ring-2 ring-amber-400/90 shadow-[0_0_8px_rgba(251,191,36,0.8)]'
                           : ''
@@ -196,7 +188,7 @@ export const BoardSideTray = React.memo(function BoardSideTray({
   return (
     <div
       style={style}
-      className={`w-full max-w-full h-9 sm:h-10 md:h-10.5 rounded-xl border-2 px-2.5 sm:px-3 flex items-center justify-between select-none z-20 shrink-0 transition-all ${trayBgHorizontal} ${className || ''}`}
+      className={`w-full max-w-full h-9 sm:h-10 md:h-10.5 rounded-xl border-2 px-2.5 sm:px-3 flex items-center justify-between select-none z-20 shrink-0 transition-colors ${trayBgHorizontal} ${className || ''}`}
     >
       <div className={`flex items-center gap-1.5 pr-2 mr-1 border-r shrink-0 opacity-80 ${
         isDark ? 'border-white/10' : 'border-neutral-400/40'

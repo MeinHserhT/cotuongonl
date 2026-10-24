@@ -1,34 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  User,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signInWithPopup,
-  signOut,
-  sendPasswordResetEmail,
-  signInAnonymously
-} from 'firebase/auth';
-import {
-  auth,
-  googleProvider,
-  getOrCreateUserProfile,
-  UserProfileData,
-  testConnection
-} from '@/lib/firebase';
+import type { User } from 'firebase/auth';
+import type { UserProfileData } from '@/lib/firebase';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
-
-  useEffect(() => {
-    testConnection();
-  }, []);
 
   const refreshProfile = useCallback(async (currUser?: User | null) => {
     const targetUser = currUser !== undefined ? currUser : user;
@@ -37,6 +17,7 @@ export function useAuth() {
       return;
     }
     try {
+      const { getOrCreateUserProfile } = await import('@/lib/firebase');
       const p = await getOrCreateUserProfile(targetUser);
       setProfile(p);
     } catch (err) {
@@ -45,28 +26,83 @@ export function useAuth() {
   }, [user]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const prof = await getOrCreateUserProfile(currentUser);
-          setProfile(prof);
-        } catch (err) {
-          console.error('Profile fetch error:', err);
-        }
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
+    if (typeof window === 'undefined') return;
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
 
-    return () => unsubscribe();
+    const initFirebaseAuth = async () => {
+      try {
+        const [{ onAuthStateChanged }, { auth, getOrCreateUserProfile }] = await Promise.all([
+          import('firebase/auth'),
+          import('@/lib/firebase')
+        ]);
+        if (cancelled) return;
+        unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+          if (cancelled) return;
+          setUser(currentUser);
+          if (currentUser) {
+            try {
+              localStorage.setItem('xq_auth_active', '1');
+            } catch {}
+            try {
+              const prof = await getOrCreateUserProfile(currentUser);
+              if (!cancelled) setProfile(prof);
+            } catch (err) {
+              console.error('Profile fetch error:', err);
+            }
+          } else {
+            try {
+              localStorage.removeItem('xq_auth_active');
+            } catch {}
+            setProfile(null);
+          }
+          setLoading(false);
+        });
+      } catch {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    // Only auto-load the Firebase SDK on mount if the user has a cached auth session
+    let hasCachedAuth = false;
+    try {
+      if (localStorage.getItem('xq_auth_active') === '1') {
+        hasCachedAuth = true;
+      } else {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('firebase:authUser:')) {
+            hasCachedAuth = true;
+            break;
+          }
+        }
+      }
+    } catch {}
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    if (hasCachedAuth) {
+      timer = setTimeout(() => {
+        void initFirebaseAuth();
+      }, 150);
+    }
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const signInWithEmail = async (email: string, pass: string) => {
     setAuthError(null);
     try {
+      const [{ signInWithEmailAndPassword }, { auth, getOrCreateUserProfile }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       const res = await signInWithEmailAndPassword(auth, email.trim(), pass);
+      try { localStorage.setItem('xq_auth_active', '1'); } catch {}
+      setUser(res.user);
       const prof = await getOrCreateUserProfile(res.user);
       setProfile(prof);
       return res.user;
@@ -81,10 +117,16 @@ export function useAuth() {
   const signUpWithEmail = async (email: string, pass: string, displayName: string) => {
     setAuthError(null);
     try {
+      const [{ createUserWithEmailAndPassword, updateProfile }, { auth, getOrCreateUserProfile }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       const res = await createUserWithEmailAndPassword(auth, email.trim(), pass);
       if (displayName.trim()) {
         await updateProfile(res.user, { displayName: displayName.trim() });
       }
+      try { localStorage.setItem('xq_auth_active', '1'); } catch {}
+      setUser(res.user);
       const prof = await getOrCreateUserProfile(res.user);
       setProfile(prof);
       return res.user;
@@ -99,7 +141,13 @@ export function useAuth() {
   const signInWithGoogle = async () => {
     setAuthError(null);
     try {
+      const [{ signInWithPopup }, { auth, googleProvider, getOrCreateUserProfile }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       const res = await signInWithPopup(auth, googleProvider);
+      try { localStorage.setItem('xq_auth_active', '1'); } catch {}
+      setUser(res.user);
       try {
         const prof = await getOrCreateUserProfile(res.user);
         setProfile(prof);
@@ -135,7 +183,13 @@ export function useAuth() {
   const signInGuest = async () => {
     setAuthError(null);
     try {
+      const [{ signInAnonymously }, { auth, getOrCreateUserProfile }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       const res = await signInAnonymously(auth);
+      try { localStorage.setItem('xq_auth_active', '1'); } catch {}
+      setUser(res.user);
       try {
         const prof = await getOrCreateUserProfile(res.user);
         setProfile(prof);
@@ -170,7 +224,12 @@ export function useAuth() {
   const signOutUser = async () => {
     setAuthError(null);
     try {
+      const [{ signOut }, { auth }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       await signOut(auth);
+      try { localStorage.removeItem('xq_auth_active'); } catch {}
       setUser(null);
       setProfile(null);
     } catch (err: unknown) {
@@ -181,6 +240,10 @@ export function useAuth() {
   const resetPassword = async (email: string) => {
     setAuthError(null);
     try {
+      const [{ sendPasswordResetEmail }, { auth }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase')
+      ]);
       await sendPasswordResetEmail(auth, email.trim());
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gửi email đặt lại mật khẩu thất bại';

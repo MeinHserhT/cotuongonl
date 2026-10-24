@@ -153,37 +153,39 @@ export function UserProfileDrawer({
         transition={{ type: 'spring', damping: 28, stiffness: 280 }}
         className={`relative w-full max-w-md h-full border-l shadow-2xl flex flex-col z-10 transition-colors ${
           isDark
-            ? 'bg-[#161a24] border-[#2e374c] text-slate-100'
-            : 'bg-[#faf6ee] border-[#d8cbba] text-neutral-900'
+            ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5]'
+            : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226]'
         }`}
       >
         <div className={`p-4 sm:p-5 border-b flex items-center justify-between ${
           isDark
-            ? 'border-[#293245] bg-gradient-to-r from-[#1c2230] via-[#202737] to-[#1c2230]'
-            : 'border-[#dfd3c3] bg-gradient-to-r from-[#f7f0e4] via-[#fdf8f0] to-[#f7f0e4]'
+            ? 'border-[#36291E] bg-[#120E0A]'
+            : 'border-[#D5DFDB] bg-[#EEF2F0]'
         }`}>
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-600 to-amber-700 flex items-center justify-center font-piece text-2xl text-neutral-900 shadow-md">
+            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-piece text-2xl text-white shadow-md ${
+              isDark ? 'bg-[#D97706]' : 'bg-[#0F766E]'
+            }`}>
               {profile.displayName?.charAt(0)?.toUpperCase() || '帥'}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className={`font-extrabold text-base truncate max-w-[180px] ${
-                  isDark ? 'text-slate-100' : 'text-neutral-900'
+                  isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                 }`}>
                   {profile.displayName || 'Kỳ thủ'}
                 </h3>
               </div>
               <div className="flex items-center gap-2 mt-1 text-[11px] font-mono">
                 <span className={`font-bold flex items-center gap-1 ${
-                  isDark ? 'text-amber-300' : 'text-amber-800'
+                  isDark ? 'text-[#D97706]' : 'text-[#0F766E]'
                 }`}>
                   <span>⚔️ Ngửa:</span>
                   <span>{eloStd}</span>
                 </span>
-                <span className={isDark ? 'text-slate-500' : 'text-neutral-400'}>·</span>
+                <span className={isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}>·</span>
                 <span className={`font-bold flex items-center gap-1 ${
-                  isDark ? 'text-red-300' : 'text-red-800'
+                  isDark ? 'text-red-300' : 'text-red-700'
                 }`}>
                   <span>🎭 Úp:</span>
                   <span>{eloJq}</span>
@@ -195,7 +197,7 @@ export function UserProfileDrawer({
           <button
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors cursor-pointer ${
-              isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200'
+              isDark ? 'text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018]' : 'text-[#4A6368] hover:text-[#132226] hover:bg-[#E6ECEA]'
             }`}
           >
             <X className="w-5 h-5" />
@@ -204,19 +206,19 @@ export function UserProfileDrawer({
 
         <div className={`flex border-b px-3 pt-2 ${
           isDark
-            ? 'border-[#293245] bg-[#12151e]'
-            : 'border-[#dfd3c3] bg-[#f0e7d8]'
+            ? 'border-[#36291E] bg-[#120E0A]/70'
+            : 'border-[#D5DFDB] bg-[#EEF2F0]/70'
         }`}>
           <button
             onClick={() => setActiveTab('stats')}
             className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'stats'
                 ? isDark
-                  ? 'border-amber-400 text-amber-300'
-                  : 'border-amber-700 text-amber-950 font-black'
+                  ? 'border-[#D97706] text-[#D97706]'
+                  : 'border-[#0F766E] text-[#0F766E] font-black'
                 : isDark
-                ? 'border-transparent text-slate-400 hover:text-slate-200'
-                : 'border-transparent text-neutral-600 hover:text-neutral-950 font-semibold'
+                ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
             }`}
           >
             <Trophy className="w-3.5 h-3.5" />
@@ -227,11 +229,11 @@ export function UserProfileDrawer({
             className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'history'
                 ? isDark
-                  ? 'border-amber-400 text-amber-300'
-                  : 'border-amber-700 text-amber-950 font-black'
+                  ? 'border-[#D97706] text-[#D97706]'
+                  : 'border-[#0F766E] text-[#0F766E] font-black'
                 : isDark
-                ? 'border-transparent text-slate-400 hover:text-slate-200'
-                : 'border-transparent text-neutral-600 hover:text-neutral-950 font-semibold'
+                ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
             }`}
           >
             <History className="w-3.5 h-3.5" />
@@ -242,11 +244,11 @@ export function UserProfileDrawer({
             className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'saved'
                 ? isDark
-                  ? 'border-amber-400 text-amber-300'
-                  : 'border-amber-700 text-amber-950 font-black'
+                  ? 'border-[#D97706] text-[#D97706]'
+                  : 'border-[#0F766E] text-[#0F766E] font-black'
                 : isDark
-                ? 'border-transparent text-slate-400 hover:text-slate-200'
-                : 'border-transparent text-neutral-600 hover:text-neutral-950 font-semibold'
+                ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
             }`}
           >
             <Bookmark className="w-3.5 h-3.5" />

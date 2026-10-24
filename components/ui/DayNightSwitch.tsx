@@ -41,6 +41,9 @@ export const DayNightSwitch: React.FC<DayNightSwitchProps> = ({
           <img
             className="switch__cloud --2"
             src="/switch/cloud-1.svg"
+            width={24}
+            height={16}
+            decoding="async"
             alt=""
             aria-hidden="true"
           />
@@ -48,6 +51,9 @@ export const DayNightSwitch: React.FC<DayNightSwitchProps> = ({
           <img
             className="switch__cloud --1"
             src="/switch/cloud-2.svg"
+            width={28}
+            height={18}
+            decoding="async"
             alt=""
             aria-hidden="true"
           />
@@ -60,6 +66,9 @@ export const DayNightSwitch: React.FC<DayNightSwitchProps> = ({
               <img
                 className="switch-globe__moon"
                 src="/switch/moon_1.png"
+                width={28}
+                height={28}
+                decoding="async"
                 alt=""
                 aria-hidden="true"
               />
@@ -72,6 +81,9 @@ export const DayNightSwitch: React.FC<DayNightSwitchProps> = ({
             <img
               className="switch__stars"
               src="/switch/stars.svg"
+              width={48}
+              height={24}
+              decoding="async"
               alt=""
               aria-hidden="true"
             />

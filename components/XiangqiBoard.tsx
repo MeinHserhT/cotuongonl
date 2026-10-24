@@ -69,6 +69,7 @@ function buildMarkerPath(cx: number, cy: number, hasLeft: boolean, hasRight: boo
 interface XiangqiBoardProps {
   board: (string | null)[][];
   theme: BoardTheme;
+  colorMode?: 'dark' | 'light';
   isFlipped: boolean;
   selectedSquare: { r: number; c: number } | null;
   validMoves: Move[];
@@ -100,6 +101,7 @@ interface XiangqiBoardProps {
 export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   board,
   theme,
+  colorMode = 'dark',
   isFlipped,
   selectedSquare,
   validMoves,
@@ -163,14 +165,20 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
     [isCheck, board, turn]
   );
 
-  // Theme tokens for SVG board and pieces
+  const isDark = colorMode !== 'light';
+
+  // Theme tokens for SVG board and pieces (harmonized with Dark Rosewood #1F1812/#36291E & Light Jade #0F766E/#132226)
   const boardFrameClass = isMarble
     ? 'bg-gradient-to-b from-[#1f5c52] via-[#15463e] to-[#0e332d] border-[#09221e] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.28),inset_0_-2px_4px_rgba(0,0,0,0.45)]'
     : isLacquer
     ? 'bg-gradient-to-b from-[#2c1509] via-[#1f0e05] to-[#130802] border-[#92400e] shadow-[0_12px_36px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(251,191,36,0.35),inset_0_-2px_4px_rgba(0,0,0,0.7)]'
     : isZen
-    ? 'bg-gradient-to-b from-[#b88c5a] via-[#a77c4b] to-[#916738] border-[#5e3e1a] shadow-[0_12px_36px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]'
-    : 'bg-gradient-to-b from-[#c47b33] via-[#b36c24] to-[#9b5815] border-[#4a2206] shadow-[0_12px_36px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]';
+    ? isDark
+      ? 'bg-gradient-to-b from-[#36291E] via-[#281E15] to-[#1F1812] border-[#5C4430] shadow-[0_14px_38px_rgba(0,0,0,0.78),inset_0_1px_2px_rgba(239,230,213,0.18),inset_0_-2px_4px_rgba(0,0,0,0.55)]'
+      : 'bg-gradient-to-b from-[#b88c5a] via-[#a77c4b] to-[#916738] border-[#5e3e1a] shadow-[0_12px_32px_rgba(19,34,38,0.22),inset_0_1px_2px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.35)]'
+    : isDark
+    ? 'bg-gradient-to-b from-[#3A2818] via-[#291C10] to-[#1F1812] border-[#D97706]/50 shadow-[0_14px_38px_rgba(0,0,0,0.82),inset_0_1px_2px_rgba(239,230,213,0.22),inset_0_-2px_4px_rgba(0,0,0,0.6)]'
+    : 'bg-gradient-to-b from-[#1A423F] via-[#133230] to-[#132226] border-[#0F766E] shadow-[0_14px_34px_rgba(19,34,38,0.26),inset_0_1px_2px_rgba(255,255,255,0.28),inset_0_-2px_4px_rgba(0,0,0,0.4)]';
 
   const surfaceStops = isMarble
     ? ['#dff2eb', '#c6e5da', '#add6c8']

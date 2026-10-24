@@ -42,58 +42,58 @@
 .dark {
   color-scheme: dark;
 
-  /* Dark Mode: Deep Obsidian Lacquer & High-Luminance Foreground Elements */
-  --bg-canvas: #0e1219;
-  --bg-surface: #151924;
-  --bg-surface-elevated: #1d2332;
-  --bg-surface-subtle: #191f2c;
-  --bg-surface-active: #242c3e;
+  /* Dark Mode (Phương án 1): Gỗ Mun & Hổ Phách (#120E0A, #1F1812, #EFE6D5, #D97706) */
+  --bg-canvas: #120E0A;
+  --bg-surface: #1F1812;
+  --bg-surface-elevated: #2A2018;
+  --bg-surface-subtle: #16110C;
+  --bg-surface-active: #36291E;
 
-  /* Text Colors: Verified > 7:1 to > 15:1 contrast against dark surfaces */
-  --text-primary: #f8fafc;        /* Ratio > 15:1 against #0e1219 */
-  --text-secondary: #e2e8f0;      /* Ratio > 12:1 */
-  --text-muted: #94a3b8;          /* Ratio > 6:1 (WCAG AA & AAA large) */
-  --text-inverse: #0b0e14;
-  --text-accent: #fcd34d;         /* High-visibility imperial gold */
-  --text-danger: #fca5a5;         /* Crisp warning/check coral */
-  --text-success: #86efac;        /* Luminous victory jade */
+  /* Text Colors */
+  --text-primary: #EFE6D5;
+  --text-secondary: #C9B8A3;
+  --text-muted: #9C8A74;
+  --text-inverse: #120E0A;
+  --text-accent: #D97706;
+  --text-danger: #FCA5A5;
+  --text-success: #86EFAC;
 
-  /* Borders: Visible, tactile demarcation lines */
-  --border-subtle: #252d3d;
-  --border-default: #354258;
-  --border-strong: #d97706;
-  --border-focus: #f59e0b;
+  /* Borders */
+  --border-subtle: #2A2018;
+  --border-default: #36291E;
+  --border-strong: #D97706;
+  --border-focus: #F59E0B;
 
-  --shadow-surface: 0 10px 30px -5px rgba(0, 0, 0, 0.65);
+  --shadow-surface: 0 10px 30px -5px rgba(0, 0, 0, 0.72);
 }
 
 [data-theme="light"],
 .light {
   color-scheme: light;
 
-  /* Light Mode: Warm Xuan Paper, Raw Silk & Deep Charcoal */
-  --bg-canvas: #f6f0e6;
-  --bg-surface: #fbf8f2;
-  --bg-surface-elevated: #ffffff;
-  --bg-surface-subtle: #f0e6d6;
-  --bg-surface-active: #e7dac5;
+  /* Light Mode (Phương án 2): Ngọc Trắng & Ngọc Bích (#EEF2F0, #FFFFFF, #132226, #0F766E) */
+  --bg-canvas: #EEF2F0;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-subtle: #F4F7F6;
+  --bg-surface-active: #E6ECEA;
 
-  /* Text Colors: Verified > 7:1 to > 16:1 contrast against light surfaces */
-  --text-primary: #0a0e17;        /* Ultra-deep charcoal, Ratio > 16:1 against #fbf8f2 */
-  --text-secondary: #1e293b;      /* Deep Slate-800, Ratio > 11.5:1 */
-  --text-muted: #475569;          /* Deep Slate-600, Ratio > 6.2:1 (passes WCAG AAA) */
-  --text-inverse: #ffffff;
-  --text-accent: #78350f;         /* Deep rich cinnabar-amber, Ratio > 7.5:1 */
-  --text-danger: #991b1b;         /* Deep crimson red, Ratio > 8.0:1 */
-  --text-success: #14532d;        /* Deep pine emerald, Ratio > 8.0:1 */
+  /* Text Colors */
+  --text-primary: #132226;
+  --text-secondary: #2E444A;
+  --text-muted: #4A6368;
+  --text-inverse: #FFFFFF;
+  --text-accent: #0F766E;
+  --text-danger: #991B1B;
+  --text-success: #0F766E;
 
-  /* Borders: Crisply defined boundaries against cream/parchment */
-  --border-subtle: #dfd2be;
-  --border-default: #ccbc9f;
-  --border-strong: #92400e;
-  --border-focus: #b45309;
+  /* Borders */
+  --border-subtle: #E2E9E6;
+  --border-default: #D5DFDB;
+  --border-strong: #0F766E;
+  --border-focus: #0D9488;
 
-  --shadow-surface: 0 10px 25px -4px rgba(60, 40, 20, 0.12);
+  --shadow-surface: 0 10px 25px -4px rgba(19, 34, 38, 0.08);
 }
 
 html {
@@ -183,77 +183,38 @@ textarea {
   line-height: 1.28 !important;
 }
 
-/* Authentic Lemonada Font @font-face with local + CDN fallback */
+/* Self-hosted subsetted Lemonada WOFF2 (Vietnamese + Latin) */
 @font-face {
   font-family: 'Lemonada';
   font-style: normal;
   font-weight: 300 700;
   font-display: swap;
-  src: url('/fonts/lemonada.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/lemonada/v31/0QI-MXFD9oygTWy_R-FFlwV-bgfR7QJGeut2mQ.ttf') format('truetype');
+  src: url('/fonts/lemonada-vi.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
 }
 
-/* Authentic Iansui (芫荽) Calligraphy @font-face with local + CDN fallback */
+@font-face {
+  font-family: 'Lemonada';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/lemonada-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Self-hosted subsetted Iansui (芫荽) Calligraphy WOFF2 (7.9 KB - Xiangqi glyphs only) */
 @font-face {
   font-family: 'Iansui';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 700;
   font-display: swap;
-  src: url('/fonts/iansui.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/iansui/v14/w8gbH2UoTuUp5bOajQ.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Iansui';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/iansui.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/iansui/v14/w8gbH2UoTuUp5bOajQ.ttf') format('truetype');
-}
-
-/* Authentic Ma Shan Zheng Calligraphy @font-face with local + CDN fallback */
-@font-face {
-  font-family: 'Ma Shan Zheng';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/mashanzheng.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/mashanzheng/v18/NaPecZTRCLxvwo41b4gvzkXaRMQ.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ma Shan Zheng';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/mashanzheng.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/mashanzheng/v18/NaPecZTRCLxvwo41b4gvzkXaRMQ.ttf') format('truetype');
-}
-
-/* Authentic Zhi Mang Xing Calligraphy @font-face with local + CDN fallback */
-@font-face {
-  font-family: 'Zhi Mang Xing';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/zhimangxing.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/zhimangxing/v19/f0Xw0ey79sErYFtWQ9a2rq-g0ac.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Zhi Mang Xing';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/zhimangxing.ttf') format('truetype'),
-       url('https://fonts.gstatic.com/s/zhimangxing/v19/f0Xw0ey79sErYFtWQ9a2rq-g0ac.ttf') format('truetype');
+  src: url('/fonts/iansui-subset.woff2') format('woff2');
 }
 
 /* Authentic Chinese calligraphy brush font (Iansui) on Xiangqi chess pieces */
 .piece span,
 .font-piece {
-  font-family: "Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif !important;
+  font-family: "Iansui", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", cursive, serif !important;
   font-feature-settings: "liga" 1;
 }
 
@@ -263,9 +224,7 @@ textarea {
 
 /* Authentic Xiangqi Pieces - Clean 2D View with Tactile Feel */
 .piece {
-  will-change: transform, box-shadow;
-  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.18s ease, filter 0.18s ease;
-  filter: brightness(1.05) contrast(1.02);
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.18s ease;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
@@ -278,7 +237,6 @@ textarea {
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.45),
       inset 0 2px 5px rgba(255, 255, 255, 1) !important;
-    filter: brightness(1.15) contrast(1.04);
     z-index: 35 !important;
   }
 }
@@ -288,7 +246,6 @@ textarea {
   box-shadow:
     0 0 18px rgba(245, 158, 11, 0.9),
     0 6px 14px rgba(0, 0, 0, 0.5) !important;
-  filter: brightness(1.18) contrast(1.06);
   z-index: 40 !important;
 }
 
@@ -296,23 +253,13 @@ textarea {
   transform: scale(0.98);
 }
 
-/* King (Tướng/帥/將) - Sovereign Imperial Glow & Distinction */
+/* King (Tướng/帥/將) - Sovereign Imperial Glow & Distinction (static composited shadow) */
 .piece.piece-king {
   box-shadow:
     0 0 12px 1.5px rgba(245, 158, 11, 0.45),
     0 3px 8px rgba(0, 0, 0, 0.4),
     inset 0 2px 4px #ffffff,
     inset 0 0 0 1px rgba(217, 119, 6, 0.45) !important;
-  animation: king-subtle-glow 3.6s ease-in-out infinite;
-}
-
-@keyframes king-subtle-glow {
-  0%, 100% {
-    filter: brightness(1.05) contrast(1.02) drop-shadow(0 0 3px rgba(245, 158, 11, 0.35));
-  }
-  50% {
-    filter: brightness(1.1) contrast(1.04) drop-shadow(0 0 8px rgba(245, 158, 11, 0.65));
-  }
 }
 
 @media (hover: hover) and (pointer: fine) {

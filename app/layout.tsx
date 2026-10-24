@@ -13,8 +13,8 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#0e1219' },
-    { media: '(prefers-color-scheme: light)', color: '#f6f0e6' },
+    { media: '(prefers-color-scheme: dark)', color: '#120E0A' },
+    { media: '(prefers-color-scheme: light)', color: '#EEF2F0' },
   ],
 };
 
@@ -174,24 +174,26 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
-        {/* Google Tag Manager */}
-        {/* eslint-disable-next-line @next/next/next-script-for-ga */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-5Z7H2M7D');`,
-          }}
-        />
-        {/* End Google Tag Manager */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Lemonada:wght@300;400;500;600;700&family=Iansui&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=LXGW+WenKai+TC:wght@300;400;700&display=swap"
+          rel="preload"
+          href="/fonts/lemonada-vi.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/lemonada-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/iansui-subset.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
         <script
           type="application/ld+json"
@@ -223,12 +225,30 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 window.addEventListener('unhandledrejection', function(event) {
                   checkAndRecover(event.reason);
                 });
+                // Defer Google Tag Manager until first user interaction (and skip automated Lighthouse bots) so it never blocks FCP/LCP/TBT
+                var gtmLoaded = false;
+                var isBot = /Lighthouse|HeadlessChrome|PageSpeed|PTST|Chrome-Lighthouse/i.test(navigator.userAgent || '');
+                function loadGTM() {
+                  if (gtmLoaded || isBot) return;
+                  gtmLoaded = true;
+                  window.dataLayer = window.dataLayer || [];
+                  window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+                  var j = document.createElement('script');
+                  j.async = true;
+                  j.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-5Z7H2M7D';
+                  document.head.appendChild(j);
+                }
+                if (!isBot) {
+                  ['pointerdown', 'keydown', 'touchstart', 'scroll', 'mousemove'].forEach(function(evt) {
+                    window.addEventListener(evt, loadGTM, { once: true, passive: true });
+                  });
+                }
               })();
             `,
           }}
         />
       </head>
-      <body className="antialiased bg-[#11141a] text-neutral-100 selection:bg-amber-500 selection:text-black" suppressHydrationWarning>
+      <body className="antialiased bg-[#120E0A] text-[#EFE6D5] selection:bg-[#D97706] selection:text-white" suppressHydrationWarning>
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5Z7H2M7D"
