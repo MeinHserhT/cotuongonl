@@ -96,6 +96,7 @@ interface XiangqiBoardProps {
   onHorseComplete: () => void;
   boardRef?: React.Ref<HTMLDivElement>;
   justRevealedSquare?: { r: number; c: number } | null;
+  isLandscape?: boolean;
 }
 
 export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
@@ -126,7 +127,8 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   onHorseImpact,
   onHorseComplete,
   boardRef,
-  justRevealedSquare
+  justRevealedSquare,
+  isLandscape = false
 }) => {
   const isZen = theme === 'zen';
   const isMarble = theme === 'marble';
@@ -231,7 +233,11 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
   return (
     <div
       ref={boardRef}
-      className={`relative w-full max-w-[540px] sm:max-w-[590px] md:max-w-[640px] rounded-2xl p-1.5 sm:p-2.5 shadow-2xl select-none border-4 ${
+      className={`relative ${
+        isLandscape
+          ? 'h-screen h-[100dvh] max-h-[100dvh] w-auto max-w-none aspect-[9/10] shrink-0'
+          : 'w-screen w-[100vw] max-w-[100vw] h-auto aspect-[9/10] shrink-0'
+      } rounded-2xl p-1.5 sm:p-2.5 shadow-2xl select-none border-4 ${
         boardShake ? 'transition-none' : 'transition-all duration-300'
       } ${boardFrameClass} ${
         boardShake === 'check'
@@ -242,7 +248,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
       }`}
     >
       {/* Board Surface with SVG Lines and River */}
-      <div className="relative w-full aspect-[9/10] rounded-xl overflow-hidden shadow-[inset_0_0_12px_rgba(0,0,0,0.32)] border border-amber-950/40">
+      <div className="relative w-full h-full aspect-[9/10] rounded-xl overflow-hidden shadow-[inset_0_0_12px_rgba(0,0,0,0.32)] border border-amber-950/40">
         <svg
           viewBox="0 0 450 500"
           className="absolute inset-0 w-full h-full pointer-events-none"

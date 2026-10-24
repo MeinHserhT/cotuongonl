@@ -701,12 +701,13 @@ export default function XiangqiPage() {
     }
   };
 
-  // Flexible BoardSideTray position based on viewport ratio (requires >= 640px width so mobile virtual keyboard doesn't crush the board)
+  // Flexible PlayerBlock & BoardSideTray position based on viewport ratio:
+  // Above/Below board when vh > vw (portrait), and on the 2 sides of the board when vh < vw (landscape)
   const [isLandscape, setIsLandscape] = useState<boolean>(false);
   useEffect(() => {
     const handleOrientation = () => {
       if (typeof window !== 'undefined') {
-        setIsLandscape(window.innerWidth >= 640 && window.innerHeight < window.innerWidth);
+        setIsLandscape(window.innerHeight < window.innerWidth);
       }
     };
     handleOrientation();
@@ -814,7 +815,9 @@ export default function XiangqiPage() {
     <div
       suppressHydrationWarning
       data-theme={colorMode}
-      className={`min-h-screen min-h-[100dvh] flex flex-col pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] px-[max(0.5rem,env(safe-area-inset-left))] sm:p-4 select-none overflow-x-hidden font-sans transition-colors duration-200 ${colorMode} ${
+      className={`min-h-screen min-h-[100dvh] flex flex-col pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] ${
+        isLandscape ? 'px-[max(0.5rem,env(safe-area-inset-left))] sm:p-4' : 'px-0'
+      } select-none overflow-x-hidden font-sans transition-colors duration-200 ${colorMode} ${
         colorMode === 'dark'
           ? 'bg-[#120E0A] text-[#EFE6D5]'
           : 'bg-[#EEF2F0] text-[#132226]'
@@ -840,71 +843,113 @@ export default function XiangqiPage() {
       />
 
       {/* Main Game Stage */}
-      <main className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-center gap-3 sm:gap-4 lg:gap-6 px-1.5 sm:px-4">
+      <main className={`flex-1 max-w-[1440px] w-full mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-center gap-3 sm:gap-4 lg:gap-5 ${isLandscape ? 'px-1.5 sm:px-4' : 'px-0'}`}>
         {/* Left Column: Board & Players */}
-        <div ref={boardStageRef} className="w-full max-w-[640px] sm:max-w-[680px] lg:max-w-[720px] flex flex-col items-center shrink-0 gap-2 sm:gap-2.5">
-          {/* Top Player Block */}
-          <div className="w-full">
-            <PlayerBlock
-              isActive={game.turn === (isRedAtBottom ? 'b' : 'r') && !game.isGameOver}
-              isRed={!isRedAtBottom}
-              avatarChar={!isRedAtBottom ? '帥' : '將'}
-              title={topPlayerName}
-              badgeLabel={
-                game.gameMode === 'online'
-                  ? 'Đối thủ'
-                  : game.gameMode === 'pvp'
-                  ? (!isRedAtBottom ? 'P1' : 'P2')
-                  : game.gameMode.startsWith('pve') && !isRedAtBottom
-                  ? `Máy (${game.difficulty.toUpperCase()})`
-                  : 'P2'
-              }
-              capturedPieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
-              timer={topTimerValue}
-              timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
-              formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
-              elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.blackPlayer?.elo : socket.roomState?.redPlayer?.elo) : activeUserElo}
-              theme={game.theme}
-              isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
-              turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
-              moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
-              isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'b' : 'r')}
-              gameMode={game.gameMode}
-              otherPlayerName={bottomPlayerName}
-              colorMode={colorMode}
-            />
-          </div>
-
-
-
-          {/* Top Captured Tray (when in portrait/compact screen: width == board width) */}
+        <div
+          ref={boardStageRef}
+          className={`w-full ${
+            isLandscape
+              ? 'max-w-none flex-1 min-w-0'
+              : 'max-w-none shrink-0'
+          } flex flex-col items-center gap-2 sm:gap-2.5`}
+        >
+          {/* Top Player Block & Captured Tray (when vh > vw: displayed above chessboard) */}
           {!isLandscape && (
-            <div className="w-full flex justify-center">
-              <BoardSideTray
-                playerColor={isRedAtBottom ? 'b' : 'r'}
-                playerName={topPlayerName}
-                pieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
-                theme={game.theme}
-                orientation="horizontal"
-                style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
-                className="max-w-[560px] sm:max-w-[600px] md:max-w-[640px]"
-                colorMode={colorMode}
-              />
-            </div>
+            <>
+              <div className="w-full flex justify-center">
+                <PlayerBlock
+                  isActive={game.turn === (isRedAtBottom ? 'b' : 'r') && !game.isGameOver}
+                  isRed={!isRedAtBottom}
+                  avatarChar={!isRedAtBottom ? '帥' : '將'}
+                  title={topPlayerName}
+                  badgeLabel={
+                    game.gameMode === 'online'
+                      ? 'Đối thủ'
+                      : game.gameMode === 'pvp'
+                      ? (!isRedAtBottom ? 'P1' : 'P2')
+                      : game.gameMode.startsWith('pve') && !isRedAtBottom
+                      ? `Máy (${game.difficulty.toUpperCase()})`
+                      : 'P2'
+                  }
+                  capturedPieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
+                  timer={topTimerValue}
+                  timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
+                  formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
+                  elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.blackPlayer?.elo : socket.roomState?.redPlayer?.elo) : activeUserElo}
+                  theme={game.theme}
+                  isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
+                  turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
+                  moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
+                  isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'b' : 'r')}
+                  gameMode={game.gameMode}
+                  otherPlayerName={bottomPlayerName}
+                  colorMode={colorMode}
+                  orientation="horizontal"
+                  style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
+                  className="max-w-[100vw]"
+                />
+              </div>
+
+              <div className="w-full flex justify-center">
+                <BoardSideTray
+                  playerColor={isRedAtBottom ? 'b' : 'r'}
+                  playerName={topPlayerName}
+                  pieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
+                  theme={game.theme}
+                  orientation="horizontal"
+                  style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
+                  className="max-w-[100vw]"
+                  colorMode={colorMode}
+                />
+              </div>
+            </>
           )}
 
-          {/* Chessboard & Side Trays */}
-          <div className="w-full flex items-center justify-center gap-2 sm:gap-3">
+          {/* Chessboard & Side Panels (when vh < vw: PlayerBlock & BoardSideTray on the 2 sides of chessboard) */}
+          <div className="w-full flex items-center justify-center gap-1.5 sm:gap-2.5">
             {isLandscape && (
-              <BoardSideTray
-                playerColor={isRedAtBottom ? 'b' : 'r'}
-                playerName={topPlayerName}
-                pieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
-                theme={game.theme}
-                orientation="vertical"
-                style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
-                colorMode={colorMode}
-              />
+              <>
+                <PlayerBlock
+                  isActive={game.turn === (isRedAtBottom ? 'b' : 'r') && !game.isGameOver}
+                  isRed={!isRedAtBottom}
+                  avatarChar={!isRedAtBottom ? '帥' : '將'}
+                  title={topPlayerName}
+                  badgeLabel={
+                    game.gameMode === 'online'
+                      ? 'Đối thủ'
+                      : game.gameMode === 'pvp'
+                      ? (!isRedAtBottom ? 'P1' : 'P2')
+                      : game.gameMode.startsWith('pve') && !isRedAtBottom
+                      ? `Máy (${game.difficulty.toUpperCase()})`
+                      : 'P2'
+                  }
+                  capturedPieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
+                  timer={topTimerValue}
+                  timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
+                  formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
+                  elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.blackPlayer?.elo : socket.roomState?.redPlayer?.elo) : activeUserElo}
+                  theme={game.theme}
+                  isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
+                  turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
+                  moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
+                  isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'b' : 'r')}
+                  gameMode={game.gameMode}
+                  otherPlayerName={bottomPlayerName}
+                  colorMode={colorMode}
+                  orientation="vertical"
+                  style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
+                />
+
+                <BoardSideTray
+                  playerColor={isRedAtBottom ? 'b' : 'r'}
+                  playerName={topPlayerName}
+                  pieces={isRedAtBottom ? game.capturedRed : game.capturedBlack}
+                  theme={game.theme}
+                  orientation="vertical"
+                  style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
+                  colorMode={colorMode}
+                />
+              </>
             )}
 
             <XiangqiBoard
@@ -953,74 +998,116 @@ export default function XiangqiPage() {
               }}
               onHorseComplete={() => game.setHorseKickAnim(null)}
               justRevealedSquare={game.justRevealedSquare}
+              isLandscape={isLandscape}
             />
 
             {isLandscape && (
-              <BoardSideTray
-                playerColor={isRedAtBottom ? 'r' : 'b'}
-                playerName={bottomPlayerName}
-                pieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
-                theme={game.theme}
-                orientation="vertical"
-                style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
-                colorMode={colorMode}
-              />
+              <>
+                <BoardSideTray
+                  playerColor={isRedAtBottom ? 'r' : 'b'}
+                  playerName={bottomPlayerName}
+                  pieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
+                  theme={game.theme}
+                  orientation="vertical"
+                  style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
+                  colorMode={colorMode}
+                />
+
+                <PlayerBlock
+                  isActive={game.turn === (isRedAtBottom ? 'r' : 'b') && !game.isGameOver}
+                  isRed={isRedAtBottom}
+                  avatarChar={isRedAtBottom ? '帥' : '將'}
+                  title={bottomPlayerName}
+                  badgeLabel={
+                    game.gameMode === 'online'
+                      ? 'Bạn'
+                      : game.gameMode === 'pvp'
+                      ? (isRedAtBottom ? 'P1' : 'P2')
+                      : isRedAtBottom
+                      ? 'Bạn'
+                      : `Máy (${game.difficulty.toUpperCase()})`
+                  }
+                  capturedPieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
+                  timer={bottomTimerValue}
+                  timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
+                  formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
+                  elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.redPlayer?.elo : socket.roomState?.blackPlayer?.elo) : activeUserElo}
+                  theme={game.theme}
+                  isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
+                  turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
+                  moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
+                  isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'r' : 'b')}
+                  gameMode={game.gameMode}
+                  otherPlayerName={topPlayerName}
+                  isInspecting={game.inspectMoveIndex !== null}
+                  inspectMoveIndex={game.inspectMoveIndex}
+                  onExitInspect={() => game.setInspectMoveIndex(null)}
+                  opponentDisconnected={socket.opponentDisconnected}
+                  opponentGraceSeconds={socket.opponentGraceSeconds}
+                  colorMode={colorMode}
+                  orientation="vertical"
+                  style={boardSize.height > 0 ? { height: `${boardSize.height}px` } : undefined}
+                />
+              </>
             )}
           </div>
 
-          {/* Bottom Captured Tray (when in portrait/compact screen: width == board width) */}
+          {/* Bottom Captured Tray & Player Block (when vh > vw: displayed below chessboard) */}
           {!isLandscape && (
-            <div className="w-full flex justify-center">
-              <BoardSideTray
-                playerColor={isRedAtBottom ? 'r' : 'b'}
-                playerName={bottomPlayerName}
-                pieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
-                theme={game.theme}
-                orientation="horizontal"
-                style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
-                className="max-w-[560px] sm:max-w-[600px] md:max-w-[640px]"
-                colorMode={colorMode}
-              />
-            </div>
+            <>
+              <div className="w-full flex justify-center">
+                <BoardSideTray
+                  playerColor={isRedAtBottom ? 'r' : 'b'}
+                  playerName={bottomPlayerName}
+                  pieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
+                  theme={game.theme}
+                  orientation="horizontal"
+                  style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
+                  className="max-w-[100vw]"
+                  colorMode={colorMode}
+                />
+              </div>
+
+              <div className="w-full flex justify-center">
+                <PlayerBlock
+                  isActive={game.turn === (isRedAtBottom ? 'r' : 'b') && !game.isGameOver}
+                  isRed={isRedAtBottom}
+                  avatarChar={isRedAtBottom ? '帥' : '將'}
+                  title={bottomPlayerName}
+                  badgeLabel={
+                    game.gameMode === 'online'
+                      ? 'Bạn'
+                      : game.gameMode === 'pvp'
+                      ? (isRedAtBottom ? 'P1' : 'P2')
+                      : isRedAtBottom
+                      ? 'Bạn'
+                      : `Máy (${game.difficulty.toUpperCase()})`
+                  }
+                  capturedPieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
+                  timer={bottomTimerValue}
+                  timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
+                  formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
+                  elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.redPlayer?.elo : socket.roomState?.blackPlayer?.elo) : activeUserElo}
+                  theme={game.theme}
+                  isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
+                  turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
+                  moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
+                  isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'r' : 'b')}
+                  gameMode={game.gameMode}
+                  otherPlayerName={topPlayerName}
+                  isInspecting={game.inspectMoveIndex !== null}
+                  inspectMoveIndex={game.inspectMoveIndex}
+                  onExitInspect={() => game.setInspectMoveIndex(null)}
+                  opponentDisconnected={socket.opponentDisconnected}
+                  opponentGraceSeconds={socket.opponentGraceSeconds}
+                  colorMode={colorMode}
+                  orientation="horizontal"
+                  style={boardSize.width > 0 ? { width: `${boardSize.width}px` } : undefined}
+                  className="max-w-[100vw]"
+                />
+              </div>
+            </>
           )}
-
-          {/* Bottom Player Block - Khung kết hợp bên dưới */}
-          <div className="w-full">
-            <PlayerBlock
-              isActive={game.turn === (isRedAtBottom ? 'r' : 'b') && !game.isGameOver}
-              isRed={isRedAtBottom}
-              avatarChar={isRedAtBottom ? '帥' : '將'}
-              title={bottomPlayerName}
-              badgeLabel={
-                game.gameMode === 'online'
-                  ? 'Bạn'
-                  : game.gameMode === 'pvp'
-                  ? (isRedAtBottom ? 'P1' : 'P2')
-                  : isRedAtBottom
-                  ? 'Bạn'
-                  : `Máy (${game.difficulty.toUpperCase()})`
-              }
-              capturedPieces={isRedAtBottom ? game.capturedBlack : game.capturedRed}
-              timer={bottomTimerValue}
-              timeLimit={game.gameMode === 'online' ? (socket.roomState?.timeLimit || 900) : game.timeLimit}
-              formatSec={(s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`}
-              elo={game.gameMode === 'online' ? (isRedAtBottom ? socket.roomState?.redPlayer?.elo : socket.roomState?.blackPlayer?.elo) : activeUserElo}
-              theme={game.theme}
-              isTimerRunning={!game.isGameOver && (game.gameMode === 'online' ? ((socket.roomState?.moveHistory?.length ?? 0) > 0) : (game.timeLimit > 0 && game.moveHistory.length > 0))}
-              turnTimer={game.gameMode === 'online' ? socket.roomState?.turnTimer : undefined}
-              moveTimeLimit={game.gameMode === 'online' ? (socket.roomState?.moveTimeLimit || 60) : 60}
-              isCheck={game.isCheck && game.turn === (isRedAtBottom ? 'r' : 'b')}
-              gameMode={game.gameMode}
-              otherPlayerName={topPlayerName}
-              isInspecting={game.inspectMoveIndex !== null}
-              inspectMoveIndex={game.inspectMoveIndex}
-              onExitInspect={() => game.setInspectMoveIndex(null)}
-              opponentDisconnected={socket.opponentDisconnected}
-              opponentGraceSeconds={socket.opponentGraceSeconds}
-              colorMode={colorMode}
-            />
-          </div>
-
         </div>
 
         {/* Right Column: Unified Single-Card Game Console */}
