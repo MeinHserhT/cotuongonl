@@ -13,7 +13,10 @@ import {
   Sliders,
   Check,
   Smartphone,
-  BookOpen
+  BookOpen,
+  Swords,
+  Layers,
+  ChevronRight
 } from 'lucide-react';
 import { BoardTheme } from '@/lib/xiangqi-types';
 import { AggressiveToggle } from '@/components/ui/AggressiveToggle';
@@ -64,62 +67,58 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
 
   const isDark = colorMode === 'dark';
 
-  const themeOptions: { id: BoardTheme; label: string; activeGradient: string }[] = [
+  const themeOptions: { id: BoardTheme; label: string; swatchClass: string }[] = [
     {
       id: 'imperial',
       label: 'Hoàng Cung',
-      activeGradient: 'bg-gradient-to-r from-[#8f4e13] to-[#ad6a28] border-amber-400 text-amber-100 shadow-xs'
+      swatchClass: 'bg-[#B57632] border-[#6E3B1E]'
     },
     {
       id: 'zen',
       label: 'Thiền Trà',
-      activeGradient: 'bg-gradient-to-r from-[#6e4922] to-[#8f6437] border-amber-400 text-amber-100 shadow-xs'
+      swatchClass: 'bg-[#8C7558] border-[#4A3828]'
     },
     {
       id: 'marble',
       label: 'Cẩm Thạch',
-      activeGradient: 'bg-gradient-to-r from-[#115e59] to-[#0f766e] border-teal-300 text-teal-50 shadow-xs'
+      swatchClass: 'bg-[#0F766E] border-[#115E59]'
     },
     {
       id: 'lacquer',
       label: 'Sơn Mài',
-      activeGradient: 'bg-gradient-to-r from-[#3b120e] to-[#691e16] border-amber-400 text-amber-200 shadow-xs'
+      swatchClass: 'bg-[#450A0A] border-[#B45309]'
     }
   ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end sm:justify-center pt-14 sm:pt-16 px-3 sm:px-4 pointer-events-none animate-in fade-in duration-150">
-      {/* Click-outside backdrop */}
       <div
-        className="fixed inset-0 bg-black/45 backdrop-blur-[2px] pointer-events-auto"
+        className="fixed inset-0 bg-black/50 backdrop-blur-[2px] pointer-events-auto"
         onClick={onClose}
       />
 
-      {/* Khung menu gọn gàng, padding và text nhỏ, KHÔNG FULLSCREEN */}
       <div
-        className={`pointer-events-auto relative w-full max-w-[320px] sm:max-w-[340px] rounded-2xl shadow-2xl border overflow-hidden flex flex-col transition-all ${
+        className={`pointer-events-auto relative w-full max-w-[330px] sm:max-w-[350px] rounded-xl shadow-2xl border overflow-hidden flex flex-col transition-colors duration-150 ${
           isDark
-            ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5] shadow-black/80'
-            : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226] shadow-stone-500/20'
+            ? 'bg-[#1F1812] border-[#36291E] text-[#EFE6D5]'
+            : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#132226]'
         }`}
       >
-        {/* Header nhỏ gọn */}
+        {/* Header */}
         <div
-          className={`flex items-center justify-between px-3.5 py-2.5 border-b ${
+          className={`flex items-center justify-between px-4 py-3 border-b ${
             isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
           }`}
         >
           <div className="flex items-center gap-2">
-            <Sliders className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-            <h2 className={`font-serif font-bold text-xs sm:text-sm tracking-wide ${
-              isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
-            }`}>
-              Cài Đặt &amp; Menu
+            <Sliders className={`w-4 h-4 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+            <h2 className="font-heading font-semibold text-sm tracking-tight">
+              Cài Đặt Trận Đấu
             </h2>
           </div>
           <button
             onClick={onClose}
-            className={`p-1 rounded-lg border transition-colors cursor-pointer ${
+            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
               isDark
                 ? 'bg-[#1F1812] hover:bg-[#2A2018] border-[#36291E] text-[#B8A996] hover:text-[#EFE6D5]'
                 : 'bg-[#FFFFFF] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#4A6368] hover:text-[#132226]'
@@ -130,42 +129,45 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
           </button>
         </div>
 
-        {/* Nội dung danh sách cài đặt */}
-        <div className="p-2.5 sm:p-3 space-y-2 max-h-[80dvh] overflow-y-auto overscroll-contain">
-          {/* 0. Chế độ Thể loại: Cờ Tướng (Sáng) / Cờ Úp */}
-          <div
-            className={`p-2 rounded-xl border space-y-1.5 ${
-              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-            }`}
-          >
-            <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className={`flex items-center gap-1.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>
-                <span>🎭</span>
-                <span>Chế độ chơi Cờ</span>
+        {/* Hairline-divided sections (no nested cards-within-cards) */}
+        <div
+          className={`px-4 py-2 divide-y max-h-[80dvh] overflow-y-auto overscroll-contain ${
+            isDark ? 'divide-[#36291E]' : 'divide-[#D5DFDB]'
+          }`}
+        >
+          {/* 1. Thể loại cờ */}
+          <div className="py-2.5 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className={`font-medium ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
+                Thể loại cờ
               </span>
-              <span className={`text-[10px] font-semibold ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>
-                {variant === 'jieqi' ? 'Cờ Úp (Jieqi)' : 'Cờ Ngửa'}
+              <span className="font-semibold">
+                {variant === 'jieqi' ? 'Cờ Úp' : 'Cờ Ngửa'}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5">
+            <div
+              className={`grid grid-cols-2 gap-1 p-1 rounded-lg border ${
+                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => {
                   if (variant !== 'standard') onToggleVariant?.();
                 }}
-                className={`py-1.5 px-2 rounded-lg border flex items-center justify-center gap-1 font-bold text-[11px] transition-all cursor-pointer ${
+                className={`py-1.5 px-2.5 rounded-md flex items-center justify-center gap-1.5 font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap ${
                   variant === 'standard'
                     ? isDark
-                      ? 'bg-[#D97706] border-[#D97706] text-white shadow-xs'
-                      : 'bg-[#0F766E] border-[#0F766E] text-white shadow-xs'
+                      ? 'bg-[#2A2018] text-[#D97706] shadow-2xs'
+                      : 'bg-[#FFFFFF] text-[#0F766E] shadow-2xs'
                     : isDark
-                    ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
-                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
+                    ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                    : 'text-[#4A6368] hover:text-[#132226]'
                 }`}
               >
-                <span>⚔️ Cờ Ngửa</span>
-                {variant === 'standard' && <Check className="w-3 h-3 text-white ml-auto" />}
+                <Swords className="w-3.5 h-3.5 shrink-0" />
+                <span>Cờ Ngửa</span>
               </button>
 
               <button
@@ -173,40 +175,33 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 onClick={() => {
                   if (variant !== 'jieqi') onToggleVariant?.();
                 }}
-                className={`py-1.5 px-2 rounded-lg border flex items-center justify-center gap-1 font-bold text-[11px] transition-all cursor-pointer ${
+                className={`py-1.5 px-2.5 rounded-md flex items-center justify-center gap-1.5 font-semibold text-xs transition-colors cursor-pointer whitespace-nowrap ${
                   variant === 'jieqi'
                     ? isDark
-                      ? 'bg-[#D97706] border-[#D97706] text-white shadow-xs'
-                      : 'bg-[#0F766E] border-[#0F766E] text-white shadow-xs'
+                      ? 'bg-[#2A2018] text-[#D97706] shadow-2xs'
+                      : 'bg-[#FFFFFF] text-[#0F766E] shadow-2xs'
                     : isDark
-                    ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
-                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
+                    ? 'text-[#B8A996] hover:text-[#EFE6D5]'
+                    : 'text-[#4A6368] hover:text-[#132226]'
                 }`}
               >
-                <span>🎭 Cờ Úp</span>
-                {variant === 'jieqi' && <Check className="w-3 h-3 text-white ml-auto" />}
+                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <span>Cờ Úp</span>
               </button>
             </div>
           </div>
 
-          {/* 1. Âm thanh */}
-          <div
-            className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-            }`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              {isMuted ? (
-                <VolumeX className="w-4 h-4 text-neutral-400 shrink-0" />
-              ) : (
-                <Volume2 className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-              )}
-              <div className="min-w-0">
-                <div className="text-xs font-bold leading-tight">Âm thanh</div>
+          {/* 2. Tùy chọn trải nghiệm (Clean flat rows) */}
+          <div className="py-2 space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                {isMuted ? (
+                  <VolumeX className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`} />
+                ) : (
+                  <Volume2 className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                )}
+                <span className="text-xs font-medium">Âm thanh</span>
               </div>
-            </div>
-
-            <div className="flex items-center justify-center shrink-0">
               <AggressiveToggle
                 checked={!isMuted}
                 onChange={onToggleMute}
@@ -215,22 +210,12 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 size="sm"
               />
             </div>
-          </div>
 
-          {/* 2. Hiệu ứng quân cờ (Xe - Pháo - Mã) */}
-          <div
-            className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-            }`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <Sparkles className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-              <div className="min-w-0">
-                <div className="text-xs font-bold leading-tight">Hiệu ứng ăn cờ</div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                <span className="text-xs font-medium">Hiệu ứng ăn cờ</span>
               </div>
-            </div>
-
-            <div className="flex items-center justify-center shrink-0">
               <AggressiveToggle
                 checked={enablePieceAnimations}
                 onChange={onTogglePieceAnimations}
@@ -239,23 +224,13 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                 size="sm"
               />
             </div>
-          </div>
 
-          {/* 2b. Trải nghiệm Di động: Rung phản hồi & Giữ sáng màn hình */}
-          {onToggleHaptics && (
-            <div
-              className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-              }`}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <Smartphone className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-                <div className="min-w-0">
-                  <div className="text-xs font-bold leading-tight">Rung phản hồi (Haptics)</div>
+            {onToggleHaptics && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Smartphone className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                  <span className="text-xs font-medium">Rung phản hồi</span>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-center shrink-0">
                 <AggressiveToggle
                   checked={enableHaptics}
                   onChange={onToggleHaptics}
@@ -264,23 +239,14 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                   size="sm"
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {onToggleWakeLock && (
-            <div
-              className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-2 ${
-                isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-              }`}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <Sun className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-                <div className="min-w-0">
-                  <div className="text-xs font-bold leading-tight">Giữ sáng màn hình</div>
+            {onToggleWakeLock && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Sun className={`w-4 h-4 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                  <span className="text-xs font-medium">Giữ sáng màn hình</span>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-center shrink-0">
                 <AggressiveToggle
                   checked={enableWakeLock}
                   onChange={onToggleWakeLock}
@@ -289,31 +255,17 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
                   size="sm"
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {/* 3. Giao diện Tối / Sáng */}
-          <div
-            className={`px-2.5 py-2 rounded-xl border flex items-center justify-between gap-3 ${
-              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-            }`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <div
-                className={`p-1.5 rounded-lg border transition-colors shrink-0 ${
-                  isDark
-                    ? 'bg-[#1F1812] border-[#36291E] text-[#D97706]'
-                    : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#0F766E]'
-                }`}
-              >
-                {isDark ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                {isDark ? (
+                  <Moon className="w-4 h-4 shrink-0 text-[#D97706]" />
+                ) : (
+                  <Sun className="w-4 h-4 shrink-0 text-[#0F766E]" />
+                )}
+                <span className="text-xs font-medium">Giao diện Sáng / Tối</span>
               </div>
-              <div className="min-w-0">
-                <div className="text-xs font-bold leading-tight">Giao diện</div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center shrink-0">
               <DayNightSwitch
                 isDark={isDark}
                 onToggle={onToggleColorMode}
@@ -322,84 +274,92 @@ export const SettingsMenuModal: React.FC<SettingsMenuModalProps> = React.memo(({
             </div>
           </div>
 
-          {/* 4. Chất liệu Bàn Cờ (4 chủ đề: Hoàng Cung, Thiền Trà, Cẩm Thạch, Sơn Mài) */}
-          <div
-            className={`p-2 rounded-xl border space-y-1.5 ${
-              isDark ? 'bg-[#120E0A] border-[#36291E]' : 'bg-[#EEF2F0] border-[#D5DFDB]'
-            }`}
-          >
-            <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="flex items-center gap-1.5">
-                <Palette className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+          {/* 3. Chất liệu Bàn Cờ */}
+          <div className="py-2.5 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs">
+              <Palette className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+              <span className={`font-medium ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
                 Mặt bàn cờ
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-1.5">
-              {themeOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => onSelectBoardTheme(opt.id)}
-                  className={`py-1.5 px-2 rounded-lg border flex items-center justify-center gap-1 font-bold text-[11px] transition-all cursor-pointer ${
-                    boardTheme === opt.id
-                      ? opt.activeGradient
-                      : isDark
-                      ? 'bg-[#1F1812] border-[#36291E] text-[#B8A996] hover:bg-[#2A2018]'
-                      : 'bg-[#FFFFFF] border-[#D5DFDB] text-[#4A6368] hover:bg-[#E6ECEA]'
-                  }`}
-                >
-                  <span>{opt.label}</span>
-                  {boardTheme === opt.id && <Check className="w-3 h-3 text-white ml-auto" />}
-                </button>
-              ))}
+              {themeOptions.map((opt) => {
+                const isSelected = boardTheme === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => onSelectBoardTheme(opt.id)}
+                    className={`py-1.5 px-2.5 rounded-lg border flex items-center justify-between gap-1.5 font-medium text-xs transition-colors cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? isDark
+                          ? 'bg-[#2A2018] border-[#D97706] text-[#EFE6D5] font-semibold'
+                          : 'bg-[#0F766E]/10 border-[#0F766E] text-[#0F766E] font-semibold'
+                        : isDark
+                        ? 'bg-[#120E0A] border-[#36291E] text-[#B8A996] hover:text-[#EFE6D5] hover:bg-[#2A2018]'
+                        : 'bg-[#EEF2F0] border-[#D5DFDB] text-[#4A6368] hover:text-[#132226] hover:bg-[#E6ECEA]'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <span className={`w-2.5 h-2.5 rounded-full border shrink-0 ${opt.swatchClass}`} />
+                      <span className="truncate">{opt.label}</span>
+                    </span>
+                    {isSelected && (
+                      <Check className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* 5. Phím tắt mở nhanh tính năng (Khai Cuộc, Luật Cờ) */}
-          <div className="pt-1 space-y-1.5">
-            {onOpenOpeningBook && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenOpeningBook();
-                }}
-                className={`w-full px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer ${
-                  isDark
-                    ? 'bg-[#120E0A] hover:bg-[#2A2018] border-[#36291E] text-[#EFE6D5]'
-                    : 'bg-[#EEF2F0] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#132226]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <BookOpen className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-                  <span>Cẩm Nang Khai Cuộc</span>
-                </div>
-                <span className={`text-[10px] ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>→</span>
-              </button>
-            )}
+          {/* 4. Tài liệu & Hướng dẫn */}
+          {(onOpenOpeningBook || onOpenRules) && (
+            <div className="py-2 space-y-1">
+              {onOpenOpeningBook && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenOpeningBook();
+                  }}
+                  className={`w-full px-2.5 py-2 rounded-lg flex items-center justify-between text-xs font-medium transition-colors cursor-pointer ${
+                    isDark
+                      ? 'hover:bg-[#2A2018] text-[#EFE6D5]'
+                      : 'hover:bg-[#EEF2F0] text-[#132226]'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <BookOpen className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                    <span>Cẩm Nang Khai Cuộc</span>
+                  </span>
+                  <ChevronRight className={`w-3.5 h-3.5 ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`} />
+                </button>
+              )}
 
-            {onOpenRules && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenRules();
-                }}
-                className={`w-full px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer ${
-                  isDark
-                    ? 'bg-[#120E0A] hover:bg-[#2A2018] border-[#36291E] text-[#EFE6D5]'
-                    : 'bg-[#EEF2F0] hover:bg-[#E6ECEA] border-[#D5DFDB] text-[#132226]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <HelpCircle className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
-                  <span>Hướng Dẫn Luật Cờ</span>
-                </div>
-                <span className={`text-[10px] ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>→</span>
-              </button>
-            )}
-          </div>
+              {onOpenRules && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenRules();
+                  }}
+                  className={`w-full px-2.5 py-2 rounded-lg flex items-center justify-between text-xs font-medium transition-colors cursor-pointer ${
+                    isDark
+                      ? 'hover:bg-[#2A2018] text-[#EFE6D5]'
+                      : 'hover:bg-[#EEF2F0] text-[#132226]'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <HelpCircle className={`w-3.5 h-3.5 ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`} />
+                    <span>Hướng Dẫn Luật Cờ</span>
+                  </span>
+                  <ChevronRight className={`w-3.5 h-3.5 ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

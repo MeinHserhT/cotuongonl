@@ -235,7 +235,7 @@ export const XiangqiBoard: React.FC<XiangqiBoardProps> = React.memo(({
       ref={boardRef}
       className={`relative ${
         isLandscape
-          ? 'h-screen h-[100dvh] max-h-[100dvh] w-auto max-w-none aspect-[9/10] shrink-0'
+          ? 'h-[96vh] h-[96dvh] max-h-[96dvh] w-auto max-w-none aspect-[9/10] shrink-0'
           : 'w-screen w-[100vw] max-w-[100vw] h-auto aspect-[9/10] shrink-0'
       } rounded-2xl p-1.5 sm:p-2.5 shadow-2xl select-none border-4 ${
         boardShake ? 'transition-none' : 'transition-all duration-300'

@@ -177,18 +177,16 @@ export function UserProfileDrawer({
                 </h3>
               </div>
               <div className="flex items-center gap-2 mt-1 text-[11px] font-mono">
-                <span className={`font-bold flex items-center gap-1 ${
+                <span className={`font-semibold ${
                   isDark ? 'text-[#D97706]' : 'text-[#0F766E]'
                 }`}>
-                  <span>⚔️ Ngửa:</span>
-                  <span>{eloStd}</span>
+                  Ngửa {eloStd}
                 </span>
                 <span className={isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}>·</span>
-                <span className={`font-bold flex items-center gap-1 ${
-                  isDark ? 'text-red-300' : 'text-red-700'
+                <span className={`font-semibold ${
+                  isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                 }`}>
-                  <span>🎭 Úp:</span>
-                  <span>{eloJq}</span>
+                  Úp {eloJq}
                 </span>
               </div>
             </div>
@@ -215,14 +213,14 @@ export function UserProfileDrawer({
               activeTab === 'stats'
                 ? isDark
                   ? 'border-[#D97706] text-[#D97706]'
-                  : 'border-[#0F766E] text-[#0F766E] font-black'
+                  : 'border-[#0F766E] text-[#0F766E]'
                 : isDark
                 ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
-                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226]'
             }`}
           >
             <Trophy className="w-3.5 h-3.5" />
-            <span>Thống Kê</span>
+            <span>Thống kê</span>
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -230,14 +228,14 @@ export function UserProfileDrawer({
               activeTab === 'history'
                 ? isDark
                   ? 'border-[#D97706] text-[#D97706]'
-                  : 'border-[#0F766E] text-[#0F766E] font-black'
+                  : 'border-[#0F766E] text-[#0F766E]'
                 : isDark
                 ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
-                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226]'
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            <span>Lịch Sử ({matches.length})</span>
+            <span>Lịch sử ({matches.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('saved')}
@@ -245,169 +243,142 @@ export function UserProfileDrawer({
               activeTab === 'saved'
                 ? isDark
                   ? 'border-[#D97706] text-[#D97706]'
-                  : 'border-[#0F766E] text-[#0F766E] font-black'
+                  : 'border-[#0F766E] text-[#0F766E]'
                 : isDark
                 ? 'border-transparent text-[#B8A996] hover:text-[#EFE6D5]'
-                : 'border-transparent text-[#4A6368] hover:text-[#132226] font-semibold'
+                : 'border-transparent text-[#4A6368] hover:text-[#132226]'
             }`}
           >
             <Bookmark className="w-3.5 h-3.5" />
-            <span>Đã Lưu ({savedGames.length})</span>
+            <span>Đã lưu ({savedGames.length})</span>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-5">
           {activeTab === 'stats' && (
-            <div className="space-y-4">
-              {/* Side-by-side Split Cards for Cờ Ngửa (Brass Gold) & Cờ Úp (Cinnabar Red) */}
+            <div className="space-y-5">
+              {/* Segmented variant selector */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setStatsVariant('standard')}
-                  className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden cursor-pointer ${
+                  className={`p-3 rounded-xl border text-left transition-colors cursor-pointer ${
                     statsVariant === 'standard'
                       ? isDark
-                        ? 'border-amber-500/80 bg-gradient-to-br from-[#241c14]/90 via-[#1b1511]/95 to-[#120f0c] shadow-[inset_0_1.5px_3.5px_rgba(0,0,0,0.5),0_0_12px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/30'
-                        : 'border-amber-600/80 bg-gradient-to-br from-[#fffdfa] via-[#fcf5e9] to-[#f6ebd6] shadow-[inset_0_1px_2.5px_rgba(217,119,6,0.08),0_2px_8px_rgba(217,119,6,0.15)] ring-1 ring-amber-600/30'
+                        ? 'border-[#D97706] bg-[#120E0A]'
+                        : 'border-[#0F766E] bg-[#EEF2F0]'
                       : isDark
-                      ? 'border-[#382b1b]/70 bg-black/30 shadow-[inset_0_1px_2.5px_rgba(0,0,0,0.4)] opacity-80 hover:opacity-100 hover:border-amber-500/40'
-                      : 'border-[#dfd3c3] bg-white/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] opacity-80 hover:opacity-100 hover:border-amber-600/40'
+                      ? 'border-[#36291E] bg-transparent opacity-75 hover:opacity-100'
+                      : 'border-[#D5DFDB] bg-transparent opacity-75 hover:opacity-100'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={`text-[11px] font-bold flex items-center gap-1.5 font-serif ${
-                      isDark ? 'text-amber-400' : 'text-amber-800'
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-bold flex items-center gap-1.5 ${
+                      statsVariant === 'standard'
+                        ? isDark ? 'text-[#D97706]' : 'text-[#0F766E]'
+                        : isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                     }`}>
-                      <Swords className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-700'}`} />
+                      <Swords className="w-3.5 h-3.5 shrink-0" />
                       <span>Cờ Ngửa</span>
                     </span>
-                    {statsVariant === 'standard' && (
-                      <span className={`w-1.5 h-1.5 rounded-full animate-ping ${isDark ? 'bg-amber-400' : 'bg-amber-600'}`} />
-                    )}
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className={`text-2xl font-black font-mono leading-none ${
-                      isDark ? 'text-amber-300' : 'text-amber-900'
+                    <span className={`text-2xl font-bold font-mono tabular-nums leading-none ${
+                      isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                     }`}>
                       {eloStd}
                     </span>
-                    <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-neutral-600'}`}>Elo</span>
+                    <span className={`text-[11px] ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Elo</span>
                   </div>
-                  <span className={`text-[10px] font-medium mt-1 block truncate ${
-                    isDark ? 'text-amber-400/90' : 'text-amber-800'
+                  <span className={`text-[11px] font-medium mt-1 block truncate ${
+                    isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                   }`}>
-                    {rankStd.badge} {rankStd.tier}
+                    {rankStd.tier}
                   </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setStatsVariant('jieqi')}
-                  className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden cursor-pointer ${
+                  className={`p-3 rounded-xl border text-left transition-colors cursor-pointer ${
                     statsVariant === 'jieqi'
                       ? isDark
-                        ? 'border-red-500/80 bg-gradient-to-br from-[#271316]/90 via-[#1c0d10]/95 to-[#12080a] shadow-[inset_0_1.5px_3.5px_rgba(0,0,0,0.5),0_0_12px_rgba(239,68,68,0.15)] ring-1 ring-red-500/30'
-                        : 'border-red-600/80 bg-gradient-to-br from-[#fffafa] via-[#fdf0f0] to-[#f9dede] shadow-[inset_0_1px_2.5px_rgba(220,38,38,0.08),0_2px_8px_rgba(220,38,38,0.15)] ring-1 ring-red-600/30'
+                        ? 'border-[#D97706] bg-[#120E0A]'
+                        : 'border-[#0F766E] bg-[#EEF2F0]'
                       : isDark
-                      ? 'border-[#3a1d21]/70 bg-black/30 shadow-[inset_0_1px_2.5px_rgba(0,0,0,0.4)] opacity-80 hover:opacity-100 hover:border-red-500/40'
-                      : 'border-[#dfd3c3] bg-white/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] opacity-80 hover:opacity-100 hover:border-red-600/40'
+                      ? 'border-[#36291E] bg-transparent opacity-75 hover:opacity-100'
+                      : 'border-[#D5DFDB] bg-transparent opacity-75 hover:opacity-100'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={`text-[11px] font-bold flex items-center gap-1.5 font-serif ${
-                      isDark ? 'text-red-400' : 'text-red-800'
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-bold flex items-center gap-1.5 ${
+                      statsVariant === 'jieqi'
+                        ? isDark ? 'text-[#D97706]' : 'text-[#0F766E]'
+                        : isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                     }`}>
-                      <Drama className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-rose-400' : 'text-red-600'}`} />
+                      <Drama className="w-3.5 h-3.5 shrink-0" />
                       <span>Cờ Úp</span>
                     </span>
-                    {statsVariant === 'jieqi' && (
-                      <span className={`w-1.5 h-1.5 rounded-full animate-ping ${isDark ? 'bg-red-400' : 'bg-red-600'}`} />
-                    )}
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className={`text-2xl font-black font-mono leading-none ${
-                      isDark ? 'text-red-300' : 'text-red-900'
+                    <span className={`text-2xl font-bold font-mono tabular-nums leading-none ${
+                      isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                     }`}>
                       {eloJq}
                     </span>
-                    <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-neutral-600'}`}>Elo</span>
+                    <span className={`text-[11px] ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Elo</span>
                   </div>
-                  <span className={`text-[10px] font-medium mt-1 block truncate ${
-                    isDark ? 'text-red-400/90' : 'text-red-800'
+                  <span className={`text-[11px] font-medium mt-1 block truncate ${
+                    isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                   }`}>
-                    {rankJq.badge} {rankJq.tier}
+                    {rankJq.tier}
                   </span>
                 </button>
               </div>
 
-              {/* Main Rating Card with Soft Inner Shadow */}
+              {/* Clean Rating Summary Section */}
               <div
-                className={`p-4 rounded-2xl border transition-all ${
-                  statsVariant === 'jieqi'
-                    ? isDark
-                      ? 'bg-gradient-to-br from-[#251316]/90 via-[#1b0e11]/95 to-[#12090b] border-red-500/40 shadow-[inset_0_1.5px_3.5px_rgba(0,0,0,0.5)]'
-                      : 'bg-gradient-to-br from-[#fffafa] via-[#fdf0f0] to-[#fbe6e6] border-red-500/40 shadow-[inset_0_1px_2px_rgba(220,38,38,0.08)]'
-                    : isDark
-                    ? 'bg-gradient-to-br from-[#221c14]/90 via-[#191510]/95 to-[#110e0c] border-amber-500/40 shadow-[inset_0_1.5px_3.5px_rgba(0,0,0,0.5)]'
-                    : 'bg-gradient-to-br from-[#fffdfa] via-[#fcf5e9] to-[#f9eedc] border-amber-500/40 shadow-[inset_0_1px_2px_rgba(217,119,6,0.08)]'
+                className={`p-4 rounded-xl border ${
+                  isDark
+                    ? 'bg-[#120E0A] border-[#36291E]'
+                    : 'bg-[#EEF2F0] border-[#D5DFDB]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${
-                    isDark ? 'text-slate-400' : 'text-neutral-700 font-bold'
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-xs font-semibold flex items-center gap-1.5 ${
+                    isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'
                   }`}>
-                    {statsVariant === 'jieqi' ? (
-                      <>
-                        <Drama className="w-3.5 h-3.5 text-rose-400" />
-                        <span>Chi Tiết Hạng & Elo Cờ Úp</span>
-                      </>
-                    ) : (
-                      <>
-                        <Swords className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Chi Tiết Hạng & Elo Cờ Ngửa</span>
-                      </>
-                    )}
+                    {statsVariant === 'jieqi' ? 'Hạng Cờ Úp' : 'Hạng Cờ Ngửa'}
                   </span>
-                  <span className={`text-xs font-mono font-bold flex items-center gap-1 ${
-                    statsVariant === 'jieqi'
-                      ? isDark ? 'text-rose-400' : 'text-red-700'
-                      : isDark ? 'text-amber-400' : 'text-amber-800'
+                  <span className={`text-xs font-semibold flex items-center gap-1 ${
+                    isDark ? 'text-[#D97706]' : 'text-[#0F766E]'
                   }`}>
                     <TrendingUp className="w-3.5 h-3.5" />
-                    {statsVariant === 'jieqi' ? 'Biến thể Cờ Úp' : 'Cờ Tướng Chính Quy'}
+                    {currentVariantRank.tier}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-baseline justify-between">
                   <div>
-                    <span className={`text-3xl font-black font-mono ${
-                      statsVariant === 'jieqi'
-                        ? isDark ? 'text-red-300' : 'text-red-900'
-                        : isDark ? 'text-amber-300' : 'text-amber-900'
+                    <span className={`text-3xl font-bold font-mono tabular-nums ${
+                      isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'
                     }`}>
                       {currentVariantElo}
                     </span>
-                    <span className={`text-xs ml-1.5 font-medium ${isDark ? 'text-slate-400' : 'text-neutral-700 font-bold'}`}>Elo</span>
+                    <span className={`text-xs ml-1.5 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Elo</span>
                   </div>
-                  <div className={`px-3 py-1.5 rounded-xl border font-bold text-xs flex items-center gap-1.5 ${currentVariantRank.colorClass}`}>
-                    <span className="text-base">{currentVariantRank.badge}</span>
-                    <span>{currentVariantRank.tier}</span>
-                  </div>
+                  <span className={`text-xs font-mono tabular-nums ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>
+                    Mốc tiếp: {currentVariantRank.nextThreshold}
+                  </span>
                 </div>
 
                 {/* Progress bar to next threshold */}
-                <div className={`mt-3 pt-3 border-t space-y-1 ${isDark ? 'border-white/5' : 'border-amber-900/10'}`}>
-                  <div className={`flex justify-between text-[10px] ${isDark ? 'text-slate-400' : 'text-neutral-700 font-semibold'}`}>
-                    <span>Tiến trình thăng hạng</span>
-                    <span>{currentVariantElo} / {currentVariantRank.nextThreshold}</span>
-                  </div>
-                  <div className={`h-2 rounded-full overflow-hidden shadow-inner border ${
-                    isDark ? 'bg-[#121620] border-white/5' : 'bg-amber-200/40 border-amber-400/20'
+                <div className="mt-3">
+                  <div className={`h-1.5 rounded-full overflow-hidden ${
+                    isDark ? 'bg-[#2A2018]' : 'bg-[#D5DFDB]'
                   }`}>
                     <div
-                      className={`h-full transition-all duration-500 rounded-full shadow-xs ${
-                        statsVariant === 'jieqi'
-                          ? 'bg-gradient-to-r from-rose-600 via-red-500 to-amber-500'
-                          : 'bg-gradient-to-r from-amber-600 via-amber-500 to-amber-300'
+                      className={`h-full transition-all duration-500 rounded-full ${
+                        isDark ? 'bg-[#D97706]' : 'bg-[#0F766E]'
                       }`}
                       style={{ width: `${currentVariantRank.progressPercent}%` }}
                     />
@@ -415,45 +386,38 @@ export function UserProfileDrawer({
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 text-center">
-                <div className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-[#1b212d] border-[#2d374a]' : 'bg-white border-[#d8cbb8] shadow-xs'
-                }`}>
-                  <p className={`text-lg font-black ${isDark ? 'text-slate-100' : 'text-neutral-900'}`}>{currentVariantGames}</p>
-                  <p className={`text-[10px] font-semibold uppercase mt-0.5 ${isDark ? 'text-slate-400' : 'text-neutral-600'}`}>Trận</p>
+              {/* Hairline-divided metrics strip instead of 4 separate colored cards */}
+              <div className={`grid grid-cols-4 divide-x border-y py-3 text-center ${
+                isDark ? 'divide-[#36291E] border-[#36291E]' : 'divide-[#D5DFDB] border-[#D5DFDB]'
+              }`}>
+                <div>
+                  <p className={`text-lg font-bold font-mono tabular-nums ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>{currentVariantGames}</p>
+                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Trận</p>
                 </div>
-                <div className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-emerald-50 border-emerald-300 shadow-xs'
-                }`}>
-                  <p className={`text-lg font-black ${isDark ? 'text-emerald-400' : 'text-emerald-800'}`}>{currentVariantWins}</p>
-                  <p className={`text-[10px] font-semibold uppercase mt-0.5 ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>Thắng</p>
+                <div>
+                  <p className={`text-lg font-bold font-mono tabular-nums ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>{currentVariantWins}</p>
+                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Thắng</p>
                 </div>
-                <div className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-red-950/40 border-red-500/40' : 'bg-red-50 border-red-300 shadow-xs'
-                }`}>
-                  <p className={`text-lg font-black ${isDark ? 'text-red-400' : 'text-red-800'}`}>{currentVariantLosses}</p>
-                  <p className={`text-[10px] font-semibold uppercase mt-0.5 ${isDark ? 'text-red-300' : 'text-red-700'}`}>Thua</p>
+                <div>
+                  <p className={`text-lg font-bold font-mono tabular-nums ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>{currentVariantLosses}</p>
+                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Thua</p>
                 </div>
-                <div className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-amber-950/40 border-amber-500/40' : 'bg-amber-50 border-amber-300 shadow-xs'
-                }`}>
-                  <p className={`text-lg font-black ${isDark ? 'text-amber-400' : 'text-amber-900'}`}>{currentVariantDraws}</p>
-                  <p className={`text-[10px] font-semibold uppercase mt-0.5 ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>Hòa</p>
+                <div>
+                  <p className={`text-lg font-bold font-mono tabular-nums ${isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}`}>{currentVariantDraws}</p>
+                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}`}>Hòa</p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-xl border ${
-                isDark ? 'bg-[#1a202d] border-[#2d374a]' : 'bg-white border-[#d8cbb8] shadow-xs'
-              }`}>
-                <div className="flex justify-between items-center mb-1.5 text-xs">
-                  <span className={`font-semibold ${isDark ? 'text-slate-300' : 'text-neutral-900'}`}>
-                    Tỷ lệ thắng ({statsVariant === 'jieqi' ? 'Cờ Úp' : 'Cờ Ngửa'}):
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className={isDark ? 'text-[#B8A996]' : 'text-[#4A6368]'}>
+                    Tỷ lệ thắng ({statsVariant === 'jieqi' ? 'Cờ Úp' : 'Cờ Ngửa'})
                   </span>
-                  <span className={`font-black font-mono ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>{currentVariantWinRate}%</span>
+                  <span className={`font-bold font-mono tabular-nums ${isDark ? 'text-[#EFE6D5]' : 'text-[#132226]'}`}>{currentVariantWinRate}%</span>
                 </div>
-                <div className={`h-2.5 rounded-full overflow-hidden ${isDark ? 'bg-[#121620]' : 'bg-neutral-200'}`}>
+                <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-[#2A2018]' : 'bg-[#D5DFDB]'}`}>
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
+                    className={`h-full transition-all duration-500 ${isDark ? 'bg-[#D97706]' : 'bg-[#0F766E]'}`}
                     style={{ width: `${Math.min(100, Math.max(0, currentVariantWinRate))}%` }}
                   />
                 </div>

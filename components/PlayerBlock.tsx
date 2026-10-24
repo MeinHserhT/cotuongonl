@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock, Timer, ShieldAlert, Eye, Flame } from 'lucide-react';
-import { BoardTheme, PIECES, getRankTier } from '@/lib/xiangqi-types';
+import { PIECES, BoardTheme, getRankTier } from '@/lib/xiangqi-types';
 
 export interface PlayerBlockProps {
   isActive: boolean;
@@ -67,7 +67,6 @@ export const PlayerBlock = React.memo(function PlayerBlock({
   const isMainTimerUrgent = isActive && isTimerRunning && timeLimit > 0 && timer <= 15;
   const isUrgent15s = isTurnTimerUrgent || isMainTimerUrgent;
 
-  // Progress bar percentage for the active thinking clock
   const thinkingRemaining = hasTurnTimer ? turnTimer : timer;
   const thinkingTotal = hasTurnTimer ? moveTimeLimit : timeLimit;
   const thinkingPct =
@@ -78,8 +77,8 @@ export const PlayerBlock = React.memo(function PlayerBlock({
 
   const containerThemeClass = isUrgent15s
     ? isDark
-      ? 'bg-[#2A1010] border-red-500 ring-2 ring-red-500/70 text-[#EFE6D5] shadow-[0_0_22px_rgba(239,68,68,0.45)]'
-      : 'bg-red-50 border-red-600 ring-2 ring-red-500/60 text-[#132226] shadow-[0_0_20px_rgba(220,38,38,0.3)]'
+      ? 'bg-[#2A1010] border-red-500 ring-1 ring-red-500/70 text-[#EFE6D5]'
+      : 'bg-red-50 border-red-600 ring-1 ring-red-500/60 text-[#132226]'
     : isDark
     ? isActive && isCheck
       ? 'bg-[#261412] border-red-500 text-[#EFE6D5]'
@@ -96,97 +95,13 @@ export const PlayerBlock = React.memo(function PlayerBlock({
       : 'bg-[#FFFFFF] border-[#0F766E] text-[#132226] shadow-2xs'
     : 'bg-[#FFFFFF]/90 border-[#D5DFDB] text-[#4A6368]';
 
-  const renderCapturedDisc = (code: string, index: number, sizeClass: string) => {
-    const piece = PIECES[code];
-    if (!piece) return null;
-    const isRedPiece = piece.color === 'r';
-    const isLatest = index === capturedPieces.length - 1;
-    const isHidden = code === 'r_u' || code === 'b_u';
-
-    if (isHidden) {
-      return (
-        <motion.div
-          key={`cap-${code}-${index}`}
-          initial={{ scale: 0, opacity: 0, rotate: -20 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
-          exit={{ scale: 0, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 24, mass: 0.75 }}
-          whileHover={{ scale: 1.15, zIndex: 30 }}
-          className={`relative shrink-0 flex items-center justify-center cursor-pointer ${
-            isLatest ? 'z-25' : ''
-          }`}
-          title="Quân úp bí ẩn (chưa lật mở)"
-        >
-          <div
-            className={`${sizeClass} rounded-full flex items-center justify-center select-none font-serif font-black border-[1.5px] shadow-2xs transition-colors ${
-              isLatest ? 'ring-2 ring-amber-400/90 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : ''
-            } ${
-              isRedPiece
-                ? 'bg-[radial-gradient(circle_at_35%_25%,#3a1515_0%,#240b0b_70%,#150505_100%)] text-amber-300 border-red-700/80'
-                : 'bg-[radial-gradient(circle_at_35%_25%,#1f242d_0%,#14171f_70%,#090a0e_100%)] text-slate-300 border-slate-600/80'
-            }`}
-          >
-            <div className="absolute inset-[1.5px] rounded-full border border-dashed border-amber-500/30 pointer-events-none" />
-            <span>?</span>
-          </div>
-        </motion.div>
-      );
-    }
-
-    return (
-      <motion.div
-        key={`cap-${code}-${index}`}
-        initial={{ scale: 0, opacity: 0, rotate: -20 }}
-        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-        exit={{ scale: 0, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 420, damping: 24, mass: 0.75 }}
-        whileHover={{ scale: 1.15, zIndex: 30 }}
-        className={`relative shrink-0 flex items-center justify-center cursor-pointer ${
-          isLatest ? 'z-25' : ''
-        }`}
-        title={`${piece.nameVn} (Ăn ở nước #${index + 1})`}
-      >
-        <div
-          className={`${sizeClass} rounded-full flex items-center justify-center select-none font-serif font-black border-[1.5px] shadow-2xs transition-all ${
-            isLatest ? 'ring-2 ring-amber-400/90 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : ''
-          } ${
-            isRedPiece
-              ? isZen
-                ? 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#fef2f2_65%,#fed7aa_100%)] text-[#b91c1c] border-amber-300'
-                : 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#fef2f2_65%,#fecaca_100%)] text-[#dc2626] border-red-300'
-              : isZen
-              ? 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#f1f5f9_65%,#94a3b8_100%)] text-[#0f172a] border-slate-300'
-              : 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#f8fafc_65%,#cbd5e1_100%)] text-[#0f172a] border-slate-300'
-          }`}
-          style={{
-            textShadow: isRedPiece
-              ? '0 0.5px 1px rgba(255,255,255,0.9), 0 -0.5px 1px rgba(185,28,28,0.4)'
-              : '0 0.5px 1px rgba(255,255,255,0.9), 0 -0.5px 1px rgba(0,0,0,0.5)'
-          }}
-        >
-          <div className="absolute inset-[1.5px] rounded-full border border-slate-300/35 pointer-events-none" />
-          <span
-            className="font-piece font-bold leading-none"
-            style={{
-              fontFamily:
-                '"Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif'
-            }}
-          >
-            {piece.nameCn}
-          </span>
-        </div>
-      </motion.div>
-    );
-  };
-
   if (isVertical) {
     return (
       <div
         style={style}
-        className={`relative self-center h-fit w-fit min-w-[96px] sm:min-w-[108px] max-w-[126px] rounded-xl border flex flex-col justify-start transition-all duration-200 overflow-hidden shrink-0 ${containerThemeClass} ${className || ''}`}
+        className={`relative self-center h-full max-h-[96dvh] w-fit min-w-[98px] sm:min-w-[112px] max-w-[128px] rounded-xl border flex flex-col justify-between transition-colors duration-150 overflow-hidden shrink-0 ${containerThemeClass} ${className || ''}`}
       >
-        {/* Top Optional Strips (Inspection / Disconnected) */}
-        <div className="flex flex-col w-full min-w-0">
+        <div className="flex flex-col w-full min-w-0 shrink-0">
           {isInspecting && typeof inspectMoveIndex === 'number' && (
             <div
               className={`w-full px-2 py-1 border-b flex flex-col items-center gap-1 text-[10px] z-20 shrink-0 text-center ${
@@ -232,7 +147,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             </div>
           )}
 
-          {/* Compact Identity & Status Column */}
+          {/* Identity & Status Column */}
           <div className="w-full px-2.5 py-2 flex flex-col items-center text-center gap-1.5 min-w-0">
             <div
               className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-sm sm:text-base border shrink-0 transition-colors ${
@@ -285,7 +200,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 ) : null}
               </div>
 
-              {/* Turn / Check State Indicator */}
+              {/* Turn / Check State Indicator (No decorative pulsing dots) */}
               <div className="flex items-center justify-center text-[10px] sm:text-[11px] mt-0.5 w-full">
                 {isActive ? (
                   isCheck ? (
@@ -307,17 +222,6 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                           : 'text-[#0F766E]'
                       }`}
                     >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                          isUrgent15s
-                            ? 'bg-red-500 animate-ping'
-                            : isRed
-                            ? 'bg-red-500 animate-pulse'
-                            : isDark
-                            ? 'bg-[#D97706] animate-pulse'
-                            : 'bg-[#0F766E] animate-pulse'
-                        }`}
-                      />
                       <span>Đến lượt</span>
                     </span>
                   )
@@ -328,6 +232,105 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Integrated Captured Pieces Tray (when vh < vw) */}
+        <div
+          className={`flex-1 w-full min-h-0 border-t px-1.5 py-2 flex flex-col items-center justify-start overflow-hidden ${
+            isDark ? 'border-[#36291E] bg-[#120E0A]/35' : 'border-[#D5DFDB] bg-[#EEF2F0]/40'
+          }`}
+        >
+          <div className="w-full px-1 pb-1.5 flex items-center justify-between text-[10px] leading-none shrink-0">
+            <span className={isDark ? 'text-[#9C8A74]' : 'text-[#4A6368]'}>Quân ăn</span>
+            {capturedPieces.length > 0 && (
+              <span className={`font-mono tabular-nums font-bold ${isDark ? 'text-[#D97706]' : 'text-[#0F766E]'}`}>
+                +{capturedPieces.length}
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 w-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-wrap items-start justify-center content-start gap-1.5 py-0.5">
+            {capturedPieces.length > 0 ? (
+              <AnimatePresence initial={false}>
+                {capturedPieces.map((code, index) => {
+                  const piece = PIECES[code];
+                  if (!piece) return null;
+                  const isRedPiece = piece.color === 'r';
+                  const isLatest = index === capturedPieces.length - 1;
+                  const isHidden = code === 'r_u' || code === 'b_u';
+
+                  if (isHidden) {
+                    return (
+                      <motion.div
+                        key={`vp-cap-${code}-${index}`}
+                        initial={{ scale: 0, opacity: 0, y: 12 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 24, mass: 0.75 }}
+                        className={`relative shrink-0 flex items-center justify-center ${isLatest ? 'z-25' : ''}`}
+                        title="Quân úp bí ẩn (chưa lật mở)"
+                      >
+                        <div
+                          className={`w-[23px] h-[23px] sm:w-[25px] sm:h-[25px] rounded-full flex items-center justify-center select-none font-serif font-black text-[10px] border-[1.5px] shadow-2xs ${
+                            isLatest ? 'ring-2 ring-amber-400/90' : ''
+                          } ${
+                            isRedPiece
+                              ? 'bg-[radial-gradient(circle_at_35%_25%,#3a1515_0%,#240b0b_70%,#150505_100%)] text-amber-300 border-red-700/80'
+                              : 'bg-[radial-gradient(circle_at_35%_25%,#1f242d_0%,#14171f_70%,#090a0e_100%)] text-slate-300 border-slate-600/80'
+                          }`}
+                        >
+                          <div className="absolute inset-[1.5px] rounded-full border border-dashed border-amber-500/30 pointer-events-none" />
+                          <span>?</span>
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={`vp-cap-${code}-${index}`}
+                      initial={{ scale: 0, opacity: 0, y: 12 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 24, mass: 0.75 }}
+                      className={`relative shrink-0 flex items-center justify-center ${isLatest ? 'z-25' : ''}`}
+                      title={`${piece.nameVn} (Ăn ở nước #${index + 1})`}
+                    >
+                      <div
+                        className={`w-[23px] h-[23px] sm:w-[25px] sm:h-[25px] rounded-full flex items-center justify-center select-none font-serif font-black text-[10.5px] sm:text-[11.5px] border-[1.5px] shadow-2xs ${
+                          isLatest ? 'ring-2 ring-amber-400/90' : ''
+                        } ${
+                          isRedPiece
+                            ? isZen
+                              ? 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#fef2f2_65%,#fed7aa_100%)] text-[#b91c1c] border-amber-300'
+                              : 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#fef2f2_65%,#fecaca_100%)] text-[#dc2626] border-red-300'
+                            : isZen
+                            ? 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#f1f5f9_65%,#94a3b8_100%)] text-[#0f172a] border-slate-300'
+                            : 'bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#f8fafc_65%,#cbd5e1_100%)] text-[#0f172a] border-slate-300'
+                        }`}
+                        style={{
+                          textShadow: isRedPiece
+                            ? '0 0.5px 1px rgba(255,255,255,0.9), 0 -0.5px 1px rgba(185,28,28,0.4)'
+                            : '0 0.5px 1px rgba(255,255,255,0.9), 0 -0.5px 1px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        <div className="absolute inset-[1.5px] rounded-full border border-slate-300/35 pointer-events-none" />
+                        <span
+                          className="font-piece font-bold"
+                          style={{
+                            fontFamily:
+                              '"Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif'
+                          }}
+                        >
+                          {piece.nameCn}
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            ) : null}
           </div>
         </div>
 
@@ -343,16 +346,15 @@ export const PlayerBlock = React.memo(function PlayerBlock({
               : 'border-[#D5DFDB] bg-[#EEF2F0]/75'
           }`}
         >
-          {/* Thinking Time Box (Primary prominently highlighted clock) */}
           <div
-            className={`relative w-full rounded-lg border px-2 py-1.5 flex flex-col items-center justify-center overflow-hidden transition-all duration-200 ${
+            className={`relative w-full rounded-lg border px-2 py-1.5 flex flex-col items-center justify-center overflow-hidden transition-colors duration-150 ${
               isUrgent15s
-                ? 'bg-gradient-to-b from-red-600 to-red-700 border-amber-300 text-white shadow-[0_0_16px_rgba(239,68,68,0.85)] animate-pulse'
+                ? 'bg-red-600 border-amber-300 text-white'
                 : isActive
                 ? isDark
                   ? isRed
-                    ? 'bg-[#1B120E] border-red-500/80 text-[#EFE6D5] shadow-inner'
-                    : 'bg-[#1B140E] border-[#D97706] text-[#EFE6D5] shadow-inner'
+                    ? 'bg-[#1B120E] border-red-500/80 text-[#EFE6D5]'
+                    : 'bg-[#1B140E] border-[#D97706] text-[#EFE6D5]'
                   : isRed
                   ? 'bg-white border-red-500 text-[#132226] shadow-2xs'
                   : 'bg-white border-[#0F766E] text-[#132226] shadow-2xs'
@@ -368,12 +370,11 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 : 'Thời gian suy nghĩ'
             }
           >
-            {/* Header Label inside Clock */}
-            <div className="flex items-center justify-center gap-1 text-[9px] font-sans font-bold uppercase tracking-wider leading-none mb-0.5">
+            <div className="flex items-center justify-center gap-1 text-[10px] font-sans font-medium leading-none mb-0.5">
               {isUrgent15s ? (
                 <>
-                  <Flame className="w-3 h-3 text-amber-300 shrink-0 animate-bounce" />
-                  <span className="text-amber-200">Sắp hết giờ!</span>
+                  <Flame className="w-3 h-3 text-amber-300 shrink-0" />
+                  <span className="text-amber-200 font-semibold">Sắp hết giờ</span>
                 </>
               ) : (
                 <>
@@ -393,11 +394,10 @@ export const PlayerBlock = React.memo(function PlayerBlock({
               )}
             </div>
 
-            {/* Big Tabular Countdown Digits */}
             <div
-              className={`font-mono tabular-nums font-black leading-none tracking-tight ${
+              className={`font-mono tabular-nums font-bold leading-none tracking-tight ${
                 isUrgent15s
-                  ? 'text-lg sm:text-xl text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] scale-105'
+                  ? 'text-lg sm:text-xl text-white'
                   : isActive
                   ? 'text-base sm:text-lg'
                   : 'text-sm sm:text-base opacity-80'
@@ -412,7 +412,6 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 : '∞'}
             </div>
 
-            {/* Visual Progress Bar at Bottom of Clock */}
             {isActive && thinkingTotal > 0 && (
               <div
                 className={`w-full h-1 rounded-full mt-1.5 overflow-hidden ${
@@ -439,12 +438,11 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             )}
           </div>
 
-          {/* Secondary Total Match Time (Only when separate turnTimer is active in online mode) */}
           {hasTurnTimer && (
             <div
               className={`w-full inline-flex items-center justify-between gap-1 text-[11px] font-semibold px-2 py-0.5 rounded border transition-colors ${
                 isMainTimerUrgent
-                  ? 'bg-red-600 border-amber-300 text-white animate-pulse'
+                  ? 'bg-red-600 border-amber-300 text-white'
                   : isDark
                   ? 'bg-[#120E0A] border-[#36291E] text-[#B8A996]'
                   : 'bg-white/80 border-[#D5DFDB] text-[#4A6368]'
@@ -463,7 +461,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
   return (
     <div
       style={style}
-      className={`relative w-full rounded-xl border flex flex-col transition-all duration-200 min-h-[48px] overflow-hidden ${containerThemeClass} ${className || ''}`}
+      className={`relative w-full rounded-xl border flex flex-col transition-colors duration-150 min-h-[48px] overflow-hidden ${containerThemeClass} ${className || ''}`}
     >
       {/* Inspection Header Strip */}
       {isInspecting && typeof inspectMoveIndex === 'number' && (
@@ -494,7 +492,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
         </div>
       )}
 
-      {/* Opponent Disconnected Strip (Online mode) */}
+      {/* Opponent Disconnected Strip */}
       {opponentDisconnected && (
         <div
           className={`w-full px-3 py-1 border-b flex items-center justify-between text-xs z-20 shrink-0 ${
@@ -512,7 +510,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
         </div>
       )}
 
-      {/* Unified Single-Frame Player + Captured Tray + Clock Row */}
+      {/* Player + Clock Row */}
       <div className="w-full px-2.5 sm:px-3 py-1.5 flex items-center justify-between gap-2 sm:gap-2.5 min-w-0">
         {/* Left: Traditional Piece Disc + Player Metadata */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -543,7 +541,6 @@ export const PlayerBlock = React.memo(function PlayerBlock({
           </div>
 
           <div className="flex flex-col min-w-0">
-            {/* Single-line Name + Unboxed Metadata */}
             <div className="flex items-baseline gap-1 min-w-0 truncate">
               <h3
                 className={`text-xs sm:text-sm font-semibold truncate ${
@@ -576,7 +573,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
               </div>
             </div>
 
-            {/* Turn / Check State Indicator */}
+            {/* Turn / Check State Indicator (No decorative pulsing dots) */}
             <div className="flex items-center gap-1 text-[11px] leading-tight mt-0.5 min-w-0">
               {isActive ? (
                 isCheck ? (
@@ -586,7 +583,7 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                   </span>
                 ) : isUrgent15s ? (
                   <span className="inline-flex items-center gap-1 font-bold text-red-500 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0" />
+                    <Flame className="w-3 h-3 shrink-0" />
                     <span>Còn {thinkingRemaining}s!</span>
                   </span>
                 ) : (
@@ -601,15 +598,6 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                         : 'text-[#0F766E]'
                     }`}
                   >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                        isRed
-                          ? 'bg-red-500 animate-pulse'
-                          : isDark
-                          ? 'bg-[#D97706] animate-pulse'
-                          : 'bg-[#0F766E] animate-pulse'
-                      }`}
-                    />
                     <span>Đến lượt</span>
                   </span>
                 )
@@ -624,11 +612,10 @@ export const PlayerBlock = React.memo(function PlayerBlock({
 
         {/* Right: High-Visibility Tabular Digital Clocks */}
         <div className="shrink-0 flex items-center gap-1.5 font-mono tabular-nums">
-          {/* Primary Thinking Clock (Turn Timer if online, otherwise Match/Turn Timer) */}
           <div
-            className={`relative min-w-[78px] sm:min-w-[92px] px-2.5 py-1 rounded-lg border flex flex-col items-center justify-center overflow-hidden transition-all duration-200 shrink-0 ${
+            className={`relative min-w-[78px] sm:min-w-[92px] px-2.5 py-1 rounded-lg border flex flex-col items-center justify-center overflow-hidden transition-colors duration-150 shrink-0 ${
               isUrgent15s
-                ? 'bg-gradient-to-r from-red-600 via-red-600 to-red-700 border-amber-300 text-white shadow-[0_0_16px_rgba(239,68,68,0.85)] animate-pulse'
+                ? 'bg-red-600 border-amber-300 text-white'
                 : isActive
                 ? isDark
                   ? isRed
@@ -649,11 +636,11 @@ export const PlayerBlock = React.memo(function PlayerBlock({
                 : 'Thời gian suy nghĩ'
             }
           >
-            <div className="flex items-center gap-1 text-[8.5px] sm:text-[9px] font-sans font-bold uppercase tracking-wider leading-none mb-0.5">
+            <div className="flex items-center gap-1 text-[9.5px] font-sans font-medium leading-none mb-0.5">
               {isUrgent15s ? (
                 <>
-                  <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300 shrink-0 animate-bounce" />
-                  <span className="text-amber-200">≤15s!</span>
+                  <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300 shrink-0" />
+                  <span className="text-amber-200 font-semibold">≤15s</span>
                 </>
               ) : (
                 <>
@@ -674,9 +661,9 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             </div>
 
             <div
-              className={`font-mono tabular-nums font-black leading-none tracking-tight ${
+              className={`font-mono tabular-nums font-bold leading-none tracking-tight ${
                 isUrgent15s
-                  ? 'text-sm sm:text-base text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]'
+                  ? 'text-sm sm:text-base text-white'
                   : 'text-xs sm:text-sm'
               }`}
             >
@@ -715,19 +702,18 @@ export const PlayerBlock = React.memo(function PlayerBlock({
             )}
           </div>
 
-          {/* Secondary Total Match Clock (Only shown when turnTimer is separate) */}
           {hasTurnTimer && (
             <div
               className={`inline-flex flex-col items-center justify-center px-2 py-1 rounded-lg border transition-colors shrink-0 ${
                 isMainTimerUrgent
-                  ? 'bg-red-600 border-amber-300 text-white animate-pulse'
+                  ? 'bg-red-600 border-amber-300 text-white'
                   : isDark
                   ? 'bg-[#120E0A] border-[#36291E] text-[#B8A996]'
                   : 'bg-[#EEF2F0] border-[#D5DFDB] text-[#4A6368]'
               }`}
               title="Tổng thời gian trận đấu"
             >
-              <span className="text-[8.5px] font-sans font-semibold uppercase tracking-wider opacity-75 leading-none mb-0.5">
+              <span className="text-[9.5px] font-sans font-medium opacity-75 leading-none mb-0.5">
                 Tổng giờ
               </span>
               <div className="inline-flex items-center gap-1 text-xs font-bold leading-none">
