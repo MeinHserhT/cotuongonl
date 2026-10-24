@@ -247,10 +247,10 @@ export function useXiangqiSocket(
       return;
     }
 
-    const envWs = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    const envWs = process.env.NEXT_PUBLIC_WS_SERVER_URL?.trim();
     let wsUrl: string;
-    if (envWs && envWs.trim().length > 0) {
-      wsUrl = envWs.trim();
+    if (envWs && /^(wss?|https?):\/\//i.test(envWs)) {
+      wsUrl = envWs.replace(/^http:/i, 'ws:').replace(/^https:/i, 'wss:');
     } else {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;

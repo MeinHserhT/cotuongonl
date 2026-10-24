@@ -1,0 +1,8 @@
+# Keep codegraph.db and knowledge-graph.json persisted for future usage.
+# Ignore only transient runtime/lock/WAL files.
+*.db-wal
+*.db-shm
+*.pid
+*.sock
+*.log
+*.lock
