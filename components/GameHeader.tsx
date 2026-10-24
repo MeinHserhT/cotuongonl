@@ -12,6 +12,7 @@ import {
 import { getRankTier } from '@/lib/xiangqi-types';
 import { User } from 'firebase/auth';
 import { DayNightSwitch } from '@/components/ui/DayNightSwitch';
+import { BrandLogo } from '@/components/BrandLogo';
 
 interface GameHeaderProps {
   colorMode?: 'dark' | 'light';
@@ -55,23 +56,7 @@ export const GameHeader: React.FC<GameHeaderProps> = React.memo(({
     >
       {/* Zone 1: Single-line Brand Wordmark */}
       <div className="flex items-center gap-2 whitespace-nowrap shrink-0 min-w-0">
-        <div
-          className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${
-            isDark
-              ? 'bg-[#0E131B] border-amber-500/40 text-amber-400'
-              : 'bg-amber-50 border-amber-600/30 text-amber-800'
-          }`}
-        >
-          <span
-            className="font-piece font-bold text-base leading-none"
-            style={{
-              fontFamily:
-                '"Iansui", "Ma Shan Zheng", "Zhi Mang Xing", "LXGW WenKai TC", "STKaiti", "KaiTi", "Kaiti SC", "BiauKai", "DFKai-SB", "ZCOOL XiaoWei", "Noto Serif SC", cursive, serif'
-            }}
-          >
-            將
-          </span>
-        </div>
+        <BrandLogo className="w-8 h-8 sm:w-9 sm:h-9 shadow-xs rounded-lg" />
         <span className="font-heading font-bold text-xs sm:text-base tracking-tight whitespace-nowrap truncate">
           Cờ Tướng<span className="hidden min-[420px]:inline"> Master</span>
         </span>

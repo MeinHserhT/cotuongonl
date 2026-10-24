@@ -29,6 +29,15 @@ export const metadata: Metadata = {
   },
   description: seoDescription,
   applicationName: 'Cờ Tướng - Xiangqi Master',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon', type: 'image/png', sizes: '64x64' },
+    ],
+    shortcut: ['/icon.svg'],
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
